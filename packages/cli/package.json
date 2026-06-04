@@ -1,0 +1,22 @@
+{
+  "name": "@qlint/cli",
+  "version": "0.1.0-dev.1",
+  "type": "module",
+  "bin": {
+    "qlint": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "@qlint/core": "*"
+  },
+  "devDependencies": {
+    "tsdown": "*",
+    "typescript": "^5.6.0",
+    "@types/node": "^25.9.1"
+  }
+}

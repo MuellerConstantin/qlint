@@ -1,0 +1,5 @@
+TableA:
+Load
+  Field1,
+  Field2
+From [lib://FILESYSTEM/sample.qvd](qvd);
