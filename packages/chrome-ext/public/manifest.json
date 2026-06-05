@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "qlint",
-  "version": "0.1.0-dev.1",
+  "version": "0.1.0",
   "description": "Opinionated linting/formatting for Qlik script (smoke build).",
   "background": {
     "service_worker": "service-worker.js",
