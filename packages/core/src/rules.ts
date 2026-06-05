@@ -1,4 +1,4 @@
-import { identifierToken, colonToken, builtinFunctionToken, FUNCTIONS } from './lexer.js';
+import { identifierToken, colonToken, builtinFunctionToken, keywordToken, FUNCTIONS, KEYWORDS } from './lexer.js';
 import { tokenRange, tokenFix, type Rule, type Finding } from './runner.js';
 
 export const tableLabelBrackets: Rule = {
@@ -52,4 +52,32 @@ export const builtinFunctionCase: Rule = {
   },
 };
 
-export const recommended: Rule[] = [tableLabelBrackets, builtinFunctionCase];
+const canonicalKeywordByLower = new Map(KEYWORDS.map((name) => [name.toLowerCase(), name]));
+
+export const builtinKeywordCase: Rule = {
+  id: 'builtin-keyword-case',
+  check: ({ tokens }) => {
+    const out: Finding[] = [];
+
+    for (const token of tokens) {
+      if (token.tokenType !== keywordToken) {
+        continue;
+      }
+
+      const canonical = canonicalKeywordByLower.get(token.image.toLowerCase());
+
+      if (canonical && token.image !== canonical) {
+        out.push({
+          severity: 'warning',
+          range: tokenRange(token),
+          message: `Keyword '${token.image}' should be written as '${canonical}'.`,
+          fix: tokenFix(token, canonical),
+        });
+      }
+    }
+
+    return out;
+  },
+};
+
+export const recommended: Rule[] = [tableLabelBrackets, builtinFunctionCase, builtinKeywordCase];

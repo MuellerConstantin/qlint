@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { format, type Rule } from '../src/index.js';
-import { tableLabelBrackets, builtinFunctionCase, recommended } from '../src/rules.js';
+import { tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, recommended } from '../src/rules.js';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 
@@ -28,6 +28,17 @@ describe('format', () => {
       const expected = readFixture('builtin-function-case', 'clean');
 
       const result = format(violation, [builtinFunctionCase]);
+
+      expect(result.output).toBe(expected);
+      expect(result.fixed).toBe(1);
+      expect(result.diagnostics).toEqual([]);
+    });
+
+    it('rewrites keywords to canonical case', () => {
+      const violation = readFixture('builtin-keyword-case', 'violation');
+      const expected = readFixture('builtin-keyword-case', 'clean');
+
+      const result = format(violation, [builtinKeywordCase]);
 
       expect(result.output).toBe(expected);
       expect(result.fixed).toBe(1);
