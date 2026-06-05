@@ -6,5 +6,11 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
+  },
+  "icons": {
+    "16": "images/qlint-16.png",
+    "32": "images/qlint-32.png",
+    "48": "images/qlint-48.png",
+    "128": "images/qlint-128.png"
   }
 }

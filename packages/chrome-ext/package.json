@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown && node -e \"require('node:fs').cpSync('public/manifest.json', 'dist/manifest.json')\""
+    "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\""
   },
   "dependencies": {
     "@qlint/core": "*"
