@@ -8,9 +8,10 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @qlint/core && npm run build -w @qlint/cli",
+    "build": "npm run build -w @qlint/core && npm run build -w @qlint/cli && npm run build -w @qlint/chrome-ext",
     "build:core": "npm run build -w @qlint/core",
     "build:cli": "npm run build -w @qlint/cli",
+    "build:chrome-ext": "npm run build -w @qlint/chrome-ext",
     "test": "npm test -w @qlint/core",
     "test:core": "npm test -w @qlint/core",
     "lint": "eslint",

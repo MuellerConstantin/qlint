@@ -1,0 +1,16 @@
+{
+  "name": "@qlint/chrome-ext",
+  "version": "0.1.0-dev.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown && node -e \"require('node:fs').cpSync('public/manifest.json', 'dist/manifest.json')\""
+  },
+  "dependencies": {
+    "@qlint/core": "*"
+  },
+  "devDependencies": {
+    "tsdown": "*",
+    "typescript": "^5.6.0"
+  }
+}
