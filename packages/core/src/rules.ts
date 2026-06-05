@@ -1,5 +1,5 @@
 import { identifierToken, colonToken, builtinFunctionToken, FUNCTIONS } from './lexer.js';
-import { tokenRange, type Rule, type Finding } from './runner.js';
+import { tokenRange, tokenFix, type Rule, type Finding } from './runner.js';
 
 export const tableLabelBrackets: Rule = {
   id: 'table-label-brackets',
@@ -15,6 +15,7 @@ export const tableLabelBrackets: Rule = {
           severity: 'warning',
           range: tokenRange(token),
           message: `The table name '${token.image}' should be enclosed in brackets: '[${token.image}]'.`,
+          fix: tokenFix(token, `[${token.image}]`),
         });
       }
     }
@@ -42,6 +43,7 @@ export const builtinFunctionCase: Rule = {
           severity: 'warning',
           range: tokenRange(token),
           message: `Built-in function '${token.image}' should be written as '${canonical}'.`,
+          fix: tokenFix(token, canonical),
         });
       }
     }

@@ -13,11 +13,17 @@ export interface Range {
   end: Position;
 }
 
+export interface Fix {
+  range: { start: number; end: number };
+  replacement: string;
+}
+
 export interface Diagnostic {
   ruleId: string;
   severity: Severity;
   range: Range;
   message: string;
+  fix?: Fix;
 }
 
 export type Finding = Omit<Diagnostic, 'ruleId'>;
@@ -36,6 +42,13 @@ export function tokenRange(token: IToken): Range {
   return {
     start: { line: token.startLine ?? 1, column: token.startColumn ?? 1 },
     end: { line: token.endLine ?? token.startLine ?? 1, column: (token.endColumn ?? token.startColumn ?? 1) + 1 },
+  };
+}
+
+export function tokenFix(token: IToken, replacement: string): Fix {
+  return {
+    range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
+    replacement,
   };
 }
 
@@ -58,6 +71,14 @@ function firstTokenPerLine(tokens: IToken[]): IToken[] {
 export interface LintOptions {
   severity?: Record<string, Severity | 'off'>;
 }
+
+export interface FormatResult {
+  output: string;
+  diagnostics: Diagnostic[];
+  fixed: number;
+}
+
+const MAX_PASSES = 10;
 
 export function lint(source: string, rules: Rule[], opts: LintOptions = {}): Diagnostic[] {
   const result = lexer.tokenize(source);
@@ -82,4 +103,58 @@ export function lint(source: string, rules: Rule[], opts: LintOptions = {}): Dia
   }
 
   return out.sort((a, b) => a.range.start.line - b.range.start.line || a.range.start.column - b.range.start.column);
+}
+
+function applyFixes(source: string, fixes: Fix[]): { output: string; applied: number } {
+  const sorted = [...fixes].sort((a, b) => b.range.start - a.range.start);
+  const accepted: Fix[] = [];
+  let lastStart = Number.POSITIVE_INFINITY;
+
+  for (const fix of sorted) {
+    if (fix.range.end > lastStart) {
+      continue;
+    }
+    accepted.push(fix);
+    lastStart = fix.range.start;
+  }
+
+  let output = source;
+
+  for (const fix of accepted) {
+    output = output.slice(0, fix.range.start) + fix.replacement + output.slice(fix.range.end);
+  }
+
+  return { output, applied: accepted.length };
+}
+
+export function format(source: string, rules: Rule[], opts: LintOptions = {}): FormatResult {
+  let current = source;
+  let totalFixed = 0;
+
+  for (let pass = 0; pass < MAX_PASSES; pass++) {
+    const diagnostics = lint(current, rules, opts);
+    const fixes = diagnostics.map((diagnostic) => diagnostic.fix).filter((fix): fix is Fix => fix !== undefined);
+
+    if (fixes.length === 0) {
+      return { output: current, diagnostics, fixed: totalFixed };
+    }
+
+    const { output, applied } = applyFixes(current, fixes);
+
+    if (applied === 0) {
+      return { output: current, diagnostics, fixed: totalFixed };
+    }
+
+    current = output;
+    totalFixed += applied;
+  }
+
+  const finalDiagnostics = lint(current, rules, opts);
+  const remainingFixes = finalDiagnostics.filter((diagnostic) => diagnostic.fix !== undefined);
+
+  if (remainingFixes.length > 0) {
+    throw new Error(`autofix did not converge after ${MAX_PASSES} passes`);
+  }
+
+  return { output: current, diagnostics: finalDiagnostics, fixed: totalFixed };
 }
