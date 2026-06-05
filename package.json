@@ -9,12 +9,14 @@
   ],
   "scripts": {
     "build": "npm run build -w @qlint/core && npm run build -w @qlint/cli",
-    "dev": "npm run dev -w @qlint/core",
+    "build:core": "npm run build -w @qlint/core",
+    "build:cli": "npm run build -w @qlint/cli",
+    "test": "npm test -w @qlint/core",
+    "test:core": "npm test -w @qlint/core",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write .",
-    "qlint:cli": "node packages/cli/dist/index.js"
+    "prettier:fix": "prettier --write ."
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

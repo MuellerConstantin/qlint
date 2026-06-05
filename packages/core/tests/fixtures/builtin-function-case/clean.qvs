@@ -1,0 +1,4 @@
+[Totals]:
+Load
+  Sum(Value) as Total
+Resident [TableA];
