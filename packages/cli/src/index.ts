@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
-import { lint, recommended, type Diagnostic } from '@qlint/core';
+import { lint, format, recommended, type Diagnostic } from '@qlint/core';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
 
 Usage: qlint [options] <files|dirs...>
 
 Options:
+  --fix                     Auto-fix violations and write files in place
   --format <stylish|json>   Format (default: stylish)
   --quiet                   Show 'error' only, 'warning'/'info' is supressed
   -h, --help                This help`;
@@ -47,6 +48,7 @@ function main(): void {
   const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     options: {
+      fix: { type: 'boolean', default: false },
       format: { type: 'string', default: 'stylish' },
       quiet: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
@@ -68,9 +70,23 @@ function main(): void {
 
   let errors = 0;
   let warnings = 0;
+  let fixedTotal = 0;
 
   for (const file of files) {
-    let diagnostics = lint(readFileSync(file, 'utf8'), recommended);
+    const source = readFileSync(file, 'utf8');
+    let diagnostics: Diagnostic[];
+
+    if (values.fix) {
+      const result = format(source, recommended);
+      diagnostics = result.diagnostics;
+      fixedTotal += result.fixed;
+
+      if (result.output !== source) {
+        writeFileSync(file, result.output, 'utf8');
+      }
+    } else {
+      diagnostics = lint(source, recommended);
+    }
 
     if (values.quiet) {
       diagnostics = diagnostics.filter((diagnostic) => diagnostic.severity === 'error');
@@ -92,7 +108,8 @@ function main(): void {
   }
 
   if (values.format !== 'json') {
-    console.log(`\n${errors} error(s), ${warnings} warning(s) in ${files.length} file(s).`);
+    const fixedNote = values.fix ? `, ${fixedTotal} fix(es) applied` : '';
+    console.log(`\n${errors} error(s), ${warnings} warning(s) in ${files.length} file(s)${fixedNote}.`);
   }
 
   process.exit(errors > 0 ? 1 : 0);
