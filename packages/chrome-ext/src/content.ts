@@ -81,28 +81,6 @@ function evaluate(): void {
   }
 }
 
-function installLocationChangeListener(callback: () => void): void {
-  const fire = (): void => {
-    queueMicrotask(callback);
-  };
-
-  const originalPushState = history.pushState.bind(history);
-
-  history.pushState = (...args: Parameters<typeof history.pushState>): void => {
-    originalPushState(...args);
-    fire();
-  };
-
-  const originalReplaceState = history.replaceState.bind(history);
-  history.replaceState = (...args: Parameters<typeof history.replaceState>): void => {
-    originalReplaceState(...args);
-    fire();
-  };
-
-  window.addEventListener('popstate', fire);
-  window.addEventListener('hashchange', fire);
-}
-
 function evaluateAndWatchForMount(): void {
   evaluate();
 
@@ -130,5 +108,9 @@ function evaluateAndWatchForMount(): void {
 
 console.log('[qlint] content script loaded on', location.href);
 
-installLocationChangeListener(evaluateAndWatchForMount);
+// Listener is required for detecting client side navigation in SPA applications.
+chrome.runtime.onMessage.addListener((msg) => {
+  if (msg?.type === 'qlint:locationchange') evaluateAndWatchForMount();
+});
+
 evaluateAndWatchForMount();

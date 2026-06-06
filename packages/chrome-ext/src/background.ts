@@ -66,4 +66,12 @@ chrome.runtime.onStartup.addListener(() => {
   void syncContentScripts();
 });
 
+chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
+  if (details.frameId !== 0) {
+    return;
+  }
+
+  chrome.tabs.sendMessage(details.tabId, { type: 'qlint:locationchange' }).catch(() => {});
+});
+
 console.log('[qlint] service worker booted');

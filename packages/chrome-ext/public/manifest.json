@@ -3,7 +3,7 @@
   "name": "qlint",
   "version": "0.1.0",
   "description": "Opinionated linting/formatting for Qlik script.",
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["scripting", "activeTab", "webNavigation"],
   "optional_host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "background.js",
