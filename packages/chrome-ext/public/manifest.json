@@ -10,7 +10,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Activate qlint on this site"
+    "default_title": "qlint"
   },
   "icons": {
     "16": "images/qlint-16.png",

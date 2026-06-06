@@ -1,9 +1,14 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './detection.js';
+import type { Message, Phase, PhaseMessage } from './types.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
-type Phase = 'inactive' | 'active';
 let phase: Phase = 'inactive';
+
+function broadcastPhase(): void {
+  const message: PhaseMessage = { type: 'qlint:phase', phase };
+  chrome.runtime.sendMessage(message).catch(() => {});
+}
 
 function activate(): void {
   if (phase === 'active') {
@@ -12,6 +17,7 @@ function activate(): void {
 
   phase = 'active';
   console.log('[qlint] activated — qlik script editor detected on', location.href);
+  broadcastPhase();
 }
 
 function deactivate(): void {
@@ -21,6 +27,7 @@ function deactivate(): void {
 
   phase = 'inactive';
   console.log('[qlint] deactivated — left script editor');
+  broadcastPhase();
 }
 
 function evaluate(): void {
@@ -60,9 +67,10 @@ function evaluateAndWatchForMount(): void {
 
 console.log('[qlint] content script loaded on', location.href);
 
-// Listener is required for detecting client side navigation in SPA applications.
-chrome.runtime.onMessage.addListener((msg) => {
-  if (msg?.type === 'qlint:locationchange') evaluateAndWatchForMount();
+chrome.runtime.onMessage.addListener((message: Message) => {
+  if (message?.type === 'qlint:locationchange') {
+    evaluateAndWatchForMount();
+  }
 });
 
 evaluateAndWatchForMount();

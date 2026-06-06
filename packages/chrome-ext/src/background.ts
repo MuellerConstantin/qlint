@@ -1,3 +1,5 @@
+import type { LocationChangeMessage } from './types.js';
+
 const CONTENT_SCRIPT_ID = 'qlint-content';
 
 async function syncContentScripts(): Promise<void> {
@@ -71,7 +73,8 @@ chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
     return;
   }
 
-  chrome.tabs.sendMessage(details.tabId, { type: 'qlint:locationchange' }).catch(() => {});
+  const message: LocationChangeMessage = { type: 'qlint:locationchange' };
+  chrome.tabs.sendMessage(details.tabId, message).catch(() => {});
 });
 
 console.log('[qlint] service worker booted');
