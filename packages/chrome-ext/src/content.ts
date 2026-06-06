@@ -43,7 +43,7 @@ function activate(): void {
   }
 
   phase = 'active';
-  console.log('[qlint] activated — Qlik script editor detected on', location.href);
+  console.log('[qlint] activated — qlik script editor detected on', location.href);
 }
 
 function deactivate(): void {
@@ -53,14 +53,6 @@ function deactivate(): void {
 
   phase = 'inactive';
   console.log('[qlint] deactivated — left script editor');
-}
-
-function evaluate(): void {
-  if (isQlikScriptEditor()) {
-    activate();
-  } else {
-    deactivate();
-  }
 }
 
 function classifyPage(): string {
@@ -77,6 +69,16 @@ function classifyPage(): string {
   }
 
   return 'qse detected';
+}
+
+function evaluate(): void {
+  console.debug('[qlint] detection status:', classifyPage());
+
+  if (isQlikScriptEditor()) {
+    activate();
+  } else {
+    deactivate();
+  }
 }
 
 function installLocationChangeListener(callback: () => void): void {
@@ -127,7 +129,6 @@ function evaluateAndWatchForMount(): void {
 }
 
 console.log('[qlint] content script loaded on', location.href);
-console.debug('[qlint] detection status:', classifyPage());
 
 installLocationChangeListener(evaluateAndWatchForMount);
 evaluateAndWatchForMount();
