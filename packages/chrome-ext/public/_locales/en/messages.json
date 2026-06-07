@@ -1,0 +1,38 @@
+{
+  "extName": {
+    "message": "qlint",
+    "description": "Extension name shown in Chrome's extension list and toolbar."
+  },
+  "extDescription": {
+    "message": "Opinionated linting/formatting for Qlik script.",
+    "description": "Extension description shown in Chrome's extension list."
+  },
+  "actionTitle": {
+    "message": "qlint",
+    "description": "Tooltip shown when hovering the toolbar icon."
+  },
+  "statusLoading": {
+    "message": "Status: Loading...",
+    "description": "Status label shown while the popup is still determining the current phase."
+  },
+  "statusActive": {
+    "message": "Status: Active",
+    "description": "Status label shown when qlint is active on the current page."
+  },
+  "statusInactive": {
+    "message": "Status: Inactive",
+    "description": "Status label shown when the current page is allowed but not a Qlik script editor."
+  },
+  "statusNotGranted": {
+    "message": "Status: Page not enabled",
+    "description": "Status label shown when the user has not granted access to the current origin."
+  },
+  "statusUnsupported": {
+    "message": "Status: Not available on this page",
+    "description": "Status label shown when the current tab is a chrome://, about:, file: or otherwise non-http(s) page."
+  },
+  "grantButton": {
+    "message": "Enable qlint for this page",
+    "description": "Button that triggers a permission request for the current origin."
+  }
+}

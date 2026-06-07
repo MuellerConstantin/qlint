@@ -67,10 +67,19 @@ function evaluateAndWatchForMount(): void {
 
 console.log('[qlint] content script loaded on', location.href);
 
-chrome.runtime.onMessage.addListener((message: Message) => {
-  if (message?.type === 'qlint:locationchange') {
+chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
+  if (message?.type === 'qlint:location-change') {
     evaluateAndWatchForMount();
+    return false;
   }
+
+  if (message?.type === 'qlint:get-phase') {
+    const response: PhaseMessage = { type: 'qlint:phase', phase };
+    sendResponse(response);
+    return false;
+  }
+
+  return false;
 });
 
 evaluateAndWatchForMount();

@@ -1,16 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "qlint",
+  "name": "__MSG_extName__",
   "version": "0.1.0",
-  "description": "Opinionated linting/formatting for Qlik script.",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
   "permissions": ["scripting", "activeTab", "webNavigation"],
-  "optional_host_permissions": ["*://*/*"],
+  "optional_host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
   "action": {
-    "default_title": "qlint"
+    "default_title": "__MSG_actionTitle__",
+    "default_popup": "popup.html"
   },
   "icons": {
     "16": "images/qlint-16.png",

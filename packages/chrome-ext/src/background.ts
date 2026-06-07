@@ -31,27 +31,6 @@ async function syncContentScripts(): Promise<void> {
   console.log('[qlint] content script registered for', origins);
 }
 
-chrome.action.onClicked.addListener(async (tab) => {
-  console.log('[qlint] action clicked', { tabId: tab.id, url: tab.url });
-
-  if (!tab.url) {
-    console.warn('[qlint] no tab.url — activeTab permission missing or chrome:// URL');
-    return;
-  }
-
-  let origin: string;
-
-  try {
-    origin = `${new URL(tab.url).origin}/*`;
-  } catch {
-    console.warn('[qlint] cannot derive origin from', tab.url);
-    return;
-  }
-
-  const granted = await chrome.permissions.request({ origins: [origin] });
-  console.log('[qlint] permission request', { origin, granted });
-});
-
 chrome.permissions.onAdded.addListener(() => {
   void syncContentScripts();
 });
@@ -73,7 +52,7 @@ chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
     return;
   }
 
-  const message: LocationChangeMessage = { type: 'qlint:locationchange' };
+  const message: LocationChangeMessage = { type: 'qlint:location-change' };
   chrome.tabs.sendMessage(details.tabId, message).catch(() => {});
 });
 

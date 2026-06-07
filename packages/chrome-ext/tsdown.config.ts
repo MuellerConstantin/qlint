@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['src/background.ts', 'src/content.ts'],
+  entry: ['src/background.ts', 'src/content.ts', 'src/popup.ts'],
   format: ['esm'],
   platform: 'browser',
   deps: { alwaysBundle: ['@qlint/core'] },
