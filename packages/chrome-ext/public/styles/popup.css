@@ -1,0 +1,43 @@
+body {
+  font:
+    13px system-ui,
+    sans-serif;
+  margin: 0;
+  padding: 12px 14px;
+  min-width: 280px;
+  color: #1f2937;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #d4d4d8;
+  flex-shrink: 0;
+}
+
+.dot.active {
+  background: #16a34a;
+}
+
+.dot.inactive {
+  background: #dc2626;
+}
+
+button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
