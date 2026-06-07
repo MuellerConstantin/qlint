@@ -1,3 +1,23 @@
+:root {
+  color-scheme: light dark;
+
+  --bg: #ffffff;
+  --fg: #1f2937;
+  --dot-default: #d4d4d8;
+  --dot-active: #16a34a;
+  --dot-inactive: #dc2626;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f1f1f;
+    --fg: #e5e7eb;
+    --dot-default: #52525b;
+    --dot-active: #22c55e;
+    --dot-inactive: #ef4444;
+  }
+}
+
 body {
   font:
     13px system-ui,
@@ -5,7 +25,8 @@ body {
   margin: 0;
   padding: 12px 14px;
   min-width: 280px;
-  color: #1f2937;
+  color: var(--fg);
+  background: var(--bg);
 }
 
 .status {
@@ -18,16 +39,16 @@ body {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #d4d4d8;
+  background: var(--dot-default);
   flex-shrink: 0;
 }
 
 .dot.active {
-  background: #16a34a;
+  background: var(--dot-active);
 }
 
 .dot.inactive {
-  background: #dc2626;
+  background: var(--dot-inactive);
 }
 
 button {
