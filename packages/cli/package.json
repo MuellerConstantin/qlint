@@ -1,6 +1,7 @@
 {
   "name": "@qlint/cli",
   "version": "0.1.0-dev.1",
+  "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlint/core.",
   "type": "module",
   "bin": {
     "qlint": "./dist/index.js"
