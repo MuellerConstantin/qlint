@@ -19,6 +19,10 @@ The following sub-modules/projects exists:
   delegates all linting and formatting to Core. Supports check (lint-only) and write
   (auto-format) modes.
 
+- **Chrome Extension**: A browser binding that injects Core into the Qlik Sense Data Load
+  Editor, providing inline lint feedback and one-click formatting directly in the editor.
+  All processing runs client-side via the bundled Core engine.
+
 # Project Structure
 
 ```
@@ -30,9 +34,16 @@ The following sub-modules/projects exists:
 │   │   ├── package.json
 │   │   ├── tsconfig.json
 │   │   └── tsdown.config.ts
-│   └── cli/                      # CLI package
+│   ├── cli/                      # CLI package
+│   |   ├── src
+│   |   ├── tests
+│   |   ├── package.json
+│   |   ├── tsconfig.json
+│   |   └── tsdown.config.ts
+|   └── chrome-ext/               # Chrome extension
 │       ├── src
 │       ├── tests
+│       ├── public
 │       ├── package.json
 │       ├── tsconfig.json
 │       └── tsdown.config.ts
