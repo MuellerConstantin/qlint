@@ -1,28 +1,29 @@
-import type { GetPhaseMessage, Message, Phase, PhaseMessage } from './types.js';
+import type { GetStatusMessage, Message, Status, StatusMessage } from './types.js';
 
-type View = 'unknown' | 'unsupported' | 'not-granted' | Phase;
+const statusDot = document.getElementById('status-dot') as HTMLSpanElement;
+const statusLabel = document.getElementById('status-label') as HTMLSpanElement;
+const grantButton = document.getElementById('grant-button') as HTMLButtonElement;
 
-const dot = document.getElementById('dot') as HTMLSpanElement;
-const label = document.getElementById('label') as HTMLSpanElement;
-const grant = document.getElementById('grant') as HTMLButtonElement;
-
-const MESSAGE_KEYS: Record<View, string> = {
-  unknown: 'statusLoading',
+const STATUS_MESSAGE_KEYS: Record<Status, string> = {
+  loading: 'statusLoading',
   unsupported: 'statusUnsupported',
   'not-granted': 'statusNotGranted',
   active: 'statusActive',
   inactive: 'statusInactive',
+  errored: 'statusErrored',
 };
 
-function render(view: View): void {
-  label.textContent = chrome.i18n.getMessage(MESSAGE_KEYS[view]);
-  dot.classList.toggle('active', view === 'active');
-  dot.classList.toggle('inactive', view === 'inactive');
-  grant.hidden = view !== 'not-granted';
+function renderStatus(status: Status): void {
+  statusLabel.textContent = chrome.i18n.getMessage(STATUS_MESSAGE_KEYS[status]);
+
+  statusDot.classList.toggle('active', status === 'active');
+  statusDot.classList.toggle('inactive', status === 'inactive');
+
+  grantButton.hidden = status !== 'not-granted';
 }
 
-grant.textContent = chrome.i18n.getMessage('grantButton');
-render('unknown');
+grantButton.textContent = chrome.i18n.getMessage('grantButton');
+renderStatus('loading');
 
 async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -48,13 +49,13 @@ async function isOriginGranted(origin: string): Promise<boolean> {
   return (granted.origins ?? []).includes(origin);
 }
 
-async function queryPhase(tabId: number): Promise<Phase | 'unknown'> {
+async function queryStatus(tabId: number): Promise<Status> {
   try {
-    const request: GetPhaseMessage = { type: 'qlint:get-phase' };
-    const response = (await chrome.tabs.sendMessage(tabId, request)) as PhaseMessage | undefined;
-    return response?.phase ?? 'unknown';
+    const request: GetStatusMessage = { type: 'qlint:get-status' };
+    const response = (await chrome.tabs.sendMessage(tabId, request)) as StatusMessage | undefined;
+    return response?.status ?? 'errored';
   } catch {
-    return 'unknown';
+    return 'errored';
   }
 }
 
@@ -62,20 +63,21 @@ async function refresh(): Promise<void> {
   const tab = await getActiveTab();
 
   if (!tab?.id || !tab.url) {
-    render('unknown');
+    renderStatus('unsupported');
     return;
   }
 
   const origin = originPattern(tab.url);
 
   if (!origin) {
-    render('unsupported');
+    renderStatus('unsupported');
     return;
   }
 
   if (!(await isOriginGranted(origin))) {
-    render('not-granted');
-    grant.onclick = () => {
+    renderStatus('not-granted');
+
+    grantButton.onclick = () => {
       chrome.permissions
         .request({ origins: [origin] })
         .then((ok) => {
@@ -90,13 +92,13 @@ async function refresh(): Promise<void> {
     return;
   }
 
-  const phase = await queryPhase(tab.id);
-  render(phase);
+  const status = await queryStatus(tab.id);
+  renderStatus(status);
 }
 
 chrome.runtime.onMessage.addListener((message: Message) => {
-  if (message?.type === 'qlint:phase') {
-    render(message.phase);
+  if (message?.type === 'qlint:status') {
+    renderStatus(message.status);
   }
 });
 

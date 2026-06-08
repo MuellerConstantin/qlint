@@ -35,7 +35,7 @@ body {
   gap: 8px;
 }
 
-.dot {
+.status .dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
@@ -43,11 +43,11 @@ body {
   flex-shrink: 0;
 }
 
-.dot.active {
+.status .dot.active {
   background: var(--dot-active);
 }
 
-.dot.inactive {
+.status .dot.inactive {
   background: var(--dot-inactive);
 }
 

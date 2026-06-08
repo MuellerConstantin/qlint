@@ -31,6 +31,10 @@
     "message": "Status: Not available on this page",
     "description": "Status label shown when the current tab is a chrome://, about:, file: or otherwise non-http(s) page."
   },
+  "statusErrored": {
+    "message": "Status: An error occurred",
+    "description": "Status label shown when an error occurred during loading the extension."
+  },
   "grantButton": {
     "message": "Enable qlint for this page",
     "description": "Button that triggers a permission request for the current origin."

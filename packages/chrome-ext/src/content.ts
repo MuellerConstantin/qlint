@@ -1,19 +1,19 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './detection.js';
-import type { Message, Phase, PhaseMessage } from './types.js';
+import type { Message, Status, StatusMessage } from './types.js';
 import { deriveQixConnection, QixConnection } from './qix.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
-let phase: Phase = 'inactive';
+let status: Status = 'inactive';
 let qix: QixConnection | null = null;
 
-function broadcastPhase(): void {
-  const message: PhaseMessage = { type: 'qlint:phase', phase };
+function broadcastStatus(): void {
+  const message: StatusMessage = { type: 'qlint:status', status };
   chrome.runtime.sendMessage(message).catch(() => {});
 }
 
 async function activate(): Promise<void> {
-  if (phase === 'active') {
+  if (status === 'active') {
     return;
   }
 
@@ -25,22 +25,24 @@ async function activate(): Promise<void> {
 
     console.log('[qlint] qix connected — engine version:', version?.qComponentVersion ?? version);
 
-    phase = 'active';
+    status = 'active';
     console.log('[qlint] activated — qlik script editor detected on', location.href);
-    broadcastPhase();
+    broadcastStatus();
   } catch (err) {
+    status = 'errored';
     console.error('[qlint] qix connection failed:', err);
+    broadcastStatus();
   }
 }
 
 async function deactivate(): Promise<void> {
-  if (phase === 'inactive') {
+  if (status === 'inactive') {
     return;
   }
 
-  phase = 'inactive';
+  status = 'inactive';
   console.log('[qlint] deactivated — left script editor');
-  broadcastPhase();
+  broadcastStatus();
 
   void qix?.close();
   qix = null;
@@ -61,7 +63,7 @@ function evaluate(): void {
 function evaluateAndWatchForMount(): void {
   evaluate();
 
-  if (phase === 'active' || !urlLooksLikeScriptEditor()) {
+  if (status === 'active' || !urlLooksLikeScriptEditor()) {
     return;
   }
 
@@ -70,7 +72,7 @@ function evaluateAndWatchForMount(): void {
   const observer = new MutationObserver(() => {
     evaluate();
 
-    if (phase === 'active') {
+    if (status === 'active') {
       observer.disconnect();
       return;
     }
@@ -92,8 +94,8 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
     return false;
   }
 
-  if (message?.type === 'qlint:get-phase') {
-    const response: PhaseMessage = { type: 'qlint:phase', phase };
+  if (message?.type === 'qlint:get-status') {
+    const response: StatusMessage = { type: 'qlint:status', status };
     sendResponse(response);
     return false;
   }
