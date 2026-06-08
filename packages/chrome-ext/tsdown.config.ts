@@ -4,7 +4,7 @@ export default defineConfig({
   entry: ['src/background.ts', 'src/content.ts', 'src/popup.ts'],
   format: ['esm'],
   platform: 'browser',
-  deps: { alwaysBundle: ['@qlint/core'] },
+  deps: { alwaysBundle: ['@qlint/core', 'enigma.js', 'enigma.js/schemas/12.2015.0.json'] },
   outExtensions: () => ({ js: '.js' }),
   dts: false,
   clean: true,

@@ -7,11 +7,12 @@
     "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\""
   },
   "dependencies": {
-    "@qlint/core": "*"
+    "@qlint/core": "*",
+    "enigma.js": "^2.14.0"
   },
   "devDependencies": {
+    "chrome-types": "^0.1.0",
     "tsdown": "*",
-    "typescript": "^5.6.0",
-    "chrome-types": "^0.1.0"
+    "typescript": "^5.6.0"
   }
 }
