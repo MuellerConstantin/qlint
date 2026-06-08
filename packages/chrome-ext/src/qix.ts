@@ -5,6 +5,7 @@ interface QixOptions {
   host: string;
   virtualProxy?: string;
   secure?: boolean;
+  appId?: string;
 }
 
 function buildEngineUrl({ host, virtualProxy, secure = true }: QixOptions): string {
@@ -22,6 +23,8 @@ export class QixConnection {
   private _session: any | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _global: any | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _app: any | null = null;
 
   constructor(options: QixOptions) {
     this._options = options;
@@ -33,6 +36,10 @@ export class QixConnection {
 
   get url() {
     return buildEngineUrl(this.options);
+  }
+
+  get app() {
+    return this._app;
   }
 
   async open() {
@@ -49,9 +56,15 @@ export class QixConnection {
     this._session.on('closed', () => {
       this._global = null;
       this._session = null;
+      this._app = null;
     });
 
     this._global = await this._session.open();
+
+    if (this._options.appId) {
+      this._app = await this._global.openDoc(this._options.appId);
+    }
+
     return this._global;
   }
 
@@ -64,6 +77,7 @@ export class QixConnection {
 
     this._global = null;
     this._session = null;
+    this._app = null;
   }
 
   isConnected() {
@@ -85,6 +99,23 @@ function deriveVirtualProxy(pathname: string): string {
 }
 
 /**
+ * Extracts the app id from a Qlik Sense data load editor URL.
+ *
+ * Assumes the extension only runs on data load editor pages (guaranteed by the
+ * activation guard), so the path always matches `/<vproxy>/dataloadeditor/app/<appId>`.
+ */
+function deriveAppId(pathname: string): string | undefined {
+  const segments = pathname.split('/').filter(Boolean);
+  const index = segments.indexOf('dataloadeditor');
+
+  if (index < 0 || segments[index + 1] !== 'app' || index + 2 >= segments.length) {
+    return undefined;
+  }
+
+  return decodeURIComponent(segments[index + 2]);
+}
+
+/**
  * Derives the connection from the current tab and the existing Qlik session.
  *
  * Assumes the extension only runs on data load editor pages (guaranteed by the
@@ -92,5 +123,12 @@ function deriveVirtualProxy(pathname: string): string {
  */
 export function deriveQixConnection(): QixConnection {
   const virtualProxy = deriveVirtualProxy(location.pathname);
-  return new QixConnection({ virtualProxy, host: location.host, secure: location.protocol === 'https:' });
+  const appId = deriveAppId(location.pathname);
+
+  return new QixConnection({
+    virtualProxy,
+    host: location.host,
+    secure: location.protocol === 'https:',
+    appId,
+  });
 }
