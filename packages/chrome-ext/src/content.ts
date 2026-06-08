@@ -9,7 +9,9 @@ let qix: QixConnection | null = null;
 
 function broadcastStatus(): void {
   const message: StatusMessage = { type: 'qlint:status', status };
-  chrome.runtime.sendMessage(message).catch(() => {});
+  chrome.runtime.sendMessage(message).catch(() => {
+    // Intentionally ignored
+  });
 }
 
 async function activate(): Promise<void> {
@@ -23,7 +25,7 @@ async function activate(): Promise<void> {
     const global = await qix.open();
     const version = await global.engineVersion();
 
-    console.log('[qlint] qix connected — engine version:', version?.qComponentVersion ?? version);
+    console.debug('[qlint] qix connected — engine version:', version?.qComponentVersion ?? version);
 
     status = 'active';
     console.log('[qlint] activated — qlik script editor detected on', location.href);
