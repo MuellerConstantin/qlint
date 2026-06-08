@@ -12,6 +12,7 @@
     "enigma.js": "^2.14.0"
   },
   "devDependencies": {
+    "@types/codemirror": "^5.60.17",
     "chrome-types": "^0.1.0",
     "tsdown": "*",
     "typescript": "^5.6.0"
