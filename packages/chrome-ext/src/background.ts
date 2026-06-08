@@ -31,9 +31,38 @@ async function syncContentScripts(): Promise<void> {
   console.log('[qlint] content script registered for', origins);
 }
 
-chrome.permissions.onAdded.addListener(() => {
-  void syncContentScripts();
+chrome.permissions.onAdded.addListener((perms) => {
+  void handlePermissionsAdded(perms);
 });
+
+async function handlePermissionsAdded(perms: chrome.permissions.Permissions): Promise<void> {
+  await syncContentScripts();
+
+  const origins = perms.origins ?? [];
+
+  if (origins.length === 0) {
+    return;
+  }
+
+  const tabs = await chrome.tabs.query({ url: origins });
+
+  await Promise.all(
+    tabs.map(async (tab) => {
+      if (typeof tab.id !== 'number') {
+        return;
+      }
+
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['content.js'],
+        });
+      } catch (err) {
+        console.warn('[qlint] failed to inject content script into tab', tab.id, err);
+      }
+    }),
+  );
+}
 
 chrome.permissions.onRemoved.addListener(() => {
   void syncContentScripts();
