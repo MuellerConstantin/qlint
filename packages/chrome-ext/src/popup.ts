@@ -77,17 +77,23 @@ async function refresh(): Promise<void> {
   if (!(await isOriginGranted(origin))) {
     renderStatus('not-granted');
 
-    grantButton.onclick = () => {
-      chrome.permissions
-        .request({ origins: [origin] })
-        .then((ok) => {
-          if (ok) {
-            void refresh();
-          }
-        })
-        .catch((err) => {
-          console.warn('[qlint popup] permission request failed', err);
+    grantButton.onclick = async () => {
+      try {
+        const ok = await chrome.permissions.request({ origins: [origin] });
+
+        if (!ok) {
+          return;
+        }
+
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id! },
+          files: ['content.js'],
         });
+
+        void refresh();
+      } catch (err) {
+        console.warn('[qlint popup] permission request failed', err);
+      }
     };
     return;
   }
