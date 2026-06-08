@@ -12,6 +12,9 @@
 Chrome extension for qlint — brings inline linting and one-click formatting directly into
 the Qlik Sense Data Load Editor.
 
+> [!NOTE]
+> Currently supports **Qlik Sense Enterprise on Windows** only. Qlik Cloud support is planned.
+
 A browser binding around [`@qlint/core`](https://github.com/MuellerConstantin/qlint/tree/main/packages/core):
 the extension owns the platform concerns — injecting into the Data Load Editor, locating the script
 content, surfacing diagnostics as inline UI, and wiring up the format action — and delegates every
