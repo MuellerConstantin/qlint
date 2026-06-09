@@ -86,7 +86,7 @@ async function refresh(): Promise<void> {
           }
         })
         .catch((err) => {
-          console.warn('[qlint popup] permission request failed', err);
+          console.warn('[qlint:popup] permission request failed', err);
         });
     };
     return;

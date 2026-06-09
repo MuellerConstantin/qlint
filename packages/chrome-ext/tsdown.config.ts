@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['src/background.ts', 'src/content.ts', 'src/popup.ts'],
+  entry: ['src/background.ts', 'src/content.ts', 'src/popup.ts', 'src/main.ts'],
   format: ['esm'],
   platform: 'browser',
   deps: { alwaysBundle: ['@qlint/core', 'enigma.js', 'enigma.js/schemas/12.2015.0.json'] },
