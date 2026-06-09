@@ -1,13 +1,19 @@
 import { debounce } from './util/debounce';
 import { getEditor } from './util/editor';
+import { lint, recommended } from '@qlint/core';
+import { createHighlighter, injectStyles } from './util/highlight';
 
 const MOUNT_TIMEOUT_MS = 10_000;
 
 function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
   console.log('[qlint:main] CodeMirror ready');
 
+  injectStyles();
+  const highlighter = createHighlighter(editor);
+
   const onScriptChange = debounce((): void => {
-    console.debug('[qlint:main] editor change detected');
+    const diagnostics = lint(editor.getValue(), recommended);
+    highlighter.apply(diagnostics);
   }, 150);
 
   editor.on('change', onScriptChange);
