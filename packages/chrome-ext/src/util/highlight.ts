@@ -39,6 +39,20 @@ export function injectStyles(): void {
     .qlint-tt-body { flex: 1 1 auto; }
     .qlint-tt-rule { color: #2563eb; cursor: pointer; }
     .qlint-tt-rule:hover { text-decoration: underline; }
+
+    .qlint-tt-actions {
+      margin: 8px -12px -8px;
+      padding: 6px 12px;
+      background: #f7f8fa;
+      border-top: 1px solid #e5e7eb;
+      border-radius: 0 0 4px 4px;
+      display: flex; gap: 12px;
+    }
+    .qlint-tt-action {
+      color: #2563eb; cursor: pointer; background: none;
+      border: none; padding: 0; font: inherit; font-size: 12px;
+    }
+    .qlint-tt-action:hover { text-decoration: underline; }
   `;
 
   document.head.appendChild(style);
@@ -84,6 +98,17 @@ export function createHighlighter(editor: Editor): {
 
       const marker = editor.markText(from, to, { className: SEVERITY_CLASS[diagnostic.severity] });
       byMarker.set(marker, diagnostic);
+    }
+  };
+
+  const applyFix = (fix: NonNullable<Diagnostic['fix']>): void => {
+    const from = editor.posFromIndex(fix.range.start);
+    const to = editor.posFromIndex(fix.range.end);
+
+    editor.replaceRange(fix.replacement, from, to, 'qlint-fix');
+
+    if (tooltipElement) {
+      tooltipElement.style.display = 'none';
     }
   };
 
@@ -134,6 +159,22 @@ export function createHighlighter(editor: Editor): {
     row.append(icon, body);
 
     tooltipElement.replaceChildren(row);
+
+    if (diagnostic.fix) {
+      const actions = document.createElement('div');
+      actions.className = 'qlint-tt-actions';
+
+      const fixButton = document.createElement('button');
+      fixButton.type = 'button';
+      fixButton.className = 'qlint-tt-action';
+      fixButton.textContent = 'Quick Fix';
+      fixButton.addEventListener('click', () => {
+        applyFix(diagnostic.fix!);
+      });
+
+      actions.append(fixButton);
+      tooltipElement.append(actions);
+    }
 
     const coords = editor.charCoords(range.from as Position, 'window');
     tooltipElement.style.display = 'block';
