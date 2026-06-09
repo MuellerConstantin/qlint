@@ -1,11 +1,9 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
 import type { Message, Status, StatusMessage } from './types.js';
-import { deriveQixConnection, QixConnection } from './util/qix.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
 let status: Status = 'inactive';
-let qix: QixConnection | null = null;
 
 function broadcastStatus(): void {
   const message: StatusMessage = { type: 'qlint:status', status };
@@ -19,22 +17,9 @@ async function activate(): Promise<void> {
     return;
   }
 
-  qix = deriveQixConnection();
-
-  try {
-    const global = await qix.open();
-    const version = await global.engineVersion();
-
-    console.debug('[qlint] qix connected — engine version:', version?.qComponentVersion ?? version);
-
-    status = 'active';
-    console.log('[qlint] activated — qlik script editor detected on', location.href);
-    broadcastStatus();
-  } catch (err) {
-    status = 'errored';
-    console.error('[qlint] qix connection failed:', err);
-    broadcastStatus();
-  }
+  status = 'active';
+  console.log('[qlint] activated — qlik script editor detected on', location.href);
+  broadcastStatus();
 }
 
 async function deactivate(): Promise<void> {
@@ -45,11 +30,6 @@ async function deactivate(): Promise<void> {
   status = 'inactive';
   console.log('[qlint] deactivated — left script editor');
   broadcastStatus();
-
-  void qix?.close();
-  qix = null;
-
-  console.log('[qlint] qix disconnected');
 }
 
 function evaluate(): void {
