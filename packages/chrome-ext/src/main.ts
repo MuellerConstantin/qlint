@@ -1,3 +1,4 @@
+import { debounce } from './util/debounce';
 import { getEditor } from './util/editor';
 
 const MOUNT_TIMEOUT_MS = 10_000;
@@ -5,21 +6,13 @@ const MOUNT_TIMEOUT_MS = 10_000;
 function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
   console.log('[qlint:main] CodeMirror ready');
 
-  const onFirstContent = (): void => {
-    editor.off('change', onFirstContent);
+  const onScriptChange = debounce((): void => {
+    console.debug('[qlint:main] editor change detected');
+  }, 150);
 
-    console.debug('[qlint:main] editor state', {
-      chars: editor.getValue().length,
-      readOnly: editor.getOption('readOnly'),
-    });
-    console.debug('[qlint:main] script:\n' + editor.getValue());
-  };
+  editor.on('change', onScriptChange);
 
-  if (editor.getValue().length > 0) {
-    onFirstContent();
-  } else {
-    editor.on('change', onFirstContent);
-  }
+  onScriptChange();
 }
 
 function waitForEditor(): void {
