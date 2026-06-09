@@ -1,4 +1,4 @@
-import { getEditor } from './editor';
+import { getEditor } from './util/editor';
 
 const MOUNT_TIMEOUT_MS = 10_000;
 

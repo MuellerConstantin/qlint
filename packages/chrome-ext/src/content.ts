@@ -1,6 +1,6 @@
-import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './detection.js';
+import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
 import type { Message, Status, StatusMessage } from './types.js';
-import { deriveQixConnection, QixConnection } from './qix.js';
+import { deriveQixConnection, QixConnection } from './util/qix.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
