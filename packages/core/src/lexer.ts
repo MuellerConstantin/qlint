@@ -619,11 +619,75 @@ export const FUNCTIONS = [
   'nPer',
 ];
 
+/**
+ * Qlik scripting system variables, sourced from the Qlik Sense Enterprise on
+ * Windows documentation. Treated as a distinct token type so user-defined
+ * variables (declared via SET / LET) remain ordinary identifiers and can be linted
+ * independently.
+ *
+ * @see {@link https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/SystemVariables/system-variables.htm | System variables}
+ * @see {@link https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ValueHandlingVariables/value-handling-variables.htm | Value handling variables}
+ * @see {@link https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/NumberInterpretationVariables/number-interpretation-variables.htm | Number interpretation variables}
+ * @see {@link https://help.qlik.com/en-US/sense/May2026/Subsystems/Hub/Content/Sense_Hub/Scripting/ErrorVariables/ErrorVariables.htm | Error variables}
+ */
+export const SYSTEM_VARIABLES = [
+  'BrokenWeeks',
+  'CollationLocale',
+  'CreateSearchIndexOnReload',
+  'DateFormat',
+  'DayNames',
+  'DecimalSep',
+  'ErrorMode',
+  'FirstMonthOfYear',
+  'FirstWeekDay',
+  'HidePrefix',
+  'HideSuffix',
+  'Include',
+  'LongDayNames',
+  'LongMonthNames',
+  'MoneyDecimalSep',
+  'MoneyFormat',
+  'MoneyThousandSep',
+  'MonthNames',
+  'MustInclude',
+  'NullDisplay',
+  'NullInterpret',
+  'NullValue',
+  'NumericalAbbreviation',
+  'OpenUrlTimeout',
+  'OtherSymbol',
+  'ReferenceDay',
+  'ScriptError',
+  'ScriptErrorCount',
+  'ScriptErrorList',
+  'ScriptOnlyVariables',
+  'StripComments',
+  'ThousandSep',
+  'TimeFormat',
+  'TimestampFormat',
+  'Verbatim',
+  /*
+   * Legacy path variables from the QlikView era. Still listed in the Qlik Sense
+   * system variables reference, but effectively obsolete: file access in modern
+   * scripts goes through lib:// data connections. Kept here so they tokenize as
+   * SystemVariable and can be flagged by a dedicated lint rule.
+   */
+  'CD',
+  'Floppy',
+  'QvPath',
+  'QvRoot',
+  'QvWorkPath',
+  'QvWorkRoot',
+  'WinPath',
+  'WinRoot',
+];
+
 const KEYWORD_TOKEN_PATTERN = new RegExp(`(?:${KEYWORDS.join('|')})\\b`, 'i');
 const BUILTIN_FUNCTION_TOKEN_PATTERN = new RegExp(
   `^(?:${FUNCTIONS.map((f) => f.replace('#', '\\#')).join('|')})(?=\\s*\\()`,
   'i',
 );
+const SYSTEM_VARIABLE_TOKEN_PATTERN = new RegExp(`(?:${SYSTEM_VARIABLES.join('|')})\\b`, 'i');
 
 export const identifierToken = createToken({ name: 'Identifier', pattern: /[A-Za-z_][\w$.]*/ });
 export const builtinFunctionToken = createToken({
@@ -633,8 +697,14 @@ export const builtinFunctionToken = createToken({
   },
   line_breaks: false,
 });
+export const systemVariableToken = createToken({
+  name: 'SystemVariable',
+  pattern: SYSTEM_VARIABLE_TOKEN_PATTERN,
+  longer_alt: identifierToken,
+  categories: [identifierToken],
+});
 export const keywordToken = createToken({
-  name: 'keywordToken',
+  name: 'Keyword',
   pattern: KEYWORD_TOKEN_PATTERN,
   longer_alt: identifierToken,
 });
@@ -669,6 +739,7 @@ export const allTokens = [
   stringLiteralToken,
   numberLiteralToken,
   builtinFunctionToken,
+  systemVariableToken,
   keywordToken,
   identifierToken,
   colonToken,
