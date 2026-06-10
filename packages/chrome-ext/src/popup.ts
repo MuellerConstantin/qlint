@@ -1,8 +1,21 @@
-import type { GetStatusMessage, Message, Status, StatusMessage } from './types.js';
+import type {
+  DiagnosticCounts,
+  DiagnosticsMessage,
+  GetDiagnosticsMessage,
+  GetStatusMessage,
+  Message,
+  Status,
+  StatusMessage,
+} from './types.js';
 
 const statusDot = document.getElementById('status-dot') as HTMLSpanElement;
 const statusLabel = document.getElementById('status-label') as HTMLSpanElement;
 const grantButton = document.getElementById('grant-button') as HTMLButtonElement;
+
+const summary = document.getElementById('summary') as HTMLDivElement;
+const countError = document.getElementById('count-error') as HTMLSpanElement;
+const countWarning = document.getElementById('count-warning') as HTMLSpanElement;
+const countInfo = document.getElementById('count-info') as HTMLSpanElement;
 
 const STATUS_MESSAGE_KEYS: Record<Status, string> = {
   loading: 'statusLoading',
@@ -20,6 +33,18 @@ function renderStatus(status: Status): void {
   statusDot.classList.toggle('inactive', status === 'inactive');
 
   grantButton.hidden = status !== 'not-granted';
+}
+
+function renderCounts(counts: DiagnosticCounts | undefined): void {
+  summary.hidden = !counts;
+
+  if (!counts) {
+    return;
+  }
+
+  countError.textContent = String(counts.error);
+  countWarning.textContent = String(counts.warning);
+  countInfo.textContent = String(counts.info);
 }
 
 grantButton.textContent = chrome.i18n.getMessage('grantButton');
@@ -59,6 +84,16 @@ async function queryStatus(tabId: number): Promise<Status> {
   }
 }
 
+async function queryDiagnostics(tabId: number): Promise<DiagnosticCounts | null> {
+  try {
+    const request: GetDiagnosticsMessage = { type: 'qlint:get-diagnostics' };
+    const response = (await chrome.tabs.sendMessage(tabId, request)) as DiagnosticsMessage | undefined;
+    return response?.counts ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function refresh(): Promise<void> {
   const tab = await getActiveTab();
 
@@ -86,7 +121,7 @@ async function refresh(): Promise<void> {
           }
         })
         .catch((err) => {
-          console.warn('[qlint popup] permission request failed', err);
+          console.warn('[qlint:popup] permission request failed', err);
         });
     };
     return;
@@ -94,11 +129,25 @@ async function refresh(): Promise<void> {
 
   const status = await queryStatus(tab.id);
   renderStatus(status);
+
+  if (status === 'active') {
+    renderCounts((await queryDiagnostics(tab.id)) ?? undefined);
+  } else {
+    renderCounts(undefined);
+  }
 }
 
 chrome.runtime.onMessage.addListener((message: Message) => {
   if (message?.type === 'qlint:status') {
     renderStatus(message.status);
+
+    if (message.status !== 'active') {
+      renderCounts(undefined);
+    }
+  }
+
+  if (message?.type === 'qlint:diagnostics') {
+    renderCounts(message.counts);
   }
 });
 

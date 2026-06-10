@@ -1,11 +1,10 @@
-import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './detection.js';
-import type { Message, Status, StatusMessage } from './types.js';
-import { deriveQixConnection, QixConnection } from './qix.js';
+import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
+import type { Message, Status, StatusMessage, DiagnosticCounts, BridgeMessage, DiagnosticsMessage } from './types.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
 let status: Status = 'inactive';
-let qix: QixConnection | null = null;
+let diagnosticCounts: DiagnosticCounts | null = null;
 
 function broadcastStatus(): void {
   const message: StatusMessage = { type: 'qlint:status', status };
@@ -19,22 +18,10 @@ async function activate(): Promise<void> {
     return;
   }
 
-  qix = deriveQixConnection();
-
-  try {
-    const global = await qix.open();
-    const version = await global.engineVersion();
-
-    console.debug('[qlint] qix connected — engine version:', version?.qComponentVersion ?? version);
-
-    status = 'active';
-    console.log('[qlint] activated — qlik script editor detected on', location.href);
-    broadcastStatus();
-  } catch (err) {
-    status = 'errored';
-    console.error('[qlint] qix connection failed:', err);
-    broadcastStatus();
-  }
+  status = 'active';
+  diagnosticCounts = null;
+  console.log('[qlint] activated — qlik script editor detected on', location.href);
+  broadcastStatus();
 }
 
 async function deactivate(): Promise<void> {
@@ -43,13 +30,9 @@ async function deactivate(): Promise<void> {
   }
 
   status = 'inactive';
+  diagnosticCounts = null;
   console.log('[qlint] deactivated — left script editor');
   broadcastStatus();
-
-  void qix?.close();
-  qix = null;
-
-  console.log('[qlint] qix disconnected');
 }
 
 function evaluate(): void {
@@ -102,7 +85,33 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
     return false;
   }
 
+  if (message?.type === 'qlint:get-diagnostics') {
+    const response: DiagnosticsMessage | null = diagnosticCounts
+      ? { type: 'qlint:diagnostics', counts: diagnosticCounts }
+      : null;
+    sendResponse(response);
+    return false;
+  }
+
   return false;
+});
+
+window.addEventListener('message', (event: MessageEvent) => {
+  if (event.source !== window) {
+    return;
+  }
+
+  const data = event.data as BridgeMessage | undefined;
+
+  if (data?.source !== 'qlint-main') {
+    return;
+  }
+
+  if (data.type === 'qlint:diagnostics') {
+    diagnosticCounts = data.counts;
+    const message: DiagnosticsMessage = { type: 'qlint:diagnostics', counts: diagnosticCounts };
+    chrome.runtime.sendMessage(message).catch(() => {});
+  }
 });
 
 evaluateAndWatchForMount();

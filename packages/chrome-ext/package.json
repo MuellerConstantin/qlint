@@ -8,8 +8,7 @@
     "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\""
   },
   "dependencies": {
-    "@qlint/core": "*",
-    "enigma.js": "^2.14.0"
+    "@qlint/core": "*"
   },
   "devDependencies": {
     "@types/codemirror": "^5.60.17",

@@ -6,6 +6,8 @@
   --dot-default: #d4d4d8;
   --dot-active: #16a34a;
   --dot-inactive: #dc2626;
+  --summary-bg: #f7f8fa;
+  --border: #e5e7eb;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +17,8 @@
     --dot-default: #52525b;
     --dot-active: #22c55e;
     --dot-inactive: #ef4444;
+    --summary-bg: #2a2a2a;
+    --border: #3f3f46;
   }
 }
 
@@ -61,4 +65,38 @@ button {
 
 [hidden] {
   display: none !important;
+}
+
+.summary {
+  display: flex;
+  gap: 14px;
+  margin: 8px -12px -12px;
+  padding: 8px 12px;
+  background: var(--summary-bg);
+  border-top: 1px solid var(--border);
+}
+
+.summary .count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.summary .count-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.summary .count[data-severity='error'] .count-dot {
+  background: #ef4444;
+}
+
+.summary .count[data-severity='warning'] .count-dot {
+  background: #f59e0b;
+}
+
+.summary .count[data-severity='info'] .count-dot {
+  background: #3b82f6;
 }

@@ -1,21 +1,23 @@
 import type { LocationChangeMessage } from './types.js';
 
 const CONTENT_SCRIPT_ID = 'qlint-content';
+const MAIN_SCRIPT_ID = 'qlint-main';
+const SCRIPT_IDS = [CONTENT_SCRIPT_ID, MAIN_SCRIPT_ID];
 
 async function syncContentScripts(): Promise<void> {
   const granted = await chrome.permissions.getAll();
   const origins = granted.origins ?? [];
 
   const existing = await chrome.scripting.getRegisteredContentScripts({
-    ids: [CONTENT_SCRIPT_ID],
+    ids: SCRIPT_IDS,
   });
 
   if (existing.length > 0) {
-    await chrome.scripting.unregisterContentScripts({ ids: [CONTENT_SCRIPT_ID] });
+    await chrome.scripting.unregisterContentScripts({ ids: SCRIPT_IDS });
   }
 
   if (origins.length === 0) {
-    console.log('[qlint] no granted origins — content script unregistered');
+    console.log('[qlint] no granted origins — content scripts unregistered');
     return;
   }
 
@@ -26,9 +28,16 @@ async function syncContentScripts(): Promise<void> {
       js: ['content.js'],
       runAt: 'document_idle',
     },
+    {
+      id: MAIN_SCRIPT_ID,
+      matches: origins,
+      js: ['main.js'],
+      runAt: 'document_idle',
+      world: 'MAIN',
+    },
   ]);
 
-  console.log('[qlint] content script registered for', origins);
+  console.log('[qlint] content scripts registered for', origins);
 }
 
 chrome.permissions.onAdded.addListener((perms) => {
@@ -56,6 +65,12 @@ async function handlePermissionsAdded(perms: chrome.permissions.Permissions): Pr
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: ['content.js'],
+        });
+
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          files: ['main.js'],
+          world: 'MAIN',
         });
       } catch (err) {
         console.warn('[qlint] failed to inject content script into tab', tab.id, err);

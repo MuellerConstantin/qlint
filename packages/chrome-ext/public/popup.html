@@ -10,6 +10,13 @@
       <span id="status-dot" class="dot"></span>
       <span id="status-label">qlint: Loading...</span>
     </div>
+    <div id="summary" class="summary" hidden>
+      <span class="count" data-severity="error"><span class="count-dot"></span><span id="count-error">0</span></span>
+      <span class="count" data-severity="warning"
+        ><span class="count-dot"></span><span id="count-warning">0</span></span
+      >
+      <span class="count" data-severity="info"><span class="count-dot"></span><span id="count-info">0</span></span>
+    </div>
     <button id="grant-button" hidden>Enable qlint for this page</button>
     <script src="popup.js" type="module"></script>
   </body>
