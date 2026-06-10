@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { configure } from '../src/index.js';
-import { builtinFunctionCase } from '../src/rules.js';
+import { builtinFunctionCase } from '../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('builtin-function-case', () => {

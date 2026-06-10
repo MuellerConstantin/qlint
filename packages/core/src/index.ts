@@ -1,5 +1,5 @@
-export { lint, format, configure } from './runner.js';
-export type { Diagnostic, Rule, LintOptions, Severity, Fix, FormatResult } from './runner.js';
-export { recommended, tableLabelBrackets, builtinFunctionCase, builtinKeywordCase } from './rules.js';
-export type { CaseStyle, CaseRuleOptions } from './rules.js';
-export { lexer } from './lexer.js';
+export { lint, format } from './runner.js';
+export type { Diagnostic, Rule, Severity, Fix } from './types.js';
+export type { LintOptions, FormatResult } from './runner.js';
+export { recommended, tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, configure } from './rules/index.js';
+export type { CaseStyle, CaseRuleOptions } from './rules/index.js';

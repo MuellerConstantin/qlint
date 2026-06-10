@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { format, type Rule } from '../src/index.js';
-import { tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, recommended } from '../src/rules.js';
+import { tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, recommended } from '../src/rules/index.js';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 
@@ -115,7 +115,10 @@ describe('format', () => {
                 severity: 'warning' as const,
                 range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
                 message: `replace ${token.image}`,
-                fix: { range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 }, replacement },
+                fix: {
+                  range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
+                  replacement,
+                },
               });
             }
           }
@@ -141,7 +144,10 @@ describe('format', () => {
                 severity: 'warning' as const,
                 range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
                 message: `flip ${token.image}`,
-                fix: { range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 }, replacement },
+                fix: {
+                  range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
+                  replacement,
+                },
               });
             }
           }
