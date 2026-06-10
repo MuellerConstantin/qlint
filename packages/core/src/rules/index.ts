@@ -4,6 +4,8 @@ import { builtinFunctionCase } from './builtinFunctionCase.js';
 import { builtinKeywordCase } from './builtinKeywordCase.js';
 import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
+import { variableCase } from './variableCase.js';
+export type { VariableCaseStyle, VariableCaseOptions } from './variableCase.js';
 
 export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Partial<O>): Rule<O, Id> {
   return {
@@ -17,6 +19,7 @@ export const recommended = [
   builtinFunctionCase,
   builtinKeywordCase,
   noLegacyPathVariables,
+  variableCase,
 ] as const;
 
-export { builtinFunctionCase, builtinKeywordCase, noLegacyPathVariables, tableLabelBrackets };
+export { builtinFunctionCase, builtinKeywordCase, noLegacyPathVariables, tableLabelBrackets, variableCase };

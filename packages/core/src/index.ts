@@ -13,6 +13,7 @@ export {
   builtinFunctionCase,
   builtinKeywordCase,
   noLegacyPathVariables,
+  variableCase,
   configure,
 } from './rules/index.js';
-export type { CaseStyle, CaseRuleOptions } from './rules/index.js';
+export type { CaseStyle, CaseRuleOptions, VariableCaseStyle, VariableCaseOptions } from './rules/index.js';

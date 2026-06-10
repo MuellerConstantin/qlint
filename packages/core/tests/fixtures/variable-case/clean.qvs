@@ -1,0 +1,4 @@
+SET vYear = 2026;
+LET vMaxDate = Today();
+Set someValue = 'ok';
+Let DateFormat = 'YYYY-MM-DD';

@@ -1,0 +1,4 @@
+SET BadName = 'first';
+LET other_var = 1;
+Set vGood = 'ok';
+Let DateFormat = 'YYYY-MM-DD';
