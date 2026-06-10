@@ -1,6 +1,12 @@
 import { identifierToken, colonToken, builtinFunctionToken, keywordToken, FUNCTIONS, KEYWORDS } from './lexer.js';
 import { tokenRange, tokenFix, type Rule, type Finding } from './runner.js';
 
+export type CaseStyle = 'pascal' | 'lower' | 'upper';
+
+export interface CaseRuleOptions {
+  style: CaseStyle;
+}
+
 export const tableLabelBrackets: Rule = {
   id: 'table-label-brackets',
   check: ({ tokens, firstOnLine }) => {
@@ -25,10 +31,23 @@ export const tableLabelBrackets: Rule = {
 };
 
 const canonicalFunctionByLower = new Map(FUNCTIONS.map((name) => [name.toLowerCase(), name]));
+const canonicalKeywordByLower = new Map(KEYWORDS.map((name) => [name.toLowerCase(), name]));
 
-export const builtinFunctionCase: Rule = {
+function applyCaseStyle(canonical: string, style: CaseStyle): string {
+  switch (style) {
+    case 'pascal':
+      return canonical;
+    case 'lower':
+      return canonical.toLowerCase();
+    case 'upper':
+      return canonical.toUpperCase();
+  }
+}
+
+export const builtinFunctionCase: Rule<CaseRuleOptions> = {
   id: 'builtin-function-case',
-  check: ({ tokens }) => {
+  defaultOptions: { style: 'pascal' },
+  check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
 
     for (const token of tokens) {
@@ -38,12 +57,18 @@ export const builtinFunctionCase: Rule = {
 
       const canonical = canonicalFunctionByLower.get(token.image.toLowerCase());
 
-      if (canonical && token.image !== canonical) {
+      if (!canonical) {
+        continue;
+      }
+
+      const expected = applyCaseStyle(canonical, style);
+
+      if (token.image !== expected) {
         out.push({
           severity: 'warning',
           range: tokenRange(token),
-          message: `Built-in function '${token.image}' should be written as '${canonical}'.`,
-          fix: tokenFix(token, canonical),
+          message: `Built-in function '${token.image}' should be written as '${expected}'.`,
+          fix: tokenFix(token, expected),
         });
       }
     }
@@ -52,11 +77,10 @@ export const builtinFunctionCase: Rule = {
   },
 };
 
-const canonicalKeywordByLower = new Map(KEYWORDS.map((name) => [name.toLowerCase(), name]));
-
-export const builtinKeywordCase: Rule = {
+export const builtinKeywordCase: Rule<CaseRuleOptions> = {
   id: 'builtin-keyword-case',
-  check: ({ tokens }) => {
+  defaultOptions: { style: 'pascal' },
+  check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
 
     for (const token of tokens) {
@@ -66,12 +90,18 @@ export const builtinKeywordCase: Rule = {
 
       const canonical = canonicalKeywordByLower.get(token.image.toLowerCase());
 
-      if (canonical && token.image !== canonical) {
+      if (!canonical) {
+        continue;
+      }
+
+      const expected = applyCaseStyle(canonical, style);
+
+      if (token.image !== expected) {
         out.push({
           severity: 'warning',
           range: tokenRange(token),
-          message: `Keyword '${token.image}' should be written as '${canonical}'.`,
-          fix: tokenFix(token, canonical),
+          message: `Keyword '${token.image}' should be written as '${expected}'.`,
+          fix: tokenFix(token, expected),
         });
       }
     }
@@ -80,4 +110,4 @@ export const builtinKeywordCase: Rule = {
   },
 };
 
-export const recommended: Rule[] = [tableLabelBrackets, builtinFunctionCase, builtinKeywordCase];
+export const recommended: Rule<unknown>[] = [tableLabelBrackets, builtinFunctionCase, builtinKeywordCase];

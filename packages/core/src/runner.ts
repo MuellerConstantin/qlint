@@ -33,9 +33,17 @@ export interface RuleContext {
   firstOnLine: IToken[];
 }
 
-export interface Rule {
+export interface Rule<O = undefined> {
   id: string;
-  check: (ctx: RuleContext) => Finding[];
+  defaultOptions?: O;
+  check(ctx: RuleContext, options: O): Finding[];
+}
+
+export function configure<O>(rule: Rule<O>, options: Partial<O>): Rule<O> {
+  return {
+    ...rule,
+    defaultOptions: { ...(rule.defaultOptions as object), ...(options as object) } as O,
+  };
 }
 
 export function tokenRange(token: IToken): Range {
@@ -70,6 +78,7 @@ function firstTokenPerLine(tokens: IToken[]): IToken[] {
 
 export interface LintOptions {
   severity?: Record<string, Severity | 'off'>;
+  options?: Record<string, unknown>;
 }
 
 export interface FormatResult {
@@ -80,7 +89,7 @@ export interface FormatResult {
 
 const MAX_PASSES = 10;
 
-export function lint(source: string, rules: Rule[], opts: LintOptions = {}): Diagnostic[] {
+export function lint(source: string, rules: Rule<unknown>[], opts: LintOptions = {}): Diagnostic[] {
   const result = lexer.tokenize(source);
 
   const ctx: RuleContext = {
@@ -97,12 +106,22 @@ export function lint(source: string, rules: Rule[], opts: LintOptions = {}): Dia
       continue;
     }
 
-    for (const findings of rule.check(ctx)) {
+    const ruleOptions = mergeOptions(rule.defaultOptions, opts.options?.[rule.id]);
+
+    for (const findings of rule.check(ctx, ruleOptions)) {
       out.push({ ruleId: rule.id, ...findings, severity: override ?? findings.severity });
     }
   }
 
   return out.sort((a, b) => a.range.start.line - b.range.start.line || a.range.start.column - b.range.start.column);
+}
+
+function mergeOptions(defaults: unknown, override: unknown): unknown {
+  if (defaults && typeof defaults === 'object' && override && typeof override === 'object') {
+    return { ...defaults, ...override };
+  }
+
+  return override ?? defaults;
 }
 
 function applyFixes(source: string, fixes: Fix[]): { output: string; applied: number } {
@@ -127,7 +146,7 @@ function applyFixes(source: string, fixes: Fix[]): { output: string; applied: nu
   return { output, applied: accepted.length };
 }
 
-export function format(source: string, rules: Rule[], opts: LintOptions = {}): FormatResult {
+export function format(source: string, rules: Rule<unknown>[], opts: LintOptions = {}): FormatResult {
   let current = source;
   let totalFixed = 0;
 

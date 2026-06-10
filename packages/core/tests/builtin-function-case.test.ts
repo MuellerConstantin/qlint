@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { configure } from '../src/index.js';
 import { builtinFunctionCase } from '../src/rules.js';
 import { lintFixture } from './helpers.js';
 
@@ -20,5 +21,53 @@ describe('builtin-function-case', () => {
     const diagnostics = lintFixture('builtin-function-case', 'clean', builtinFunctionCase);
 
     expect(diagnostics).toEqual([]);
+  });
+
+  describe('style option', () => {
+    it('with style "lower" flags PascalCase and expects lowercase', () => {
+      const diagnostics = lintFixture(
+        'builtin-function-case',
+        'clean',
+        configure(builtinFunctionCase, { style: 'lower' }),
+      );
+
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toContain("'Sum'");
+      expect(diagnostics[0].message).toContain("'sum'");
+    });
+
+    it('with style "upper" flags PascalCase and expects UPPERCASE', () => {
+      const diagnostics = lintFixture(
+        'builtin-function-case',
+        'clean',
+        configure(builtinFunctionCase, { style: 'upper' }),
+      );
+
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toContain("'Sum'");
+      expect(diagnostics[0].message).toContain("'SUM'");
+    });
+
+    it('with style "lower" does not flag lowercase fixture', () => {
+      const diagnostics = lintFixture(
+        'builtin-function-case',
+        'violation',
+        configure(builtinFunctionCase, { style: 'lower' }),
+      );
+
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('LintOptions.options overrides defaultOptions and configure()', () => {
+      const diagnostics = lintFixture(
+        'builtin-function-case',
+        'clean',
+        configure(builtinFunctionCase, { style: 'lower' }),
+        { options: { 'builtin-function-case': { style: 'upper' } } },
+      );
+
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toContain("'SUM'");
+    });
   });
 });
