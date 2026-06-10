@@ -112,6 +112,51 @@ export function createHighlighter(editor: Editor): {
     }
   };
 
+  const applyIgnore = (diagnostic: Diagnostic): void => {
+    const issueLineIdx = diagnostic.range.start.line - 1;
+    const issueLineText = editor.getLine(issueLineIdx) ?? '';
+    const indent = /^\s*/.exec(issueLineText)?.[0] ?? '';
+
+    const prevLineIdx = issueLineIdx - 1;
+    const prevLineText = prevLineIdx >= 0 ? (editor.getLine(prevLineIdx) ?? '') : '';
+    const prevMatch = /^(\s*)(\/\/\s*qlint-disable-next-line)(?:\s+(.+?))?\s*$/.exec(prevLineText);
+
+    if (prevMatch) {
+      const existingList = prevMatch[3];
+
+      if (existingList === undefined) {
+        if (tooltipElement) {
+          tooltipElement.style.display = 'none';
+        }
+        return;
+      }
+
+      const ids = existingList
+        .split(',')
+        .map((id) => id.trim())
+        .filter((id) => id.length > 0);
+
+      if (!ids.includes(diagnostic.ruleId)) {
+        ids.push(diagnostic.ruleId);
+      }
+
+      const replacement = `${prevMatch[1]}${prevMatch[2]} ${ids.join(', ')}`;
+      editor.replaceRange(
+        replacement,
+        { line: prevLineIdx, ch: 0 },
+        { line: prevLineIdx, ch: prevLineText.length },
+        'qlint-ignore',
+      );
+    } else {
+      const directive = `${indent}// qlint-disable-next-line ${diagnostic.ruleId}\n`;
+      editor.replaceRange(directive, { line: issueLineIdx, ch: 0 }, { line: issueLineIdx, ch: 0 }, 'qlint-ignore');
+    }
+
+    if (tooltipElement) {
+      tooltipElement.style.display = 'none';
+    }
+  };
+
   const hideTooltip = (): void => {
     hideTimer = setTimeout(() => {
       if (tooltipElement) {
@@ -160,10 +205,10 @@ export function createHighlighter(editor: Editor): {
 
     tooltipElement.replaceChildren(row);
 
-    if (diagnostic.fix) {
-      const actions = document.createElement('div');
-      actions.className = 'qlint-tt-actions';
+    const actions = document.createElement('div');
+    actions.className = 'qlint-tt-actions';
 
+    if (diagnostic.fix) {
       const fixButton = document.createElement('button');
       fixButton.type = 'button';
       fixButton.className = 'qlint-tt-action';
@@ -171,10 +216,19 @@ export function createHighlighter(editor: Editor): {
       fixButton.addEventListener('click', () => {
         applyFix(diagnostic.fix!);
       });
-
       actions.append(fixButton);
-      tooltipElement.append(actions);
     }
+
+    const ignoreButton = document.createElement('button');
+    ignoreButton.type = 'button';
+    ignoreButton.className = 'qlint-tt-action';
+    ignoreButton.textContent = 'Ignore';
+    ignoreButton.addEventListener('click', () => {
+      applyIgnore(diagnostic);
+    });
+    actions.append(ignoreButton);
+
+    tooltipElement.append(actions);
 
     const coords = editor.charCoords(range.from as Position, 'window');
     tooltipElement.style.display = 'block';
