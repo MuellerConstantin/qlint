@@ -1,10 +1,11 @@
 # Rules Reference
 
-| Rule                                            | Description                                           |
-| :---------------------------------------------- | :---------------------------------------------------- |
-| [table-label-brackets](#table-label-brackets)   | Require table labels to be enclosed in brackets.      |
-| [builtin-function-case](#builtin-function-case) | Enforce canonical casing for Qlik built-in functions. |
-| [builtin-keyword-case](#builtin-keyword-case)   | Enforce canonical casing for Qlik keywords.           |
+| Rule                                                  | Description                                           |
+| :---------------------------------------------------- | :---------------------------------------------------- |
+| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.      |
+| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions. |
+| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.           |
+| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.   |
 
 ---
 
@@ -170,5 +171,53 @@ LOAD
   Sum(Value) as Total
 RESIDENT [TableA];
 ```
+
+---
+
+## no-legacy-path-variables
+
+Disallow the legacy QlikView-era path system variables (`CD`, `Floppy`,
+`QvPath`, `QvRoot`, `QvWorkPath`, `QvWorkRoot`, `WinPath`, `WinRoot`).
+
+### Rule Details
+
+These variables come from the QlikView era, when scripts referenced files
+directly via local operating-system paths. The Qlik Sense documentation still
+lists them on the system variables reference page, but Qlik Sense executes
+scripts server-side and resolves file access through `lib://` data connections.
+The legacy variables are tied to concepts that no longer apply (local floppy
+and CD drives, an installed QlikView client, a Windows-shaped working
+directory) and their appearance is almost always a sign of code copied
+verbatim from a QlikView script.
+
+The rule does not offer an autofix because there is no mechanical replacement —
+the script needs a real data connection, which is a configuration decision
+outside the source file.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+LET vRoot = QvRoot;
+
+[Files]:
+Load
+  WinPath as Path
+AutoGenerate 1;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+LET vRoot = 'lib://MyDataLake/';
+
+[Files]:
+Load
+  '$(vRoot)' as Path
+AutoGenerate 1;
+```
+
+### Options
+
+This rule has no options.
 
 ---

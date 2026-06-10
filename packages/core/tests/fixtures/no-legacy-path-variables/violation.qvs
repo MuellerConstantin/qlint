@@ -1,0 +1,6 @@
+[Files]:
+Load
+  QvPath as Path
+AutoGenerate 1;
+
+LET vRoot = WinRoot;
