@@ -40,6 +40,10 @@ Load
 Resident [TableA];
 ```
 
+### Options
+
+This rule has no options.
+
 ---
 
 ## builtin-function-case
@@ -73,6 +77,37 @@ Load
 Resident [TableA];
 ```
 
+### Options
+
+| Option  | Type                             | Default    | Description                                |
+| :------ | :------------------------------- | :--------- | :----------------------------------------- |
+| `style` | `'pascal' \| 'lower' \| 'upper'` | `'pascal'` | Casing applied to built-in function names. |
+
+- `'pascal'` — use the canonical spelling from the Qlik documentation (e.g. `Sum`, `Date`, `RangeSum`).
+- `'lower'` — lowercase the canonical spelling (e.g. `sum`, `date`, `rangesum`).
+- `'upper'` — uppercase the canonical spelling (e.g. `SUM`, `DATE`, `RANGESUM`).
+
+Example configuration:
+
+```ts
+import { lint, builtinFunctionCase } from '@qlint/core';
+
+lint(source, [builtinFunctionCase], {
+  options: {
+    'builtin-function-case': { style: 'upper' },
+  },
+});
+```
+
+With `style: 'upper'`, the following is **correct**:
+
+```qlik
+[Totals]:
+Load
+  SUM(Value) as Total
+Resident [TableA];
+```
+
 ---
 
 ## builtin-keyword-case
@@ -103,6 +138,37 @@ Examples of **correct** code for this rule:
 Load
   Sum(Value) as Total
 Resident [TableA];
+```
+
+### Options
+
+| Option  | Type                             | Default    | Description                        |
+| :------ | :------------------------------- | :--------- | :--------------------------------- |
+| `style` | `'pascal' \| 'lower' \| 'upper'` | `'pascal'` | Casing applied to script keywords. |
+
+- `'pascal'` — use the canonical spelling from the Qlik documentation (e.g. `Load`, `Resident`, `From`).
+- `'lower'` — lowercase the canonical spelling (e.g. `load`, `resident`, `from`).
+- `'upper'` — uppercase the canonical spelling (e.g. `LOAD`, `RESIDENT`, `FROM`).
+
+Example configuration:
+
+```ts
+import { lint, builtinKeywordCase } from '@qlint/core';
+
+lint(source, [builtinKeywordCase], {
+  options: {
+    'builtin-keyword-case': { style: 'upper' },
+  },
+});
+```
+
+With `style: 'upper'`, the following is **correct**:
+
+```qlik
+[Totals]:
+LOAD
+  Sum(Value) as Total
+RESIDENT [TableA];
 ```
 
 ---
