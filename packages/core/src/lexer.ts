@@ -682,7 +682,15 @@ export const SYSTEM_VARIABLES = [
   'WinRoot',
 ];
 
-const KEYWORD_TOKEN_PATTERN = new RegExp(`(?:${KEYWORDS.join('|')})\\b`, 'i');
+/*
+ * Trace is split out of the general keyword token so it can push a dedicated
+ * lexer mode in which the rest of the statement is consumed as one opaque
+ * TraceMessage token. Inside Trace, the body is free text — any words that
+ * happen to be Qlik keywords (Load, Where, ...) must not produce a
+ * Keyword token, otherwise unrelated rules would flag them.
+ */
+const KEYWORDS_WITHOUT_TRACE = KEYWORDS.filter((name) => name.toLowerCase() !== 'trace');
+const KEYWORD_TOKEN_PATTERN = new RegExp(`(?:${KEYWORDS_WITHOUT_TRACE.join('|')})\\b`, 'i');
 const BUILTIN_FUNCTION_TOKEN_PATTERN = new RegExp(
   `^(?:${FUNCTIONS.map((f) => f.replace('#', '\\#')).join('|')})(?=\\s*\\()`,
   'i',
@@ -708,6 +716,17 @@ export const keywordToken = createToken({
   pattern: KEYWORD_TOKEN_PATTERN,
   longer_alt: identifierToken,
 });
+export const traceKeywordToken = createToken({
+  name: 'TraceKeyword',
+  pattern: /Trace\b/i,
+  longer_alt: identifierToken,
+  push_mode: 'trace_body',
+});
+export const traceMessageToken = createToken({
+  name: 'TraceMessage',
+  pattern: /[^;]+/,
+  line_breaks: true,
+});
 export const bracketToken = createToken({ name: 'Bracket', pattern: /\[[^\]]*\]/ });
 export const stringLiteralToken = createToken({ name: 'StringLiteral', pattern: /'(?:[^']|'')*'/ });
 export const numberLiteralToken = createToken({
@@ -716,6 +735,12 @@ export const numberLiteralToken = createToken({
 });
 export const colonToken = createToken({ name: 'Colon', pattern: /:/ });
 export const semicolonToken = createToken({ name: 'Semicolon', pattern: /;/ });
+export const traceEndToken = createToken({
+  name: 'TraceEnd',
+  pattern: /;/,
+  pop_mode: true,
+  categories: [semicolonToken],
+});
 export const commaToken = createToken({ name: 'Comma', pattern: /,/ });
 export const equalsToken = createToken({ name: 'Equals', pattern: /=/ });
 export const punctuationToken = createToken({ name: 'Punctuation', pattern: /[(){}+\-*/<>.@&|?!%^]/ });
@@ -730,7 +755,7 @@ const blockCommentToken = createToken({
   line_breaks: true,
 });
 
-export const allTokens = [
+const defaultModeTokens = [
   blockCommentToken,
   lineCommentToken,
   whitespaceToken,
@@ -740,6 +765,7 @@ export const allTokens = [
   numberLiteralToken,
   builtinFunctionToken,
   systemVariableToken,
+  traceKeywordToken,
   keywordToken,
   identifierToken,
   colonToken,
@@ -749,4 +775,17 @@ export const allTokens = [
   punctuationToken,
 ];
 
-export const lexer = new Lexer(allTokens, { positionTracking: 'full' });
+const traceBodyModeTokens = [traceEndToken, traceMessageToken];
+
+export const allTokens = [...defaultModeTokens, traceMessageToken, traceEndToken];
+
+export const lexer = new Lexer(
+  {
+    modes: {
+      default_mode: defaultModeTokens,
+      trace_body: traceBodyModeTokens,
+    },
+    defaultMode: 'default_mode',
+  },
+  { positionTracking: 'full' },
+);

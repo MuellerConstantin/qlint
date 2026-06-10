@@ -1,4 +1,4 @@
-import { keywordToken, KEYWORDS } from '../lexer.js';
+import { keywordToken, traceKeywordToken, KEYWORDS } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
 import { tokenRange, tokenFix } from '../runner.js';
 import type { CaseStyle, CaseRuleOptions } from './types.js';
@@ -23,7 +23,7 @@ export const builtinKeywordCase: Rule<CaseRuleOptions, 'builtin-keyword-case'> =
     const out: Finding[] = [];
 
     for (const token of tokens) {
-      if (token.tokenType !== keywordToken) {
+      if (token.tokenType !== keywordToken && token.tokenType !== traceKeywordToken) {
         continue;
       }
 
