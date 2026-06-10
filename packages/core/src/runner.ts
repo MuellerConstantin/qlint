@@ -32,9 +32,25 @@ function firstTokenPerLine(tokens: IToken[]): IToken[] {
   return out;
 }
 
-export interface LintOptions {
-  severity?: Record<string, Severity | 'off'>;
-  options?: Record<string, unknown>;
+export type SeverityOrOff = Severity | 'off';
+
+export type RuleConfigEntry<O = unknown> = [O] extends [undefined]
+  ? SeverityOrOff | [SeverityOrOff]
+  : SeverityOrOff | [SeverityOrOff] | [SeverityOrOff, Partial<O>];
+
+/*
+ * Rule is invariant in O, so heterogeneous rule tuples can
+ * only share a common element type via `any`.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyRule = Rule<any, string>;
+
+export type RulesConfigOf<R extends readonly AnyRule[]> = {
+  [I in R[number]['id']]?: RuleConfigEntry<Extract<R[number], { id: I }> extends Rule<infer O, string> ? O : never>;
+};
+
+export interface LintConfig<R extends readonly AnyRule[] = readonly AnyRule[]> {
+  rules?: RulesConfigOf<R>;
 }
 
 export interface FormatResult {
@@ -45,7 +61,22 @@ export interface FormatResult {
 
 const MAX_PASSES = 10;
 
-export function lint(source: string, rules: Rule<unknown>[], opts: LintOptions = {}): Diagnostic[] {
+function parseEntry(entry: RuleConfigEntry<unknown> | undefined): {
+  severity?: SeverityOrOff;
+  options?: unknown;
+} {
+  if (entry === undefined) {
+    return {};
+  }
+
+  if (typeof entry === 'string') {
+    return { severity: entry };
+  }
+
+  return { severity: entry[0], options: entry[1] };
+}
+
+export function lint<R extends readonly AnyRule[]>(source: string, rules: R, config: LintConfig<R> = {}): Diagnostic[] {
   const result = lexer.tokenize(source);
 
   const ctx: RuleContext = {
@@ -54,18 +85,19 @@ export function lint(source: string, rules: Rule<unknown>[], opts: LintOptions =
   };
 
   const out: Diagnostic[] = [];
+  const rulesMap = config.rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
 
   for (const rule of rules) {
-    const override = opts.severity?.[rule.id];
+    const { severity: configSeverity, options: configOptions } = parseEntry(rulesMap?.[rule.id]);
 
-    if (override === 'off') {
+    if (configSeverity === 'off') {
       continue;
     }
 
-    const ruleOptions = mergeOptions(rule.defaultOptions, opts.options?.[rule.id]);
+    const ruleOptions = mergeOptions(rule.defaultOptions, configOptions);
 
-    for (const findings of rule.check(ctx, ruleOptions)) {
-      out.push({ ruleId: rule.id, ...findings, severity: override ?? findings.severity });
+    for (const findings of (rule as Rule<unknown>).check(ctx, ruleOptions)) {
+      out.push({ ruleId: rule.id, ...findings, severity: configSeverity ?? findings.severity });
     }
   }
 
@@ -102,12 +134,16 @@ function applyFixes(source: string, fixes: Fix[]): { output: string; applied: nu
   return { output, applied: accepted.length };
 }
 
-export function format(source: string, rules: Rule<unknown>[], opts: LintOptions = {}): FormatResult {
+export function format<R extends readonly AnyRule[]>(
+  source: string,
+  rules: R,
+  config: LintConfig<R> = {},
+): FormatResult {
   let current = source;
   let totalFixed = 0;
 
   for (let pass = 0; pass < MAX_PASSES; pass++) {
-    const diagnostics = lint(current, rules, opts);
+    const diagnostics = lint(current, rules, config);
     const fixes = diagnostics.map((diagnostic) => diagnostic.fix).filter((fix): fix is Fix => fix !== undefined);
 
     if (fixes.length === 0) {
@@ -124,7 +160,7 @@ export function format(source: string, rules: Rule<unknown>[], opts: LintOptions
     totalFixed += applied;
   }
 
-  const finalDiagnostics = lint(current, rules, opts);
+  const finalDiagnostics = lint(current, rules, config);
   const remainingFixes = finalDiagnostics.filter((diagnostic) => diagnostic.fix !== undefined);
 
   if (remainingFixes.length > 0) {

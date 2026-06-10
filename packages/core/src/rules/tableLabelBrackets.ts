@@ -2,7 +2,7 @@ import { identifierToken, colonToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
 import { tokenRange, tokenFix } from '../runner.js';
 
-export const tableLabelBrackets: Rule = {
+export const tableLabelBrackets: Rule<undefined, 'table-label-brackets'> = {
   id: 'table-label-brackets',
   check: ({ tokens, firstOnLine }) => {
     const firstSet = new Set(firstOnLine);

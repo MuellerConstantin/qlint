@@ -94,8 +94,8 @@ Example configuration:
 import { lint, builtinFunctionCase } from '@qlint/core';
 
 lint(source, [builtinFunctionCase], {
-  options: {
-    'builtin-function-case': { style: 'upper' },
+  rules: {
+    'builtin-function-case': ['warning', { style: 'upper' }],
   },
 });
 ```
@@ -157,8 +157,8 @@ Example configuration:
 import { lint, builtinKeywordCase } from '@qlint/core';
 
 lint(source, [builtinKeywordCase], {
-  options: {
-    'builtin-keyword-case': { style: 'upper' },
+  rules: {
+    'builtin-keyword-case': ['warning', { style: 'upper' }],
   },
 });
 ```

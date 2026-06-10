@@ -16,7 +16,7 @@ function applyCaseStyle(canonical: string, style: CaseStyle): string {
   }
 }
 
-export const builtinKeywordCase: Rule<CaseRuleOptions> = {
+export const builtinKeywordCase: Rule<CaseRuleOptions, 'builtin-keyword-case'> = {
   id: 'builtin-keyword-case',
   defaultOptions: { style: 'pascal' },
   check: ({ tokens }, { style }) => {

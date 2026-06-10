@@ -32,8 +32,8 @@ export interface RuleContext {
   firstOnLine: IToken[];
 }
 
-export interface Rule<O = undefined> {
-  id: string;
+export interface Rule<O = undefined, Id extends string = string> {
+  id: Id;
   defaultOptions?: O;
   check(ctx: RuleContext, options: O): Finding[];
 }

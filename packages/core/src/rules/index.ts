@@ -5,18 +5,18 @@ import { builtinKeywordCase } from './builtinKeywordCase.js';
 import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
 
-export function configure<O>(rule: Rule<O>, options: Partial<O>): Rule<O> {
+export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Partial<O>): Rule<O, Id> {
   return {
     ...rule,
     defaultOptions: { ...(rule.defaultOptions as object), ...(options as object) } as O,
   };
 }
 
-export const recommended: Rule<unknown>[] = [
+export const recommended = [
   tableLabelBrackets,
   builtinFunctionCase,
   builtinKeywordCase,
   noLegacyPathVariables,
-];
+] as const;
 
 export { builtinFunctionCase, builtinKeywordCase, noLegacyPathVariables, tableLabelBrackets };

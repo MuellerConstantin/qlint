@@ -58,12 +58,12 @@ describe('builtin-function-case', () => {
       expect(diagnostics).toEqual([]);
     });
 
-    it('LintOptions.options overrides defaultOptions and configure()', () => {
+    it('LintConfig.rules overrides defaultOptions and configure()', () => {
       const diagnostics = lintFixture(
         'builtin-function-case',
         'clean',
         configure(builtinFunctionCase, { style: 'lower' }),
-        { options: { 'builtin-function-case': { style: 'upper' } } },
+        { rules: { 'builtin-function-case': ['warning', { style: 'upper' }] } },
       );
 
       expect(diagnostics).toHaveLength(1);

@@ -13,7 +13,7 @@ const LEGACY_PATH_VARIABLES = new Set([
   'winroot',
 ]);
 
-export const noLegacyPathVariables: Rule = {
+export const noLegacyPathVariables: Rule<undefined, 'no-legacy-path-variables'> = {
   id: 'no-legacy-path-variables',
   check: ({ tokens }) => {
     const out: Finding[] = [];
