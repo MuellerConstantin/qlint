@@ -697,7 +697,22 @@ const BUILTIN_FUNCTION_TOKEN_PATTERN = new RegExp(
 );
 const SYSTEM_VARIABLE_TOKEN_PATTERN = new RegExp(`(?:${SYSTEM_VARIABLES.join('|')})\\b`, 'i');
 
-export const identifierToken = createToken({ name: 'Identifier', pattern: /[A-Za-z_][\w$.]*/ });
+/*
+ * Chevrotain's lexer optimizer inspects the first-char class of a pattern to
+ * build a dispatch table, but it cannot interpret Unicode property escapes —
+ * `\p{L}` collapses to "no chars", so non-ASCII identifiers (e.g. German
+ * umlauts in `v_ÖGD_Modul`) get reported as lex errors. A custom exec wrapper
+ * sidesteps the optimizer and runs the regex verbatim.
+ */
+const IDENTIFIER_PATTERN = /^[\p{L}_][\p{L}0-9_$.]*/u;
+
+export const identifierToken = createToken({
+  name: 'Identifier',
+  pattern: {
+    exec: (text, offset) => IDENTIFIER_PATTERN.exec(text.slice(offset)),
+  },
+  line_breaks: false,
+});
 export const builtinFunctionToken = createToken({
   name: 'BuiltinFunction',
   pattern: {

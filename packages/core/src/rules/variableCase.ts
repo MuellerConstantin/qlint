@@ -9,10 +9,10 @@ export interface VariableCaseOptions {
 }
 
 const PATTERNS: Record<VariableCaseStyle, RegExp> = {
-  camel: /^[a-z][a-zA-Z0-9]*$/,
-  pascal: /^[A-Z][a-zA-Z0-9]*$/,
-  snake: /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/,
-  upperSnake: /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/,
+  camel: /^\p{Ll}[\p{L}0-9]*$/u,
+  pascal: /^\p{Lu}[\p{L}0-9]*$/u,
+  snake: /^\p{Ll}[\p{Ll}0-9]*(?:_[\p{Ll}0-9]+)*$/u,
+  upperSnake: /^\p{Lu}[\p{Lu}0-9]*(?:_[\p{Lu}0-9]+)*$/u,
 };
 
 const LABELS: Record<VariableCaseStyle, string> = {

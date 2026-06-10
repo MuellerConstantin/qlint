@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { configure } from '../src/index.js';
+import { configure, lint } from '../src/index.js';
 import { variableCase } from '../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
@@ -37,6 +37,33 @@ describe('variable-case', () => {
 
     const flagged = diagnostics.map((diagnostic) => diagnostic.message);
     expect(flagged.some((message) => message.includes("'DateFormat'"))).toBe(false);
+  });
+
+  describe('unicode identifiers', () => {
+    it('reports the full variable name when it contains non-ASCII letters', () => {
+      const diagnostics = lint("SET v_ÖGD_Modul = 'x';", [variableCase] as const);
+
+      expect(diagnostics).toHaveLength(1);
+      expect(diagnostics[0].message).toContain("'v_ÖGD_Modul'");
+      expect(diagnostics[0].range).toMatchObject({
+        start: { line: 1, column: 5 },
+        end: { line: 1, column: 16 },
+      });
+    });
+
+    it('accepts umlauts and accents in camelCase identifiers', () => {
+      const diagnostics = lint("SET änderungsLog = 1;\nLET fürPaul = 2;", [variableCase] as const);
+
+      expect(diagnostics).toEqual([]);
+    });
+
+    it('accepts non-ASCII letters in PascalCase identifiers', () => {
+      const diagnostics = lint('SET ÄnderungsLog = 1;', [variableCase] as const, {
+        rules: { 'variable-case': ['warning', { style: 'pascal' }] },
+      });
+
+      expect(diagnostics).toEqual([]);
+    });
   });
 
   describe('style option', () => {
