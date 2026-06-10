@@ -1,4 +1,5 @@
 import type { IToken } from 'chevrotain';
+import { collectDisabledLines, isDisabled } from './disableDirectives.js';
 import { lexer } from './lexer.js';
 import type { Rule, Range, Fix, Severity, Diagnostic, RuleContext } from './types.js';
 
@@ -84,6 +85,7 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
     firstOnLine: firstTokenPerLine(result.tokens),
   };
 
+  const disabled = collectDisabledLines(source);
   const out: Diagnostic[] = [];
   const rulesMap = config.rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
 
@@ -97,6 +99,10 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
     const ruleOptions = mergeOptions(rule.defaultOptions, configOptions);
 
     for (const findings of (rule as Rule<unknown>).check(ctx, ruleOptions)) {
+      if (isDisabled(disabled, findings.range.start.line, rule.id)) {
+        continue;
+      }
+
       out.push({ ruleId: rule.id, ...findings, severity: configSeverity ?? findings.severity });
     }
   }
