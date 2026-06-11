@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { noLegacyPathVariables } from '../src/rules/index.js';
+import { noLegacyPathVariables } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('no-legacy-path-variables', () => {

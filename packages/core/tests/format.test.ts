@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { format, type Rule } from '../src/index.js';
 import { tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, recommended } from '../src/rules/index.js';
 
-const FIXTURES = join(import.meta.dirname, 'fixtures');
+const FIXTURES = join(import.meta.dirname, 'rules', 'fixtures');
 
 function readFixture(ruleId: string, kind: 'violation' | 'clean'): string {
   return readFileSync(join(FIXTURES, ruleId, `${kind}.qvs`), 'utf8');

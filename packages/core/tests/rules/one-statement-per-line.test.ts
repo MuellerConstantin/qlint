@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { format, lint } from '../src/index.js';
-import { oneStatementPerLine } from '../src/rules/index.js';
+import { format, lint } from '../../src/index.js';
+import { oneStatementPerLine } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');

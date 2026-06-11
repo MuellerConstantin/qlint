@@ -6,7 +6,7 @@ import {
   lexer,
   numberLiteralToken,
   quotedIdentifierToken,
-} from '../src/lexer.js';
+} from '../../src/lexer.js';
 
 /*
  * Qlik has no published positive grammar for identifiers — only a list of

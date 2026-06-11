@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { lint } from '../src/index.js';
-import { maxLineLength } from '../src/rules/index.js';
+import { lint } from '../../src/index.js';
+import { maxLineLength } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('max-line-length', () => {

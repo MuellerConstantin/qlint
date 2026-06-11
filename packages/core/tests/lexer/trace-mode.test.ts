@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { lint } from '../src/index.js';
+import { lint } from '../../src/index.js';
 import {
   keywordToken,
   lexer,
   traceEndToken,
   traceKeywordToken,
   traceMessageToken,
-} from '../src/lexer.js';
-import { builtinKeywordCase, variableCase } from '../src/rules/index.js';
+} from '../../src/lexer.js';
+import { builtinKeywordCase, variableCase } from '../../src/rules/index.js';
 
 describe('trace_body lexer mode', () => {
   it('swallows the trace body as a single TraceMessage token', () => {

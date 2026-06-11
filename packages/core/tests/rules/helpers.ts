@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { lint, type Diagnostic, type LintConfig, type Rule } from '../src/index.js';
+import { lint, type Diagnostic, type LintConfig, type Rule } from '../../src/index.js';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 

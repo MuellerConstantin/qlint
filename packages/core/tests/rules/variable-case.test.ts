@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { configure, lint } from '../src/index.js';
-import { variableCase } from '../src/rules/index.js';
+import { configure, lint } from '../../src/index.js';
+import { variableCase } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('variable-case', () => {

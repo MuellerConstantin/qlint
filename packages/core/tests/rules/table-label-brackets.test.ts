@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { tableLabelBrackets } from '../src/rules/index.js';
+import { tableLabelBrackets } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('table-label-brackets', () => {
