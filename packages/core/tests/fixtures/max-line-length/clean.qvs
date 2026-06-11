@@ -1,0 +1,9 @@
+[Sales]:
+Load
+  Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate,
+  CustomerName,
+  ProductCategory,
+  Region,
+  Channel,
+  Subtotal as RevenueLine
+From [lib://Sales/orders.qvd] (qvd);

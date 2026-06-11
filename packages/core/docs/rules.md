@@ -5,6 +5,7 @@
 | [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.         |
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.    |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.              |
+| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.           |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.      |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.         |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars. |
@@ -172,6 +173,69 @@ With `style: 'upper'`, the following is **correct**:
 LOAD
   Sum(Value) as Total
 RESIDENT [TableA];
+```
+
+---
+
+## max-line-length
+
+Limit how long a single line of script may be.
+
+### Rule Details
+
+Long lines force horizontal scrolling, hide statement structure, and make diffs
+harder to read. The rule walks the source line by line and flags every line
+whose character count exceeds the configured maximum. CRLF and LF endings are
+both counted the same way — only the visible characters of the line contribute
+to the length.
+
+The default of `120` was chosen because Qlik scripts have structurally long
+constructs (`lib://...` data-connection paths, embedded SQL, function chains
+like `Date(Timestamp#(...), '...')`) that make tighter defaults noisy on real
+scripts. Teams that want a stricter limit can lower it via the `max` option.
+
+There is no autofix: mechanically wrapping a Qlik line would risk cutting
+string literals, SQL fragments, or data-connection paths and breaking syntax.
+
+Examples of **incorrect** code for this rule (default `max: 120`):
+
+```qlik
+[Sales]:
+Load
+  Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate, CustomerName, ProductCategory, Region, Channel, Subtotal as RevenueLine
+From [lib://Sales/orders.qvd] (qvd);
+```
+
+Examples of **correct** code for this rule (default `max: 120`):
+
+```qlik
+[Sales]:
+Load
+  Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate,
+  CustomerName,
+  ProductCategory,
+  Region,
+  Channel,
+  Subtotal as RevenueLine
+From [lib://Sales/orders.qvd] (qvd);
+```
+
+### Options
+
+| Option | Type     | Default | Description                            |
+| :----- | :------- | :------ | :------------------------------------- |
+| `max`  | `number` | `120`   | Maximum allowed characters per line.   |
+
+Example configuration:
+
+```ts
+import { lint, maxLineLength } from '@qlint/core';
+
+lint(source, [maxLineLength], {
+  rules: {
+    'max-line-length': ['warning', { max: 100 }],
+  },
+});
 ```
 
 ---

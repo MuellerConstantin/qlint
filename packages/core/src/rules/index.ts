@@ -2,10 +2,12 @@ import type { Rule } from '../types.js';
 export type { CaseStyle, CaseRuleOptions } from './types';
 import { builtinFunctionCase } from './builtinFunctionCase.js';
 import { builtinKeywordCase } from './builtinKeywordCase.js';
+import { maxLineLength } from './maxLineLength.js';
 import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { oneStatementPerLine } from './oneStatementPerLine.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
 import { variableCase } from './variableCase.js';
+export type { MaxLineLengthOptions } from './maxLineLength.js';
 export type { LineEnding, OneStatementPerLineOptions } from './oneStatementPerLine.js';
 export type { VariableCaseStyle, VariableCaseOptions } from './variableCase.js';
 
@@ -20,6 +22,7 @@ export const recommended = [
   tableLabelBrackets,
   builtinFunctionCase,
   builtinKeywordCase,
+  maxLineLength,
   noLegacyPathVariables,
   oneStatementPerLine,
   variableCase,
@@ -28,6 +31,7 @@ export const recommended = [
 export {
   builtinFunctionCase,
   builtinKeywordCase,
+  maxLineLength,
   noLegacyPathVariables,
   oneStatementPerLine,
   tableLabelBrackets,
