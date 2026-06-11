@@ -1,0 +1,5 @@
+SET vFoo = 1;
+LET _privateVar = 2;
+Set vL.MyVar = 'ok';
+Let vG.Sys.Path = 'y';
+SET DateFormat = 'YYYY-MM-DD';

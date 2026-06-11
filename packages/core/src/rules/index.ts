@@ -7,6 +7,7 @@ import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { oneStatementPerLine } from './oneStatementPerLine.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
 import { variableCase } from './variableCase.js';
+import { variableCharset } from './variableCharset.js';
 export type { MaxLineLengthOptions } from './maxLineLength.js';
 export type { LineEnding, OneStatementPerLineOptions } from './oneStatementPerLine.js';
 export type { VariableCaseStyle, VariableCaseOptions } from './variableCase.js';
@@ -26,6 +27,7 @@ export const recommended = [
   noLegacyPathVariables,
   oneStatementPerLine,
   variableCase,
+  variableCharset,
 ] as const;
 
 export {
@@ -36,4 +38,5 @@ export {
   oneStatementPerLine,
   tableLabelBrackets,
   variableCase,
+  variableCharset,
 };

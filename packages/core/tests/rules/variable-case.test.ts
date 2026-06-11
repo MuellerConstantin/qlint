@@ -41,18 +41,18 @@ describe('variable-case', () => {
 
   describe('unicode identifiers', () => {
     it('reports the full variable name when it contains non-ASCII letters', () => {
-      const diagnostics = lint("SET v_ÖGD_Modul = 'x';", [variableCase] as const);
+      const diagnostics = lint("SET v_öäü = 'x';", [variableCase] as const);
 
       expect(diagnostics).toHaveLength(1);
-      expect(diagnostics[0].message).toContain("'v_ÖGD_Modul'");
+      expect(diagnostics[0].message).toContain("'v_öäü'");
       expect(diagnostics[0].range).toMatchObject({
         start: { line: 1, column: 5 },
-        end: { line: 1, column: 16 },
+        end: { line: 1, column: 10 },
       });
     });
 
     it('accepts umlauts and accents in camelCase identifiers', () => {
-      const diagnostics = lint("SET änderungsLog = 1;\nLET fürPaul = 2;", [variableCase] as const);
+      const diagnostics = lint('SET änderungsLog = 1;\nLET fürPaul = 2;', [variableCase] as const);
 
       expect(diagnostics).toEqual([]);
     });
@@ -85,11 +85,7 @@ describe('variable-case', () => {
     });
 
     it('with style "upperSnake" accepts UPPER_SNAKE_CASE and flags camelCase', () => {
-      const diagnostics = lintFixture(
-        'variable-case',
-        'clean',
-        configure(variableCase, { style: 'upperSnake' }),
-      );
+      const diagnostics = lintFixture('variable-case', 'clean', configure(variableCase, { style: 'upperSnake' }));
 
       const flagged = diagnostics.map((diagnostic) => diagnostic.message);
       expect(flagged.some((message) => message.includes("'vYear'"))).toBe(true);

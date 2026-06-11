@@ -1,0 +1,4 @@
+SET vFoo. = 1;
+LET vL..Bar = 2;
+Set v$Path = 'x';
+Let vOEGD_Modül = 'y';
