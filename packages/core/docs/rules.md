@@ -1,14 +1,15 @@
 # Rules Reference
 
-| Rule                                                  | Description                                              |
-| :---------------------------------------------------- | :------------------------------------------------------- |
-| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.         |
-| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.    |
-| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.              |
-| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.           |
-| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.      |
-| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.         |
-| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars. |
+| Rule                                                  | Description                                                   |
+| :---------------------------------------------------- | :------------------------------------------------------------ |
+| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.              |
+| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
+| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
+| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
+| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
+| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
+| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
+| [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
 
 ---
 
@@ -222,9 +223,9 @@ From [lib://Sales/orders.qvd] (qvd);
 
 ### Options
 
-| Option | Type     | Default | Description                            |
-| :----- | :------- | :------ | :------------------------------------- |
-| `max`  | `number` | `120`   | Maximum allowed characters per line.   |
+| Option | Type     | Default | Description                          |
+| :----- | :------- | :------ | :----------------------------------- |
+| `max`  | `number` | `120`   | Maximum allowed characters per line. |
 
 Example configuration:
 
@@ -348,9 +349,9 @@ SET vDone = 1;
 
 ### Options
 
-| Option        | Type                          | Default  | Description                                          |
-| :------------ | :---------------------------- | :------- | :--------------------------------------------------- |
-| `lineEnding` | `'auto' \| 'lf' \| 'crlf'`    | `'auto'` | Line ending the autofix inserts between statements. |
+| Option       | Type                       | Default  | Description                                         |
+| :----------- | :------------------------- | :------- | :-------------------------------------------------- |
+| `lineEnding` | `'auto' \| 'lf' \| 'crlf'` | `'auto'` | Line ending the autofix inserts between statements. |
 
 - `'auto'` — match the source: `'\r\n'` if the source contains any CRLF, `'\n'` otherwise.
 - `'lf'` — always insert `'\n'`.
@@ -438,5 +439,67 @@ With `style: 'snake'`, the following is **correct**:
 SET max_date = Today();
 LET row_count = NoOfRows('Sales');
 ```
+
+---
+
+## variable-charset
+
+Restrict user-defined variables to a safe identifier charset.
+
+### Rule Details
+
+Qlik's tokenizer accepts almost anything as a variable name — leading `$`/`#`/`@`,
+trailing dots, consecutive dots, non-ASCII letters, and other characters that
+would be rejected by virtually every other language. Names like `v$Path`,
+`vFoo.`, or `vÖÄÜ` parse without an error but read poorly, break grep,
+trip up surrounding tooling, and turn into a different variable on every typo.
+
+The rule checks the identifier that follows each `SET` / `LET` keyword and flags
+it when it falls outside an opinionated, conservative charset:
+
+- The name consists of one or more segments separated by dots (for the common
+  Qlik namespacing convention like `vL.LocalVar` or `vG.Sys.Path`).
+- Each segment must start with an ASCII letter or underscore and may then
+  contain ASCII letters, digits, and underscores.
+
+Consequences of that pattern: leading dot, trailing dot, consecutive dots,
+segments starting with a digit, and any character outside `[A-Za-z0-9_.]` are
+all rejected. Qlik system variables (such as `DateFormat`, `ThousandSep`,
+`ErrorMode`) are recognised by the lexer as a distinct token type and are
+intentionally excluded — their names are fixed by the platform.
+
+There is no autofix: there is no mechanical way to rewrite `v$Path` or
+`vÖÄÜ` into a sensible replacement without changing meaning.
+
+This rule is complementary to [variable-case](#variable-case): casing and
+charset are independent concerns. `vFüßBär` is valid camelCase, but its
+characters are still outside the safe charset.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+SET vFoo. = 1;
+LET vL..Bar = 2;
+Set v$Path = 'x';
+Let vÖÄÜ = 'y';
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026;
+LET _privateVar = 1;
+Set vL.MyVar = 'ok';
+Let vG.Sys.Path = 'y';
+
+// system variables stay untouched
+SET DateFormat = 'YYYY-MM-DD';
+```
+
+### Options
+
+This rule has no options. The charset is intentionally fixed — making it
+configurable would invite every project to redefine "valid identifier", which
+defeats the point of an opinionated linter.
 
 ---
