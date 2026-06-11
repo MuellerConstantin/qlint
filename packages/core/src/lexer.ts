@@ -698,13 +698,22 @@ const BUILTIN_FUNCTION_TOKEN_PATTERN = new RegExp(
 const SYSTEM_VARIABLE_TOKEN_PATTERN = new RegExp(`(?:${SYSTEM_VARIABLES.join('|')})\\b`, 'i');
 
 /*
+ * Qlik does not publish a positive grammar for identifiers, only a
+ * "characters to avoid" list. We therefore define identifiers by what they
+ * may NOT contain: whitespace, ASCII operators, brackets/parens, statement
+ * delimiters and quotes act as stop chars. Everything else — Unicode
+ * letters, digits, `$`, `#`, `@`, `.`, `_` — is identifier material. The
+ * first character additionally excludes digits and `.` so number literals
+ * and stray dots tokenize separately. See tests/lexer-identifier.test.ts
+ * for the documented positive and negative cases.
+ *
  * Chevrotain's lexer optimizer inspects the first-char class of a pattern to
  * build a dispatch table, but it cannot interpret Unicode property escapes —
  * `\p{L}` collapses to "no chars", so non-ASCII identifiers (e.g. German
  * umlauts) get reported as lex errors. A custom exec wrapper
  * sidesteps the optimizer and runs the regex verbatim.
  */
-const IDENTIFIER_PATTERN = /^[\p{L}_][\p{L}0-9_$.]*/u;
+const IDENTIFIER_PATTERN = /^[^\s\d.+\-*/=<>&|!?%^(){}[\];,:'"][^\s+\-*/=<>&|!?%^(){}[\];,:'"]*/u;
 
 export const identifierToken = createToken({
   name: 'Identifier',
@@ -743,6 +752,10 @@ export const traceMessageToken = createToken({
   line_breaks: true,
 });
 export const bracketToken = createToken({ name: 'Bracket', pattern: /\[[^\]]*\]/ });
+export const quotedIdentifierToken = createToken({
+  name: 'QuotedIdentifier',
+  pattern: /"(?:[^"]|"")*"/,
+});
 export const stringLiteralToken = createToken({ name: 'StringLiteral', pattern: /'(?:[^']|'')*'/ });
 export const numberLiteralToken = createToken({
   name: 'NumberLiteral',
@@ -776,6 +789,7 @@ const defaultModeTokens = [
   whitespaceToken,
   newlineToken,
   bracketToken,
+  quotedIdentifierToken,
   stringLiteralToken,
   numberLiteralToken,
   builtinFunctionToken,
