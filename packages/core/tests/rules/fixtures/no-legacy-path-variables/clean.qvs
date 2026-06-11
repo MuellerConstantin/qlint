@@ -1,6 +1,6 @@
 [Files]:
 Load
-  RecNo() as Idx
+    RecNo() as Idx
 AutoGenerate 1;
 
 LET vRoot = 'lib://MyDataLake/';

@@ -2,6 +2,7 @@
 
 | Rule                                                  | Description                                                   |
 | :---------------------------------------------------- | :------------------------------------------------------------ |
+| [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.     |
 | [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.              |
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
@@ -10,6 +11,117 @@
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
+
+---
+
+## block-indent
+
+Enforce consistent indentation for Qlik block constructs (`Sub`, `If`, `For`,
+`Do`, `Switch`).
+
+### Rule Details
+
+Qlik does not require indentation — block structure is defined by keywords
+(`Sub`/`End Sub`, `If`/`End If`, `For`/`Next`, `Do`/`Loop`, `Switch`/`End Switch`),
+not by whitespace. Without a convention, scripts mix flat and indented styles and
+nested blocks become hard to scan. The rule walks the token stream, tracks the
+open block depth, and flags every statement whose leading whitespace does not
+match the expected level.
+
+The rule only checks statement-start lines. Multi-line continuations — an `If`
+header that spans several lines before `Then`, a `LOAD` body broken across
+fields, a long `WHERE` clause — are intentionally **not** enforced; their layout
+is a separate concern. This keeps the rule focused on block structure and out of
+the way of formatting choices for long statements.
+
+Indentation rules for the supported constructs:
+
+- `Sub … End Sub`, `If … End If`, `For … Next`, `Do … Loop`, `Switch … End Switch`
+  open a new block; the body is indented one level deeper.
+- `Else` / `ElseIf` align with the surrounding `If`.
+- `Case` / `Default` are indented one level **inside** the surrounding `Switch`;
+  their bodies are indented one level deeper again.
+
+The autofix replaces the leading whitespace of each offending line with the
+expected indent. Lines whose first token is part of a function call named `If(…)`
+are not treated as block openers — the lexer distinguishes the keyword from the
+built-in function.
+
+Examples of **incorrect** code for this rule (default `size: 4`, `style: 'space'`):
+
+```qlik
+Sub greet
+Trace hello;
+  End Sub
+
+If vYear = 2026 Then
+  LET vMsg = 'this year';
+    Else
+        LET vMsg = 'other';
+End If
+
+Switch vMode
+Case 'A'
+Trace mode A;
+End Switch
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+Sub greet
+    Trace hello;
+End Sub
+
+If vYear = 2026 Then
+    LET vMsg = 'this year';
+ElseIf vYear < 2026 Then
+    LET vMsg = 'past';
+Else
+    LET vMsg = 'other';
+End If
+
+Switch vMode
+    Case 'A'
+        Trace mode A;
+    Default
+        Trace unknown;
+End Switch
+```
+
+### Options
+
+| Option  | Type               | Default   | Description                             |
+| :------ | :----------------- | :-------- | :-------------------------------------- |
+| `size`  | `number`           | `4`       | Number of indent units per block level. |
+| `style` | `'space' \| 'tab'` | `'space'` | Character used for one indent unit.     |
+
+- `size` — how many `style` units make up one indent level. With `style: 'space'`,
+  the default `4` matches the Qlik Sense Data Load Editor.
+- `style: 'space'` — indent with ASCII spaces.
+- `style: 'tab'` — indent with literal tab characters; `size` then counts tabs
+  per level (the default `4` becomes four tabs per level, so most teams that pick
+  `'tab'` also set `size: 1`).
+
+Example configuration:
+
+```ts
+import { lint, blockIndent } from '@qlint/core';
+
+lint(source, [blockIndent], {
+  rules: {
+    'block-indent': ['warning', { size: 2 }],
+  },
+});
+```
+
+With `size: 2`, the following is **correct**:
+
+```qlik
+Sub greet
+  Trace hello;
+End Sub
+```
 
 ---
 
@@ -30,8 +142,8 @@ Examples of **incorrect** code for this rule:
 ```qlik
 TableA:
 Load
-  Field1,
-  Field2
+    Field1,
+    Field2
 Resident [TableA];
 ```
 
@@ -40,8 +152,8 @@ Examples of **correct** code for this rule:
 ```qlik
 [TableA]:
 Load
-  Field1,
-  Field2
+    Field1,
+    Field2
 Resident [TableA];
 ```
 
@@ -69,7 +181,7 @@ Examples of **incorrect** code for this rule:
 ```qlik
 [Totals]:
 Load
-  sum(Value) as Total
+    sum(Value) as Total
 Resident [TableA];
 ```
 
@@ -78,7 +190,7 @@ Examples of **correct** code for this rule:
 ```qlik
 [Totals]:
 Load
-  Sum(Value) as Total
+    Sum(Value) as Total
 Resident [TableA];
 ```
 
@@ -109,7 +221,7 @@ With `style: 'upper'`, the following is **correct**:
 ```qlik
 [Totals]:
 Load
-  SUM(Value) as Total
+    SUM(Value) as Total
 Resident [TableA];
 ```
 
@@ -132,7 +244,7 @@ Examples of **incorrect** code for this rule:
 ```qlik
 [Totals]:
 LOAD
-  Sum(Value) as Total
+    Sum(Value) as Total
 Resident [TableA];
 ```
 
@@ -141,7 +253,7 @@ Examples of **correct** code for this rule:
 ```qlik
 [Totals]:
 Load
-  Sum(Value) as Total
+    Sum(Value) as Total
 Resident [TableA];
 ```
 
@@ -172,7 +284,7 @@ With `style: 'upper'`, the following is **correct**:
 ```qlik
 [Totals]:
 LOAD
-  Sum(Value) as Total
+    Sum(Value) as Total
 RESIDENT [TableA];
 ```
 
@@ -203,7 +315,7 @@ Examples of **incorrect** code for this rule (default `max: 120`):
 ```qlik
 [Sales]:
 Load
-  Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate, CustomerName, ProductCategory, Region, Channel, Subtotal as RevenueLine
+    Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate, CustomerName, ProductCategory, Region, Channel, Subtotal as RevenueLine
 From [lib://Sales/orders.qvd] (qvd);
 ```
 
@@ -212,12 +324,12 @@ Examples of **correct** code for this rule (default `max: 120`):
 ```qlik
 [Sales]:
 Load
-  Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate,
-  CustomerName,
-  ProductCategory,
-  Region,
-  Channel,
-  Subtotal as RevenueLine
+    Date(Timestamp#(OrderTimestamp, 'YYYY-MM-DDThh:mm:ss')) as OrderDate,
+    CustomerName,
+    ProductCategory,
+    Region,
+    Channel,
+    Subtotal as RevenueLine
 From [lib://Sales/orders.qvd] (qvd);
 ```
 
@@ -268,7 +380,7 @@ LET vRoot = QvRoot;
 
 [Files]:
 Load
-  WinPath as Path
+    WinPath as Path
 AutoGenerate 1;
 ```
 
@@ -279,7 +391,7 @@ LET vRoot = 'lib://MyDataLake/';
 
 [Files]:
 Load
-  '$(vRoot)' as Path
+    '$(vRoot)' as Path
 AutoGenerate 1;
 ```
 
@@ -324,8 +436,8 @@ SET vYear = 2026; LET vMonth = 6;
 
 [TableA]:
 Load
-  Field1,
-  Field2
+    Field1,
+    Field2
 Resident [Source]; SET vDone = 1;
 ```
 
@@ -337,12 +449,12 @@ LET vMonth = 6; // trailing comments are fine
 
 [TableA]:
 Load
-  Field1,
-  Field2
+    Field1,
+    Field2
 Resident [Source];
 
 Sub greet
-  Trace hello;
+    Trace hello;
 End Sub
 SET vDone = 1;
 ```

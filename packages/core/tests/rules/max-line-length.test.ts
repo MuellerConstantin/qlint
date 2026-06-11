@@ -11,10 +11,10 @@ describe('max-line-length', () => {
     expect(diagnostics[0]).toMatchObject({
       ruleId: 'max-line-length',
       severity: 'warning',
-      range: { start: { line: 3, column: 121 }, end: { line: 3, column: 144 } },
+      range: { start: { line: 3, column: 121 }, end: { line: 3, column: 146 } },
     });
     expect(diagnostics[0].message).toContain('120');
-    expect(diagnostics[0].message).toContain('143');
+    expect(diagnostics[0].message).toContain('145');
   });
 
   it('does not offer an autofix', () => {

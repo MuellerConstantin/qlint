@@ -11,7 +11,7 @@ describe('builtin-function-case', () => {
     expect(diagnostics[0]).toMatchObject({
       ruleId: 'builtin-function-case',
       severity: 'warning',
-      range: { start: { line: 3, column: 3 } },
+      range: { start: { line: 3, column: 5 } },
     });
     expect(diagnostics[0].message).toContain("'sum'");
     expect(diagnostics[0].message).toContain("'Sum'");

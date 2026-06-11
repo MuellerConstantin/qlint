@@ -10,7 +10,7 @@ describe('no-legacy-path-variables', () => {
     expect(diagnostics[0]).toMatchObject({
       ruleId: 'no-legacy-path-variables',
       severity: 'error',
-      range: { start: { line: 3, column: 3 } },
+      range: { start: { line: 3, column: 5 } },
     });
     expect(diagnostics[0].message).toContain("'QvPath'");
     expect(diagnostics[1].message).toContain("'WinRoot'");

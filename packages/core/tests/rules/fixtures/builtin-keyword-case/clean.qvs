@@ -1,4 +1,4 @@
 [Totals]:
 Load
-  Sum(Value) as Total
+    Sum(Value) as Total
 Resident [TableA];

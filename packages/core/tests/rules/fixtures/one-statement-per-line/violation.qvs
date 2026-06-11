@@ -2,6 +2,6 @@ SET vYear = 2026; LET vMonth = 6;
 
 [TableA]:
 Load
-  Field1,
-  Field2
+    Field1,
+    Field2
 Resident [Source]; SET vDone = 1;

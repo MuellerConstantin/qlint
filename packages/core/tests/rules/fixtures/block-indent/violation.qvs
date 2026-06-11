@@ -1,0 +1,18 @@
+Sub greet
+Trace hello;
+  End Sub
+
+If vYear = 2026 Then
+  LET vMsg = 'this year';
+        ElseIf vYear < 2026 Then
+LET vMsg = 'past';
+    Else
+            LET vMsg = 'other';
+End If
+
+Switch vMode
+Case 'A'
+Trace mode A;
+Default
+      Trace unknown;
+End Switch

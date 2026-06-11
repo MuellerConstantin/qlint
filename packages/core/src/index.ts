@@ -10,10 +10,18 @@ export type {
 export {
   recommended,
   tableLabelBrackets,
+  blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,
   noLegacyPathVariables,
   variableCase,
   configure,
 } from './rules/index.js';
-export type { CaseStyle, CaseRuleOptions, VariableCaseStyle, VariableCaseOptions } from './rules/index.js';
+export type {
+  BlockIndentOptions,
+  CaseStyle,
+  CaseRuleOptions,
+  IndentStyle,
+  VariableCaseStyle,
+  VariableCaseOptions,
+} from './rules/index.js';
