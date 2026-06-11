@@ -1,0 +1,13 @@
+SET vYear = 2026;
+LET vMonth = 6; // trailing comment is fine
+
+[TableA]:
+Load
+  Field1,
+  Field2
+Resident [Source];
+
+Sub greet
+  Trace hello;
+End Sub
+SET vDone = 1;

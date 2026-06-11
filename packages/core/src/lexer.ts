@@ -701,7 +701,7 @@ const SYSTEM_VARIABLE_TOKEN_PATTERN = new RegExp(`(?:${SYSTEM_VARIABLES.join('|'
  * Chevrotain's lexer optimizer inspects the first-char class of a pattern to
  * build a dispatch table, but it cannot interpret Unicode property escapes —
  * `\p{L}` collapses to "no chars", so non-ASCII identifiers (e.g. German
- * umlauts in `v_ÖGD_Modul`) get reported as lex errors. A custom exec wrapper
+ * umlauts) get reported as lex errors. A custom exec wrapper
  * sidesteps the optimizer and runs the regex verbatim.
  */
 const IDENTIFIER_PATTERN = /^[\p{L}_][\p{L}0-9_$.]*/u;

@@ -6,6 +6,7 @@
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.    |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.              |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.      |
+| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.         |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars. |
 
 ---
@@ -220,6 +221,88 @@ AutoGenerate 1;
 ### Options
 
 This rule has no options.
+
+---
+
+## one-statement-per-line
+
+Require each statement to start on its own line.
+
+### Rule Details
+
+Qlik allows multiple statements to be packed onto a single physical line by
+separating them with semicolons (`SET vYear = 2026; LET vMonth = 6;`). The
+syntax is legal, but every extra statement on a line hides from a scan-read of
+the script and complicates diffs — a one-character change can rewrite the
+meaning of half the line.
+
+The rule walks the token stream and flags any token that shares a line with
+the semicolon immediately preceding it. Multi-line `LOAD` bodies are not
+affected because their field separators are commas, not semicolons. Trailing
+comments after a semicolon are also not affected, because the lexer skips
+comment tokens entirely — only real code on the same line triggers a finding.
+
+Implicit terminators like `End Sub`, `Next`, and `Loop` end a statement only
+across a line break; on the same line Qlik itself rejects a chained statement
+unless an explicit semicolon is added, so they collapse to the same
+semicolon-based check.
+
+The autofix replaces the gap between the semicolon and the next token with a
+single newline, so `SET x = 1;  SET y = 2;` becomes
+`SET x = 1;\nSET y = 2;`. Any indentation of the new line is left to a
+dedicated indent rule.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+SET vYear = 2026; LET vMonth = 6;
+
+[TableA]:
+Load
+  Field1,
+  Field2
+Resident [Source]; SET vDone = 1;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026;
+LET vMonth = 6; // trailing comments are fine
+
+[TableA]:
+Load
+  Field1,
+  Field2
+Resident [Source];
+
+Sub greet
+  Trace hello;
+End Sub
+SET vDone = 1;
+```
+
+### Options
+
+| Option        | Type                          | Default  | Description                                          |
+| :------------ | :---------------------------- | :------- | :--------------------------------------------------- |
+| `lineEnding` | `'auto' \| 'lf' \| 'crlf'`    | `'auto'` | Line ending the autofix inserts between statements. |
+
+- `'auto'` — match the source: `'\r\n'` if the source contains any CRLF, `'\n'` otherwise.
+- `'lf'` — always insert `'\n'`.
+- `'crlf'` — always insert `'\r\n'`.
+
+Example configuration:
+
+```ts
+import { lint, oneStatementPerLine } from '@qlint/core';
+
+lint(source, [oneStatementPerLine], {
+  rules: {
+    'one-statement-per-line': ['warning', { lineEnding: 'crlf' }],
+  },
+});
+```
 
 ---
 

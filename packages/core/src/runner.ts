@@ -81,6 +81,7 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
   const result = lexer.tokenize(source);
 
   const ctx: RuleContext = {
+    source,
     tokens: result.tokens,
     firstOnLine: firstTokenPerLine(result.tokens),
   };

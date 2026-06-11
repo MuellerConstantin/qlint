@@ -28,6 +28,7 @@ export interface Diagnostic {
 export type Finding = Omit<Diagnostic, 'ruleId'>;
 
 export interface RuleContext {
+  source: string;
   tokens: IToken[];
   firstOnLine: IToken[];
 }
