@@ -127,6 +127,31 @@ describe('block-indent', () => {
     expect(diagnostics).toEqual([]);
   });
 
+  it('treats a table label colon as a statement terminator', () => {
+    const source = ['[x]:', 'LOAD * INLINE [a,b];'].join('\n');
+
+    const diagnostics = lint(source, [blockIndent]);
+
+    expect(diagnostics).toEqual([]);
+  });
+
+  it('flags a Load that is indented under a table label', () => {
+    const source = ['[x]:', '    LOAD * INLINE [a,b];'].join('\n');
+
+    const diagnostics = lint(source, [blockIndent]);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.line).toBe(2);
+  });
+
+  it('still skips continuation lines inside a multi-line labeled Load', () => {
+    const source = ['[x]:', 'LOAD', '    field1,', '    field2', 'FROM source.qvd;'].join('\n');
+
+    const diagnostics = lint(source, [blockIndent]);
+
+    expect(diagnostics).toEqual([]);
+  });
+
   it('produces a fix that replaces the entire leading whitespace prefix', () => {
     const diagnostics = lint('Sub greet\n\t  Trace hello;\nEnd Sub', [blockIndent]);
 

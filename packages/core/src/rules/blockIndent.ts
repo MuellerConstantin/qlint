@@ -11,12 +11,14 @@ export interface BlockIndentOptions {
 
 /*
  * Tokens whose presence on the previous line forces the next line to be
- * treated as a fresh statement. `;` is the universal terminator; the
- * keywords below implicitly terminate a block-control statement when they
- * appear as its final token (`If x Then`, a dangling `Do`, `Else`, ...).
+ * treated as a fresh statement. `;` is the universal terminator; `:` ends
+ * a table label (`MyTable:`); the keywords below implicitly terminate a
+ * block-control statement when they appear as its final token (`If x Then`,
+ * a dangling `Do`, `Else`, ...).
  */
 const TERMINATOR_LAST = new Set([
   ';',
+  ':',
   'then',
   'do',
   'else',
