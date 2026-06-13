@@ -1,22 +1,22 @@
 import type { Rule } from '../types.js';
 export type { CaseStyle, CaseRuleOptions } from './types';
-import { blockIndent } from './blockIndent.js';
-import { builtinFunctionCase } from './builtinFunctionCase.js';
-import { builtinKeywordCase } from './builtinKeywordCase.js';
-import { commentSpace } from './commentSpace.js';
-import { maxLineLength } from './maxLineLength.js';
-import { noLegacyPathVariables } from './noLegacyPathVariables.js';
-import { noMultipleEmptyLines } from './noMultipleEmptyLines.js';
-import { oneStatementPerLine } from './oneStatementPerLine.js';
-import { tableLabelBrackets } from './tableLabelBrackets.js';
-import { trailingWhitespace } from './trailingWhitespace.js';
-import { variableCase } from './variableCase.js';
-import { variableCharset } from './variableCharset.js';
-export type { BlockIndentOptions, IndentStyle } from './blockIndent.js';
-export type { MaxLineLengthOptions } from './maxLineLength.js';
-export type { NoMultipleEmptyLinesOptions } from './noMultipleEmptyLines.js';
-export type { LineEnding, OneStatementPerLineOptions } from './oneStatementPerLine.js';
-export type { VariableCaseStyle, VariableCaseOptions } from './variableCase.js';
+import { blockIndent } from './block-indent.js';
+import { builtinFunctionCase } from './builtin-function-case.js';
+import { builtinKeywordCase } from './builtin-keyword-case.js';
+import { commentSpace } from './comment-space.js';
+import { maxLineLength } from './max-line-length.js';
+import { noLegacyPathVariables } from './no-legacy-path-variables.js';
+import { noMultipleEmptyLines } from './no-multiple-empty-lines.js';
+import { oneStatementPerLine } from './one-statement-per-line.js';
+import { tableLabelBrackets } from './table-label-brackets.js';
+import { trailingWhitespace } from './trailing-whitespace.js';
+import { variableCase } from './variable-case.js';
+import { variableCharset } from './variable-charset.js';
+export type { BlockIndentOptions, IndentStyle } from './block-indent.js';
+export type { MaxLineLengthOptions } from './max-line-length.js';
+export type { NoMultipleEmptyLinesOptions } from './no-multiple-empty-lines.js';
+export type { LineEnding, OneStatementPerLineOptions } from './one-statement-per-line.js';
+export type { VariableCaseStyle, VariableCaseOptions } from './variable-case.js';
 
 export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Partial<O>): Rule<O, Id> {
   return {
