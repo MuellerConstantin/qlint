@@ -1,0 +1,8 @@
+SET vYear = 2026;
+
+SET vMonth = 6;
+
+// section break
+SET vDay = 1;
+
+SET vHour = 12;

@@ -6,12 +6,14 @@ import { builtinKeywordCase } from './builtinKeywordCase.js';
 import { commentSpace } from './commentSpace.js';
 import { maxLineLength } from './maxLineLength.js';
 import { noLegacyPathVariables } from './noLegacyPathVariables.js';
+import { noMultipleEmptyLines } from './noMultipleEmptyLines.js';
 import { oneStatementPerLine } from './oneStatementPerLine.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
 import { variableCase } from './variableCase.js';
 import { variableCharset } from './variableCharset.js';
 export type { BlockIndentOptions, IndentStyle } from './blockIndent.js';
 export type { MaxLineLengthOptions } from './maxLineLength.js';
+export type { NoMultipleEmptyLinesOptions } from './noMultipleEmptyLines.js';
 export type { LineEnding, OneStatementPerLineOptions } from './oneStatementPerLine.js';
 export type { VariableCaseStyle, VariableCaseOptions } from './variableCase.js';
 
@@ -30,6 +32,7 @@ export const recommended = [
   commentSpace,
   maxLineLength,
   noLegacyPathVariables,
+  noMultipleEmptyLines,
   oneStatementPerLine,
   variableCase,
   variableCharset,
@@ -42,6 +45,7 @@ export {
   commentSpace,
   maxLineLength,
   noLegacyPathVariables,
+  noMultipleEmptyLines,
   oneStatementPerLine,
   tableLabelBrackets,
   variableCase,

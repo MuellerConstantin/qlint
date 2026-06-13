@@ -9,6 +9,7 @@
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
+| [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
@@ -474,6 +475,81 @@ AutoGenerate 1;
 ### Options
 
 This rule has no options.
+
+---
+
+## no-multiple-empty-lines
+
+Limit how many consecutive empty lines may appear in the script.
+
+### Rule Details
+
+Consecutive blank lines break the visual flow of a script and inflate diffs
+without conveying information. Most scripts use a single blank line to separate
+related blocks; runs of two or more blanks are usually leftover artifacts from
+copy-and-paste or block deletions. The rule walks the source line by line,
+tracks runs of empty (whitespace-only) lines, and flags any run that exceeds
+the configured maximum.
+
+A line counts as empty when it contains nothing but whitespace. Comment-only
+lines are **not** considered empty — a `// section break` between two single
+blank lines does not fuse them into one over-long run. CRLF and LF line
+endings are treated identically; the autofix preserves whichever ending the
+source uses.
+
+The autofix collapses each over-long run down to the configured maximum by
+deleting the excess line terminators.
+
+Examples of **incorrect** code for this rule (default `max: 1`):
+
+```qlik
+SET vYear = 2026;
+
+
+
+SET vMonth = 6;
+
+
+SET vDay = 1;
+```
+
+Examples of **correct** code for this rule (default `max: 1`):
+
+```qlik
+SET vYear = 2026;
+
+SET vMonth = 6;
+
+// section break
+SET vDay = 1;
+```
+
+### Options
+
+| Option | Type     | Default | Description                              |
+| :----- | :------- | :------ | :--------------------------------------- |
+| `max`  | `number` | `1`     | Maximum allowed consecutive empty lines. |
+
+Example configuration:
+
+```ts
+import { lint, noMultipleEmptyLines } from '@qlint/core';
+
+lint(source, [noMultipleEmptyLines], {
+  rules: {
+    'no-multiple-empty-lines': ['warning', { max: 2 }],
+  },
+});
+```
+
+With `max: 2`, the following is **correct**:
+
+```qlik
+SET vYear = 2026;
+
+
+SET vMonth = 6;
+```
 
 ---
 

@@ -15,6 +15,7 @@ export {
   builtinKeywordCase,
   commentSpace,
   noLegacyPathVariables,
+  noMultipleEmptyLines,
   variableCase,
   configure,
 } from './rules/index.js';
@@ -23,6 +24,7 @@ export type {
   CaseStyle,
   CaseRuleOptions,
   IndentStyle,
+  NoMultipleEmptyLinesOptions,
   VariableCaseStyle,
   VariableCaseOptions,
 } from './rules/index.js';
