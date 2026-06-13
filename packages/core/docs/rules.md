@@ -11,6 +11,7 @@
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
+| [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                     |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
 
@@ -633,6 +634,57 @@ lint(source, [oneStatementPerLine], {
   },
 });
 ```
+
+---
+
+## trailing-whitespace
+
+Disallow spaces or tabs at the end of a line.
+
+### Rule Details
+
+Trailing whitespace is invisible in most editors but shows up as noise in
+diffs and version-control blame: editing the visible content of a line that
+already carried trailing spaces produces a multi-character diff for what reads
+as a single-character change. It also bloats whitespace-only lines into
+"non-empty blank" lines that are harder to reason about. The rule walks the
+source line by line and flags every line whose final character is a space or
+tab.
+
+CRLF and LF line endings are both recognised and preserved by the autofix —
+only the whitespace immediately before the terminator is removed. Whitespace
+on a line without a trailing newline (e.g. the very last line of a file) is
+handled the same way.
+
+The autofix strips the trailing whitespace from each offending line. This
+composes cleanly with [no-multiple-empty-lines](#no-multiple-empty-lines):
+whitespace-only lines first become truly empty under `trailing-whitespace`,
+and the subsequent format pass collapses any over-long blank runs.
+
+Examples of **incorrect** code for this rule (`·` marks a space, `→` marks a tab):
+
+```qlik
+SET vYear = 2026;···
+SET vMonth = 6;→
+SET vDay = 1;·→·
+LET vHour = 12;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026;
+SET vMonth = 6;
+SET vDay = 1;
+LET vHour = 12;
+```
+
+### Options
+
+This rule has no options. The no-trailing-whitespace convention is
+intentionally fixed — making it configurable would invite every project to
+redefine "well-formatted line", which defeats the point of an opinionated
+linter.
 
 ---
 

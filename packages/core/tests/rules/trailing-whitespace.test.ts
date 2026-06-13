@@ -1,0 +1,125 @@
+import { describe, expect, it } from 'vitest';
+import { format, lint } from '../../src/index.js';
+import { noMultipleEmptyLines, trailingWhitespace } from '../../src/rules/index.js';
+import { lintFixture } from './helpers.js';
+
+describe('trailing-whitespace', () => {
+  it('flags every line that ends with spaces or tabs', () => {
+    const diagnostics = lintFixture('trailing-whitespace', 'violation', trailingWhitespace);
+
+    expect(diagnostics).toHaveLength(3);
+    for (const d of diagnostics) {
+      expect(d.ruleId).toBe('trailing-whitespace');
+      expect(d.severity).toBe('warning');
+      expect(d.message).toBe('Trailing whitespace.');
+    }
+    expect(diagnostics.map((d) => d.range.start.line)).toEqual([1, 2, 3]);
+  });
+
+  it('does not flag lines without trailing whitespace', () => {
+    const diagnostics = lintFixture('trailing-whitespace', 'clean', trailingWhitespace);
+
+    expect(diagnostics).toEqual([]);
+  });
+
+  it('flags trailing spaces', () => {
+    const diagnostics = lint('SET a = 1;   \n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start).toEqual({ line: 1, column: 11 });
+    expect(diagnostics[0].range.end).toEqual({ line: 1, column: 14 });
+  });
+
+  it('flags trailing tabs', () => {
+    const diagnostics = lint('SET a = 1;\t\t\n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.column).toBe(11);
+  });
+
+  it('flags mixed trailing whitespace', () => {
+    const diagnostics = lint('SET a = 1; \t \n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+  });
+
+  it('flags a line that is entirely whitespace', () => {
+    const diagnostics = lint('SET a = 1;\n   \nSET b = 2;\n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start).toEqual({ line: 2, column: 1 });
+    expect(diagnostics[0].range.end).toEqual({ line: 2, column: 4 });
+  });
+
+  it('flags trailing whitespace on the last line when there is no terminator', () => {
+    const diagnostics = lint('SET a = 1;   ', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start).toEqual({ line: 1, column: 11 });
+  });
+
+  it('flags trailing whitespace before a CRLF line ending', () => {
+    const diagnostics = lint('SET a = 1;  \r\nSET b = 2;\r\n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.line).toBe(1);
+  });
+
+  it('does not flag inner whitespace between tokens', () => {
+    const diagnostics = lint('SET   a    =    1;\n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toEqual([]);
+  });
+
+  it('reports each offending line separately', () => {
+    const diagnostics = lint('SET a = 1; \nSET b = 2;\t\nSET c = 3;\n', [trailingWhitespace] as const);
+
+    expect(diagnostics).toHaveLength(2);
+    expect(diagnostics.map((d) => d.range.start.line)).toEqual([1, 2]);
+  });
+
+  it('autofixes trailing spaces by stripping them', () => {
+    const result = format('SET a = 1;   \n', [trailingWhitespace]);
+
+    expect(result.output).toBe('SET a = 1;\n');
+    expect(result.fixed).toBe(1);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('autofixes mixed trailing whitespace', () => {
+    const result = format('SET a = 1; \t \nSET b = 2;\t\n', [trailingWhitespace]);
+
+    expect(result.output).toBe('SET a = 1;\nSET b = 2;\n');
+    expect(result.fixed).toBe(2);
+  });
+
+  it('preserves CRLF endings when autofixing', () => {
+    const result = format('SET a = 1;   \r\nSET b = 2;\r\n', [trailingWhitespace]);
+
+    expect(result.output).toBe('SET a = 1;\r\nSET b = 2;\r\n');
+    expect(result.fixed).toBe(1);
+  });
+
+  it('autofixes the last line when it has no trailing newline', () => {
+    const result = format('SET a = 1;   ', [trailingWhitespace]);
+
+    expect(result.output).toBe('SET a = 1;');
+    expect(result.fixed).toBe(1);
+  });
+
+  it('autofixes a whitespace-only line down to a truly empty line', () => {
+    const result = format('SET a = 1;\n   \nSET b = 2;\n', [trailingWhitespace]);
+
+    expect(result.output).toBe('SET a = 1;\n\nSET b = 2;\n');
+    expect(result.fixed).toBe(1);
+  });
+
+  it('converges with no-multiple-empty-lines across multiple format passes', () => {
+    const source = 'SET a = 1;\n   \n\t\n  \nSET b = 2;\n';
+
+    const result = format(source, [trailingWhitespace, noMultipleEmptyLines]);
+
+    expect(result.output).toBe('SET a = 1;\n\nSET b = 2;\n');
+    expect(result.diagnostics).toEqual([]);
+  });
+});

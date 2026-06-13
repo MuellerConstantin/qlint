@@ -16,6 +16,7 @@ export {
   commentSpace,
   noLegacyPathVariables,
   noMultipleEmptyLines,
+  trailingWhitespace,
   variableCase,
   configure,
 } from './rules/index.js';

@@ -61,6 +61,13 @@ describe('no-multiple-empty-lines', () => {
     expect(diagnostics).toHaveLength(1);
   });
 
+  it('autofixes a run that contains whitespace-only blank lines', () => {
+    const result = format('SET a = 1;\n   \n\t\nSET b = 2;\n', [noMultipleEmptyLines]);
+
+    expect(result.output).toBe('SET a = 1;\n   \nSET b = 2;\n');
+    expect(result.fixed).toBe(1);
+  });
+
   it('does not treat comment-only lines as empty', () => {
     const diagnostics = lint('SET a = 1;\n\n// note\n\nSET b = 2;\n', [noMultipleEmptyLines] as const);
 

@@ -67,7 +67,7 @@ export const noMultipleEmptyLines: Rule<NoMultipleEmptyLinesOptions, 'no-multipl
           },
           message: `Too many consecutive empty lines (max ${max}, got ${runLength}).`,
           fix: {
-            range: { start: firstExcess.start, end: lastExcess.start + lastExcess.terminator.length },
+            range: { start: firstExcess.start, end: lastExcess.end + lastExcess.terminator.length },
             replacement: '',
           },
         });

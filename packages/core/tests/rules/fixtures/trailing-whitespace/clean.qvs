@@ -1,0 +1,4 @@
+SET vYear = 2026;
+SET vMonth = 6;
+SET vDay = 1;
+LET vHour = 12;

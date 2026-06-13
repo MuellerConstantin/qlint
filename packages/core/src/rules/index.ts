@@ -9,6 +9,7 @@ import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { noMultipleEmptyLines } from './noMultipleEmptyLines.js';
 import { oneStatementPerLine } from './oneStatementPerLine.js';
 import { tableLabelBrackets } from './tableLabelBrackets.js';
+import { trailingWhitespace } from './trailingWhitespace.js';
 import { variableCase } from './variableCase.js';
 import { variableCharset } from './variableCharset.js';
 export type { BlockIndentOptions, IndentStyle } from './blockIndent.js';
@@ -34,6 +35,7 @@ export const recommended = [
   noLegacyPathVariables,
   noMultipleEmptyLines,
   oneStatementPerLine,
+  trailingWhitespace,
   variableCase,
   variableCharset,
 ] as const;
@@ -48,6 +50,7 @@ export {
   noMultipleEmptyLines,
   oneStatementPerLine,
   tableLabelBrackets,
+  trailingWhitespace,
   variableCase,
   variableCharset,
 };
