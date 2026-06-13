@@ -128,7 +128,7 @@ function isSwitchClose(lineTokens: IToken[]): boolean {
 
 export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
   id: 'block-indent',
-  defaultOptions: { size: 4, style: 'space' },
+  defaultOptions: { size: 1, style: 'tab' },
   check: ({ tokens }, { size, style }) => {
     const out: Finding[] = [];
     const lines = groupByLine(tokens);

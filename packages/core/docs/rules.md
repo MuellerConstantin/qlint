@@ -50,17 +50,17 @@ expected indent. Lines whose first token is part of a function call named `If(�
 are not treated as block openers — the lexer distinguishes the keyword from the
 built-in function.
 
-Examples of **incorrect** code for this rule (default `size: 4`, `style: 'space'`):
+Examples of **incorrect** code for this rule (default `style: 'tab'`, `size: 1`, shown with `→` for a tab character):
 
 ```qlik
 Sub greet
 Trace hello;
-  End Sub
+→→End Sub
 
 If vYear = 2026 Then
-  LET vMsg = 'this year';
-    Else
-        LET vMsg = 'other';
+→→LET vMsg = 'this year';
+→Else
+→→→LET vMsg = 'other';
 End If
 
 Switch vMode
@@ -73,38 +73,41 @@ Examples of **correct** code for this rule:
 
 ```qlik
 Sub greet
-    Trace hello;
+→Trace hello;
 End Sub
 
 If vYear = 2026 Then
-    LET vMsg = 'this year';
+→LET vMsg = 'this year';
 ElseIf vYear < 2026 Then
-    LET vMsg = 'past';
+→LET vMsg = 'past';
 Else
-    LET vMsg = 'other';
+→LET vMsg = 'other';
 End If
 
 Switch vMode
-    Case 'A'
-        Trace mode A;
-    Default
-        Trace unknown;
+→Case 'A'
+→→Trace mode A;
+→Default
+→→Trace unknown;
 End Switch
 ```
 
 ### Options
 
-| Option  | Type               | Default   | Description                             |
-| :------ | :----------------- | :-------- | :-------------------------------------- |
-| `size`  | `number`           | `4`       | Number of indent units per block level. |
-| `style` | `'space' \| 'tab'` | `'space'` | Character used for one indent unit.     |
+| Option  | Type               | Default | Description                             |
+| :------ | :----------------- | :------ | :-------------------------------------- |
+| `size`  | `number`           | `1`     | Number of indent units per block level. |
+| `style` | `'space' \| 'tab'` | `'tab'` | Character used for one indent unit.     |
 
-- `size` — how many `style` units make up one indent level. With `style: 'space'`,
-  the default `4` matches the Qlik Sense Data Load Editor.
-- `style: 'space'` — indent with ASCII spaces.
-- `style: 'tab'` — indent with literal tab characters; `size` then counts tabs
-  per level (the default `4` becomes four tabs per level, so most teams that pick
-  `'tab'` also set `size: 1`).
+- `size` — how many `style` units make up one indent level. With `style: 'tab'`,
+  the default `1` matches the Qlik Sense Data Load Editor (one tab per level,
+  rendered as four columns wide by the editor itself).
+- `style: 'tab'` — indent with literal tab characters. `size` then counts tabs
+  per level; almost every team that picks `'tab'` keeps `size: 1`. The display
+  width of a tab is the editor's concern, not the linter's — the rule only
+  inserts the literal `\t` byte.
+- `style: 'space'` — indent with ASCII spaces. Typical pairings are `size: 2`
+  or `size: 4`.
 
 Example configuration:
 
@@ -113,16 +116,16 @@ import { lint, blockIndent } from '@qlint/core';
 
 lint(source, [blockIndent], {
   rules: {
-    'block-indent': ['warning', { size: 2 }],
+    'block-indent': ['warning', { style: 'space', size: 4 }],
   },
 });
 ```
 
-With `size: 2`, the following is **correct**:
+With `{ style: 'space', size: 4 }`, the following is **correct**:
 
 ```qlik
 Sub greet
-  Trace hello;
+    Trace hello;
 End Sub
 ```
 

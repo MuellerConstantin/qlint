@@ -1,46 +1,46 @@
 SET vYear = 2026;
 
 Sub greet
-    Trace hello;
+	Trace hello;
 End Sub
 
 If vYear = 2026 Then
-    LET vMsg = 'this year';
+	LET vMsg = 'this year';
 ElseIf vYear < 2026 Then
-    LET vMsg = 'past';
+	LET vMsg = 'past';
 ElseIf vYear > 2030 Then
-    LET vMsg = 'far future';
+	LET vMsg = 'far future';
 Else
-    LET vMsg = 'soon';
+	LET vMsg = 'soon';
 End If
 
 For i = 1 to 3
-    Trace step;
+	Trace step;
 Next
 
 Do While vDone = 0
-    LET vDone = 1;
+	LET vDone = 1;
 Loop
 
 Switch vMode
-    Case 'A'
-        Trace mode A;
-    Case 'B'
-        Trace mode B;
-    Default
-        Trace unknown;
+	Case 'A'
+		Trace mode A;
+	Case 'B'
+		Trace mode B;
+	Default
+		Trace unknown;
 End Switch
 
 Sub outer
-    If x = 1 Then
-        For j = 1 to 2
-            If j = 1 Then
-                Trace deep;
-            ElseIf j = 2 Then
-                Trace also deep;
-            Else
-                Trace not reached;
-            End If
-        Next
-    End If
+	If x = 1 Then
+		For j = 1 to 2
+			If j = 1 Then
+				Trace deep;
+			ElseIf j = 2 Then
+				Trace also deep;
+			Else
+				Trace not reached;
+			End If
+		Next
+	End If
 End Sub
