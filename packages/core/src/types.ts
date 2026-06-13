@@ -31,6 +31,7 @@ export interface RuleContext {
   source: string;
   tokens: IToken[];
   firstOnLine: IToken[];
+  comments: IToken[];
 }
 
 export interface Rule<O = undefined, Id extends string = string> {

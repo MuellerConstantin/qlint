@@ -775,11 +775,24 @@ export const punctuationToken = createToken({ name: 'Punctuation', pattern: /[()
 
 const whitespaceToken = createToken({ name: 'Whitespace', pattern: /[ \t]+/, group: Lexer.SKIPPED });
 const newlineToken = createToken({ name: 'Newline', pattern: /\r?\n/, group: Lexer.SKIPPED, line_breaks: true });
-const lineCommentToken = createToken({ name: 'LineComment', pattern: /\/\/[^\n\r]*/, group: Lexer.SKIPPED });
-const blockCommentToken = createToken({
+
+/*
+ * Comments are routed to the 'comments' group instead of being skipped, so they
+ * stay out of the main token stream (rules that iterate `tokens` are unaffected)
+ * but remain accessible via `result.groups.comments` and the `comments` field on
+ * RuleContext for rules that need to inspect them — e.g. comment-style rules.
+ */
+export const COMMENT_GROUP = 'comments';
+
+export const lineCommentToken = createToken({
+  name: 'LineComment',
+  pattern: /\/\/[^\n\r]*/,
+  group: COMMENT_GROUP,
+});
+export const blockCommentToken = createToken({
   name: 'BlockComment',
   pattern: /\/\*[\s\S]*?\*\//,
-  group: Lexer.SKIPPED,
+  group: COMMENT_GROUP,
   line_breaks: true,
 });
 

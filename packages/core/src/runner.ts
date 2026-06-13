@@ -1,6 +1,6 @@
 import type { IToken } from 'chevrotain';
 import { collectDisabledLines, isDisabled } from './disableDirectives.js';
-import { lexer } from './lexer.js';
+import { COMMENT_GROUP, lexer } from './lexer.js';
 import type { Rule, Range, Fix, Severity, Diagnostic, RuleContext } from './types.js';
 
 export function tokenRange(token: IToken): Range {
@@ -84,6 +84,7 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
     source,
     tokens: result.tokens,
     firstOnLine: firstTokenPerLine(result.tokens),
+    comments: result.groups[COMMENT_GROUP] ?? [],
   };
 
   const disabled = collectDisabledLines(source);

@@ -6,6 +6,7 @@
 | [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.              |
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
+| [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
@@ -290,6 +291,81 @@ RESIDENT [TableA];
 
 ---
 
+## comment-space
+
+Require a single space between a comment marker and its body.
+
+### Rule Details
+
+Comments without separating whitespace (`//foo`, `/*foo*/`) read as one
+continuous blob and make a quick scan of the script harder. A consistent single
+space between the marker and the text keeps comments visually aligned with the
+surrounding code and matches the convention used by every other linter in the
+ecosystem.
+
+The rule walks every comment token and enforces:
+
+- `//` line comments must be followed by whitespace before any text.
+- `/* … */` block comments must have whitespace immediately after `/*` and
+  immediately before `*/` (a newline counts as whitespace, so multi-line block
+  comments that open with a line break are fine).
+
+Two intentional exceptions keep the rule out of the way of common idioms:
+
+- Empty markers (`//`, `/**/`) are accepted.
+- Decorative banners whose body consists only of the marker character are
+  accepted: `////////////////` (only `/`s after `//`) and `/****/` (only `*`s
+  between `/*` and `*/`). This covers the section-divider style that Qlik
+  scripts often use to delimit pipeline stages without forcing an awkward
+  rewrite.
+
+The autofix inserts a single space at each offending position. A tight
+`/*foo*/` becomes `/* foo */` in one format pass.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+//No space after slashes
+SET vYear = 2026;
+
+/*tight block*/
+LET vMonth = 6;
+
+/* missing-at-end*/
+LET vDay = 1;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+// Comment with a space
+SET vYear = 2026;
+
+//
+LET vMonth = 6;
+
+////////////////////////////////////////
+// Decorative banner
+////////////////////////////////////////
+
+/* spaced block */
+LET vDay = 1;
+
+/*
+ * multi-line block comment
+ * stays untouched
+ */
+LET vHour = 12;
+```
+
+### Options
+
+This rule has no options. The single-space convention is intentionally fixed —
+making it configurable would invite every project to redefine "well-formatted
+comment", which defeats the point of an opinionated linter.
+
+---
+
 ## max-line-length
 
 Limit how long a single line of script may be.
@@ -416,8 +492,9 @@ meaning of half the line.
 The rule walks the token stream and flags any token that shares a line with
 the semicolon immediately preceding it. Multi-line `LOAD` bodies are not
 affected because their field separators are commas, not semicolons. Trailing
-comments after a semicolon are also not affected, because the lexer skips
-comment tokens entirely — only real code on the same line triggers a finding.
+comments after a semicolon are also not affected, because the lexer routes
+comment tokens to a separate group — only real code on the same line triggers
+a finding.
 
 Implicit terminators like `End Sub`, `Next`, and `Loop` end a statement only
 across a line break; on the same line Qlik itself rejects a chained statement

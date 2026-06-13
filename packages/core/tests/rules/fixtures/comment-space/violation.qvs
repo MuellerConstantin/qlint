@@ -1,0 +1,11 @@
+//No space after slashes
+SET vYear = 2026;
+
+/*tight block*/
+LET vMonth = 6;
+
+/*one-sided */
+LET vDay = 1;
+
+/* missing-at-end*/
+LET vHour = 12;

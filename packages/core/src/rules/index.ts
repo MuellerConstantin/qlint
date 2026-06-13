@@ -3,6 +3,7 @@ export type { CaseStyle, CaseRuleOptions } from './types';
 import { blockIndent } from './blockIndent.js';
 import { builtinFunctionCase } from './builtinFunctionCase.js';
 import { builtinKeywordCase } from './builtinKeywordCase.js';
+import { commentSpace } from './commentSpace.js';
 import { maxLineLength } from './maxLineLength.js';
 import { noLegacyPathVariables } from './noLegacyPathVariables.js';
 import { oneStatementPerLine } from './oneStatementPerLine.js';
@@ -26,6 +27,7 @@ export const recommended = [
   blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,
+  commentSpace,
   maxLineLength,
   noLegacyPathVariables,
   oneStatementPerLine,
@@ -37,6 +39,7 @@ export {
   blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,
+  commentSpace,
   maxLineLength,
   noLegacyPathVariables,
   oneStatementPerLine,

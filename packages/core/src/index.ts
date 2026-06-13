@@ -13,6 +13,7 @@ export {
   blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,
+  commentSpace,
   noLegacyPathVariables,
   variableCase,
   configure,
