@@ -2,6 +2,7 @@
 
 | Rule                                                  | Description                                                   |
 | :---------------------------------------------------- | :------------------------------------------------------------ |
+| [block-comment-stars](#block-comment-stars)           | Align multi-line block comments with a leading ` *` rail.     |
 | [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.     |
 | [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.              |
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
@@ -14,6 +15,86 @@
 | [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                     |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
+
+---
+
+## block-comment-stars
+
+Align every line of a multi-line block comment with a leading ` *`.
+
+### Rule Details
+
+A `/* … */` block that spans more than one line is structurally a doc-style
+comment — the kind that benefits from a uniform vertical rail down its left edge
+so the body reads as one connected paragraph. Without a convention, multi-line
+blocks drift between several styles in the same script (flush-left content, no
+stars at all, randomly indented stars, the closing `*/` glued to the end of a
+content line), and a quick scan can no longer tell where the comment ends.
+
+The rule walks every block comment and, when it spans multiple lines, normalises
+it to a single JSDoc-like shape:
+
+- `/*` and `*/` each occupy their own line.
+- Every line in between starts with a ` *` whose `*` is one column to the right
+  of the opening `/` — so middle lines and the closing `*/` share the same
+  prefix and form a clean vertical rail.
+- A single space follows the leading `*` before any content. Blank middle lines
+  collapse to a bare ` *`.
+
+The rule only triggers when `/*` sits at the start of its line (preceded by
+whitespace only). Block comments mid-line (`LET x = 1; /* note */ y`) and
+single-line block comments (`/* foo */`) are left alone — both common idioms
+that the doc-style alignment does not apply to.
+
+The autofix rewrites the whole comment in one pass: moves content off the
+opening and closing lines, inserts missing stars, realigns misaligned ones, and
+preserves the source's existing indentation and line-ending style (LF / CRLF).
+The fix is idempotent.
+
+This rule is complementary to [comment-space](#comment-space): `comment-space`
+governs the whitespace immediately after `//`, after `/*`, and before `*/`;
+`block-comment-stars` governs the structure of the lines in between for
+multi-line blocks.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+/*
+hello
+world
+*/
+
+/*
+* misaligned star
+* second line
+*/
+
+/*
+ * content sits on the closing line */
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+/*
+ * hello
+ * world
+ */
+
+/* single-line block comments are untouched */
+
+/*
+ * blank middle lines stay as a bare ' *':
+ *
+ * second paragraph
+ */
+```
+
+### Options
+
+This rule has no options. The JSDoc-like shape is intentionally fixed — making
+it configurable would invite every project to redefine "well-formatted block
+comment", which defeats the point of an opinionated linter.
 
 ---
 

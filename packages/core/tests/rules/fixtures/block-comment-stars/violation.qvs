@@ -1,0 +1,20 @@
+/*
+no stars on inner lines
+just plain text
+*/
+SET vYear = 2026;
+
+/*
+* stars without leading space
+* second line
+*/
+LET vMonth = 6;
+
+/*
+ * content sits on the closing line */
+LET vDay = 1;
+
+/* content sits on the opening line
+ * second line
+ */
+LET vHour = 12;

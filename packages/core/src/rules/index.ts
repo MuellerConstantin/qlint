@@ -1,5 +1,6 @@
 import type { Rule } from '../types.js';
 export type { CaseStyle, CaseRuleOptions } from './types';
+import { blockCommentStars } from './block-comment-stars.js';
 import { blockIndent } from './block-indent.js';
 import { builtinFunctionCase } from './builtin-function-case.js';
 import { builtinKeywordCase } from './builtin-keyword-case.js';
@@ -27,6 +28,7 @@ export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Part
 
 export const recommended = [
   tableLabelBrackets,
+  blockCommentStars,
   blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,
@@ -41,6 +43,7 @@ export const recommended = [
 ] as const;
 
 export {
+  blockCommentStars,
   blockIndent,
   builtinFunctionCase,
   builtinKeywordCase,

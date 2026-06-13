@@ -1,0 +1,15 @@
+/*
+ * canonical multi-line block comment
+ * with two body lines
+ */
+SET vYear = 2026;
+
+/* single-line block comment stays untouched */
+LET vMonth = 6;
+
+/*
+ * blank middle lines are kept as a bare ' *':
+ *
+ * second paragraph
+ */
+LET vDay = 1;
