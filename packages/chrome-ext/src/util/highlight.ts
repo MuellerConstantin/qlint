@@ -18,9 +18,9 @@ export function injectStyles(): void {
     .qlint-mark-info    { text-decoration: #3b82f6 dotted underline; }
 
     /*
-     * Whitespace-only lines inside a diagnostic range carry no glyphs for a
-     * character marker to underline. The line-class fallback paints a thin
-     * left stripe so the finding stays visible.
+     * Left stripe painted on every line that carries at least one diagnostic.
+     * Works in addition to the wavy character underline and stays visible on
+     * whitespace-only lines, where the underline has nothing to paint over.
      */
     .qlint-line-error   { box-shadow: inset 2px 0 0 #ef4444; }
     .qlint-line-warning { box-shadow: inset 2px 0 0 #f59e0b; }
@@ -79,6 +79,12 @@ const LINE_CLASS: Record<Severity, string> = {
   info: 'qlint-line-info',
 };
 
+const SEVERITY_RANK: Record<Severity, number> = {
+  info: 0,
+  warning: 1,
+  error: 2,
+};
+
 const SEVERITY_GLYPH: Record<Severity, string> = {
   error: '\u00d7',
   warning: '!',
@@ -109,6 +115,22 @@ export function createHighlighter(editor: Editor): {
   const apply = (diagnostics: Diagnostic[]): void => {
     clear();
 
+    /*
+     * First collect the highest severity that touches each line, then paint
+     * one stripe per line at that severity. This avoids stripe-colour churn
+     * when several diagnostics overlap on the same line and keeps the
+     * mental model simple: one line, one stripe, worst severity wins.
+     */
+    const lineSeverity = new Map<number, Severity>();
+
+    const bump = (line: number, severity: Severity): void => {
+      const current = lineSeverity.get(line);
+
+      if (!current || SEVERITY_RANK[severity] > SEVERITY_RANK[current]) {
+        lineSeverity.set(line, severity);
+      }
+    };
+
     for (const diagnostic of diagnostics) {
       const from = { line: diagnostic.range.start.line - 1, ch: diagnostic.range.start.column - 1 };
       const to = { line: diagnostic.range.end.line - 1, ch: diagnostic.range.end.column - 1 };
@@ -120,25 +142,17 @@ export function createHighlighter(editor: Editor): {
       const marker = editor.markText(from, to, { className: SEVERITY_CLASS[diagnostic.severity] });
       byMarker.set(marker, diagnostic);
 
-      /*
-       * Character markers don't render on whitespace-only lines (no glyphs
-       * to underline). Walk the diagnostic's line range and add a line
-       * decoration to every blank line inside it so the finding stays
-       * visible.
-       */
       const lastLine = to.ch === 0 ? to.line - 1 : to.line;
-      const className = LINE_CLASS[diagnostic.severity];
 
       for (let line = from.line; line <= lastLine; line++) {
-        const text = editor.getLine(line);
-
-        if (text === undefined || text.trim() !== '') {
-          continue;
-        }
-
-        const handle = editor.addLineClass(line, 'wrap', className);
-        lineDecorations.push({ handle, className });
+        bump(line, diagnostic.severity);
       }
+    }
+
+    for (const [line, severity] of lineSeverity) {
+      const className = LINE_CLASS[severity];
+      const handle = editor.addLineClass(line, 'wrap', className);
+      lineDecorations.push({ handle, className });
     }
   };
 
