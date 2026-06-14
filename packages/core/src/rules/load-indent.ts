@@ -243,11 +243,19 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
   const line = token.startLine ?? 1;
   const lineStart = token.startOffset - actualWidth;
 
+  /*
+   * When the line has no leading whitespace at all, `actualColumn` is 1 and
+   * a [col 1, col 1) range would be zero-width — invisible to range-based
+   * consumers like the CodeMirror highlighter. Fall back to a 1-character
+   * range over the first token so the finding always has something to draw.
+   */
+  const endColumn = Math.max(actualColumn, 2);
+
   return {
     severity: 'warning',
     range: {
       start: { line, column: 1 },
-      end: { line, column: actualColumn },
+      end: { line, column: endColumn },
     },
     message: `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`,
     fix: {

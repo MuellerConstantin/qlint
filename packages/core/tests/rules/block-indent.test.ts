@@ -168,4 +168,13 @@ describe('block-indent', () => {
     expect(diagnostics[0].fix?.range).toEqual({ start: 10, end: 13 });
     expect(diagnostics[0].fix?.replacement).toBe('\t');
   });
+
+  it('emits a non-empty range even when the misindented line has no leading whitespace', () => {
+    const diagnostics = lint('Sub greet\nTrace hello;\nEnd Sub', [blockIndent]);
+
+    expect(diagnostics).toHaveLength(1);
+    const d = diagnostics[0];
+    expect(d.range.start.line).toBe(d.range.end.line);
+    expect(d.range.end.column).toBeGreaterThan(d.range.start.column);
+  });
 });

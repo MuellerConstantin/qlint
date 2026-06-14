@@ -190,12 +190,18 @@ export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
 
       if (actualWidth !== expectedWidth) {
         const lineStart = first.startOffset - actualWidth;
+        /*
+         * Guarantee a non-empty range so range-based consumers (CodeMirror
+         * marker, editor decorations) have something to draw even when the
+         * line has no leading whitespace at all.
+         */
+        const endColumn = Math.max(actualColumn, 2);
 
         out.push({
           severity: 'warning',
           range: {
             start: { line, column: 1 },
-            end: { line, column: actualColumn },
+            end: { line, column: endColumn },
           },
           message: `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`,
           fix: {

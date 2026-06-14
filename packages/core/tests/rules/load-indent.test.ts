@@ -111,6 +111,17 @@ describe('load-indent', () => {
     expect(result.fixed).toBe(8);
   });
 
+  it('emits a non-empty range even when the misindented line has no leading whitespace', () => {
+    const source = ['[A]:', 'Load', 'X,', 'Y', 'Resident B;'].join('\n');
+
+    const diagnostics = lint(source, [loadIndent]);
+
+    expect(diagnostics).toHaveLength(2);
+    for (const d of diagnostics) {
+      expect(d.range.end.column).toBeGreaterThan(d.range.start.column);
+    }
+  });
+
   it('composes with load-field-per-line and load-clause-newline to break down a fully jammed LOAD', () => {
     const source = '[A]: Load Id, Name From X Where Active = 1 Order By Id;';
 
