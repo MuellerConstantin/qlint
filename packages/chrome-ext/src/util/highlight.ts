@@ -1,4 +1,4 @@
-import type { Editor, TextMarker, Position } from 'codemirror';
+import type { Editor, LineHandle, TextMarker, Position } from 'codemirror';
 import type { Diagnostic, Severity } from '@qlint/core';
 
 const STYLE_ID = 'qlint-styles';
@@ -16,6 +16,15 @@ export function injectStyles(): void {
     .qlint-mark-error   { text-decoration: red wavy underline; text-decoration-skip-ink: none; }
     .qlint-mark-warning { text-decoration: orange wavy underline; text-decoration-skip-ink: none; }
     .qlint-mark-info    { text-decoration: #3b82f6 dotted underline; }
+
+    /*
+     * Whitespace-only lines inside a diagnostic range carry no glyphs for a
+     * character marker to underline. The line-class fallback paints a thin
+     * left stripe so the finding stays visible.
+     */
+    .qlint-line-error   { box-shadow: inset 2px 0 0 #ef4444; }
+    .qlint-line-warning { box-shadow: inset 2px 0 0 #f59e0b; }
+    .qlint-line-info    { box-shadow: inset 2px 0 0 #3b82f6; }
 
     #qlint-tooltip {
       position: fixed; z-index: 99999; max-width: 420px; padding: 8px 12px;
@@ -64,6 +73,12 @@ const SEVERITY_CLASS: Record<Severity, string> = {
   info: 'qlint-mark-info',
 };
 
+const LINE_CLASS: Record<Severity, string> = {
+  error: 'qlint-line-error',
+  warning: 'qlint-line-warning',
+  info: 'qlint-line-info',
+};
+
 const SEVERITY_GLYPH: Record<Severity, string> = {
   error: '\u00d7',
   warning: '!',
@@ -75,6 +90,7 @@ export function createHighlighter(editor: Editor): {
   clear: () => void;
 } {
   const byMarker = new Map<TextMarker, Diagnostic>();
+  const lineDecorations: { handle: LineHandle; className: string }[] = [];
   let tooltipElement: HTMLDivElement | null = null;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -83,6 +99,11 @@ export function createHighlighter(editor: Editor): {
       marker.clear();
     }
     byMarker.clear();
+
+    for (const { handle, className } of lineDecorations) {
+      editor.removeLineClass(handle, 'wrap', className);
+    }
+    lineDecorations.length = 0;
   };
 
   const apply = (diagnostics: Diagnostic[]): void => {
@@ -98,6 +119,26 @@ export function createHighlighter(editor: Editor): {
 
       const marker = editor.markText(from, to, { className: SEVERITY_CLASS[diagnostic.severity] });
       byMarker.set(marker, diagnostic);
+
+      /*
+       * Character markers don't render on whitespace-only lines (no glyphs
+       * to underline). Walk the diagnostic's line range and add a line
+       * decoration to every blank line inside it so the finding stays
+       * visible.
+       */
+      const lastLine = to.ch === 0 ? to.line - 1 : to.line;
+      const className = LINE_CLASS[diagnostic.severity];
+
+      for (let line = from.line; line <= lastLine; line++) {
+        const text = editor.getLine(line);
+
+        if (text === undefined || text.trim() !== '') {
+          continue;
+        }
+
+        const handle = editor.addLineClass(line, 'wrap', className);
+        lineDecorations.push({ handle, className });
+      }
     }
   };
 
