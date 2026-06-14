@@ -9,6 +9,7 @@
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
 | [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.       |
+| [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.             |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
@@ -545,6 +546,110 @@ SQL Select Id, Name From dbo.Customers Where Active = 1 Order By Id;
 
 This rule has no options. The set of recognised clause keywords is fixed by the
 Qlik grammar.
+
+---
+
+## load-field-per-line
+
+Require each field of a `LOAD` statement to start on its own line.
+
+### Rule Details
+
+A long field list packed onto one line — or, more commonly, a field list that
+is _almost_ one-per-line except for one stragger glued to a neighbour — hides
+the shape of the LOAD: which fields are renamed, which are derived from
+expressions, and where a long expression ends. The rule walks every LOAD
+statement, identifies the field list, and flags every field-start token that
+shares a line with the token immediately before it.
+
+The field list runs from the first token after `Load` (skipping a single
+`Distinct` modifier) up to the first top-level clause keyword (`From`,
+`Resident`, `Inline`, `Where`, ...) or the closing `;`. Detection happens at
+parenthesis depth zero, so commas inside expressions
+(`If(x, y, z)`, `Concat(Name, ', ')`) are not treated as field separators.
+Comma-separated lists _after_ a clause keyword (`Group By A, B, C`,
+`Order By Total desc, Region asc`, `Where Status In ('A', 'B')`) sit beyond
+the field-list boundary or inside parens and are not checked.
+
+The rule enforces two things per LOAD:
+
+- The first field token sits on a different line than the `Load [Distinct]`
+  header that precedes it.
+- After every top-level comma inside the field list, the next token starts a
+  new line.
+
+A single exception covers the wildcard placeholder: `Load * From X` and
+`Load * Inline [...]` keep `*` on the LOAD header line — it is a placeholder,
+not a real field. As soon as a real field accompanies the wildcard
+(`Load *, Field1, ...`), `*` is treated like any other field and must take
+its own line.
+
+The autofix replaces the whitespace between the previous token and the
+offending field with a single `\n`, preserving any comment in the gap. The
+fix does not reindent the new line; that is left to the existing
+[block-indent](#block-indent) rule and any future LOAD-body indent rule.
+
+This rule pairs naturally with [load-clause-newline](#load-clause-newline):
+together they break a fully jammed LOAD into its canonical multi-line shape.
+Each rule stays in its own lane — clause keyword placement vs. field
+placement — so they can be enabled or disabled independently.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+[A]: Load Id, Name, Total From X;
+
+[B]:
+Load Id
+From X;
+
+[D]:
+Load
+    A,
+    B, C
+From X;
+
+[E]:
+NoConcatenate Load Distinct OrderId, CustomerId
+From X;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+[Sales]:
+NoConcatenate Load Distinct
+    OrderId,
+    CustomerId,
+    Amount,
+    If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// Wildcard placeholder stays on the Load header line.
+[Wildcard]:
+Load * From [lib://x.qvd] (qvd);
+
+// Multi-line field expressions are fine — only field starts are checked.
+[LongExpr]:
+Load
+    Id,
+    If(
+        Status = 'A',
+        1,
+        0
+    ) as Flag,
+    Sum(Amount)
+        & ' (' & Region & ')'
+        as Label
+From [lib://x.qvd] (qvd);
+```
+
+### Options
+
+This rule has no options.
 
 ---
 

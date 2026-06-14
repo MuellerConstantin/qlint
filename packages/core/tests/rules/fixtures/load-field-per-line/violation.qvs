@@ -1,0 +1,38 @@
+// All three fields on the LOAD line — 3 findings (Id, Name, Total).
+[A]: Load Id, Name, Total From X;
+
+// Single field stuck to the LOAD header — 1 finding (Id).
+[B]:
+Load Id
+From X;
+
+// First field on Load line + second field after comma same line — 2 findings.
+[C]:
+Load Id, Name
+From X;
+
+// Properly indented except one field stays glued — 1 finding (C).
+[D]:
+Load
+	A,
+	B, C
+From X;
+
+// Header line with Distinct followed by fields — 2 findings (OrderId, CustomerId).
+[E]:
+NoConcatenate Load Distinct OrderId, CustomerId
+From X;
+
+// Long expression with a tail field jammed onto the closing line — 1 finding (Other).
+[F]:
+Load
+	Id,
+	If(
+		Status = 'A',
+		1, 0
+	) as Flag, Other
+From X;
+
+// Two LOAD statements on one physical line, each with two fields glued together.
+// 4 findings total (Stmt1: A, B; Stmt2: C, D).
+[G]: Load A, B From X; [H]: Load C, D Resident G;

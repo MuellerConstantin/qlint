@@ -1,0 +1,103 @@
+// 1. Canonical shape — every field on its own line.
+[Sales]:
+NoConcatenate Load Distinct
+	OrderId,
+	CustomerId,
+	Amount,
+	If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// 2. Single-field LOAD with the field on its own line.
+[Single]:
+Load
+	OnlyField
+From [lib://x.qvd] (qvd);
+
+// 3. Wildcard LOAD — `*` is allowed on the header line.
+[Wildcard]:
+Load * From [lib://x.qvd] (qvd);
+
+// 4. Wildcard + Inline — same exception applies.
+[Inline2]:
+Load * Inline [
+	a, b
+	1, 2
+];
+
+// 5. Multi-line field expressions. Continuation lines of one field don't
+//    constitute a new field, so only the field-start tokens are checked.
+[LongExpr]:
+Load
+	Id,
+	If(
+		Status = 'A',
+		1,
+		0
+	) as Flag,
+	Sum(Amount)
+		& ' (' & Region & ')'
+		as Label,
+	Other
+From [lib://x.qvd] (qvd);
+
+// 6. Group By / Order By can have comma-separated lists. Those commas are
+//    after the field-list boundary, so they must not be flagged.
+[Aggregate]:
+Load
+	Region,
+	Country,
+	Sum(Amount) as Total
+Resident Sales
+Group By Region, Country
+Order By Total desc, Region asc;
+
+// 7. Where clauses can list values via `In (a, b)` — commas inside parens,
+//    depth > 0, not checked.
+[InList]:
+Load
+	Id
+From [lib://x.qvd] (qvd)
+Where Status In ('A', 'B', 'C');
+
+// 8. Standalone SQL passthrough — no LOAD keyword, not inspected.
+SQL Select Id, Name, Country From dbo.Customers;
+
+// 9. Nested LOAD inside a Sub.
+Sub loadIt
+	[Inner]:
+	Load
+		Id,
+		Name
+	From [lib://x.qvd] (qvd);
+End Sub
+
+// 10. AutoGenerate without a From clause.
+[Tally]:
+Load
+	RecNo() as N,
+	Rand() as R
+AutoGenerate 100;
+
+// 11. Inline data with internal commas — bracket token, not a field list.
+[Codes]:
+Load
+	Code,
+	Label
+Inline [
+	Code, Label
+	A, Alpha
+	B, Beta
+];
+
+// 12. Header torn apart, fields properly listed.
+[Torn]:
+NoConcatenate
+Load
+Distinct
+	A,
+	B,
+	C
+From [lib://x.qvd] (qvd);

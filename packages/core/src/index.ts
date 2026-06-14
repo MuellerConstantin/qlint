@@ -15,6 +15,7 @@ export {
   builtinKeywordCase,
   commentSpace,
   loadClauseNewline,
+  loadFieldPerLine,
   noLegacyPathVariables,
   noMultipleEmptyLines,
   trailingWhitespace,

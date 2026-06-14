@@ -6,6 +6,7 @@ import { builtinFunctionCase } from './builtin-function-case.js';
 import { builtinKeywordCase } from './builtin-keyword-case.js';
 import { commentSpace } from './comment-space.js';
 import { loadClauseNewline } from './load-clause-newline.js';
+import { loadFieldPerLine } from './load-field-per-line.js';
 import { maxLineLength } from './max-line-length.js';
 import { noLegacyPathVariables } from './no-legacy-path-variables.js';
 import { noMultipleEmptyLines } from './no-multiple-empty-lines.js';
@@ -35,6 +36,7 @@ export const recommended = [
   builtinKeywordCase,
   commentSpace,
   loadClauseNewline,
+  loadFieldPerLine,
   maxLineLength,
   noLegacyPathVariables,
   noMultipleEmptyLines,
@@ -51,6 +53,7 @@ export {
   builtinKeywordCase,
   commentSpace,
   loadClauseNewline,
+  loadFieldPerLine,
   maxLineLength,
   noLegacyPathVariables,
   noMultipleEmptyLines,
