@@ -10,6 +10,7 @@
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
 | [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.       |
 | [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.             |
+| [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.     |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
@@ -650,6 +651,142 @@ From [lib://x.qvd] (qvd);
 ### Options
 
 This rule has no options.
+
+---
+
+## load-indent
+
+Indent the field list of a `LOAD` statement one step deeper than the `LOAD`
+keyword, and keep clause keywords aligned with `LOAD`.
+
+### Rule Details
+
+Once a `LOAD` is broken across multiple lines (by
+[load-field-per-line](#load-field-per-line) and
+[load-clause-newline](#load-clause-newline)), its body still needs a
+convention for where each line begins horizontally. Without one, fields and
+clauses drift between flush-left and various tab stops in the same script and
+the visual shape of a LOAD stops carrying meaning. This rule pins down the
+two structural levels of the LOAD body:
+
+- Every line that **starts a new field** sits at `base + step`.
+- Every line that **starts a clause** (`From`, `Resident`, `Where`,
+  `Group`, `Order`, ...) sits at `base`.
+
+`base` is the indent of the line containing the `Load` keyword, so a LOAD
+that lives inside a `Sub` (or any other [block-indent](#block-indent)-managed
+construct) inherits the surrounding indent automatically — fields land at
+"Sub body + one step", clauses land at "Sub body".
+
+The rule is deliberately narrow:
+
+- It only checks tokens that are already the first non-whitespace token of
+  their line. Field tokens that share a line with the previous token are left
+  to [load-field-per-line](#load-field-per-line) to surface first.
+- **Continuation lines are not enforced.** A multi-line `If(...)` field, a
+  long `&`-concatenation chain, a wrapped `Where` condition — anything that
+  is not itself a new field or a new clause keeps whatever indent the author
+  chose. Picking a continuation-indent convention is a separate concern that
+  would make this rule fight every reasonable style.
+- The wildcard placeholder exception from
+  [load-field-per-line](#load-field-per-line) carries over: a lone `*` is
+  never treated as a field, even when it sits on its own line.
+
+The autofix replaces the leading whitespace of each offending line with the
+expected indent string (`step` repeated to the expected width). The indent
+character and step width are governed by the same `style` / `size` options
+as [block-indent](#block-indent), so the two rules format scripts
+consistently.
+
+Examples of **incorrect** code for this rule (default `style: 'tab'`,
+`size: 1`, shown with `→` for a tab character):
+
+```qlik
+[A]:
+Load
+Id
+From X;
+
+[B]:
+Load
+→→Total
+From X;
+
+[C]:
+Load
+→Id
+→From X;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+[Sales]:
+NoConcatenate Load Distinct
+→OrderId,
+→CustomerId,
+→If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// LOAD nested in a Sub — base is the Sub-body indent.
+Sub loadIt
+→[Inner]:
+→Load
+→→Id,
+→→Name
+→From [lib://x.qvd] (qvd);
+End Sub
+
+// Multi-line field expression — continuation lines are unchecked.
+[LongExpr]:
+Load
+→Id,
+→Sum(Amount)
+→→→& ' (' & Region & ')'
+→→→as Label,
+→Other
+From [lib://x.qvd] (qvd);
+```
+
+### Options
+
+| Option  | Type               | Default | Description                              |
+| :------ | :----------------- | :------ | :--------------------------------------- |
+| `size`  | `number`           | `1`     | Number of `style` units per indent step. |
+| `style` | `'space' \| 'tab'` | `'tab'` | Character used for one indent step.      |
+
+The semantics mirror [block-indent](#block-indent): with `style: 'tab'` the
+rule inserts literal `\t` bytes and `size` counts tabs per step (almost
+always `1`); with `style: 'space'` it inserts ASCII spaces and `size` is
+typically `2` or `4`. Keep this rule's options in sync with `block-indent` —
+a script formatted with a tab-based `block-indent` and a space-based
+`load-indent` would produce mixed indentation that no editor agrees on.
+
+Example configuration:
+
+```ts
+import { lint, blockIndent, loadIndent } from '@qlint/core';
+
+lint(source, [blockIndent, loadIndent], {
+  rules: {
+    'block-indent': ['warning', { style: 'space', size: 4 }],
+    'load-indent': ['warning', { style: 'space', size: 4 }],
+  },
+});
+```
+
+With `{ style: 'space', size: 4 }`, the following is **correct**:
+
+```qlik
+[Sales]:
+Load
+    OrderId,
+    CustomerId
+From [lib://x.qvd] (qvd);
+```
 
 ---
 

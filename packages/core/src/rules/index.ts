@@ -7,6 +7,7 @@ import { builtinKeywordCase } from './builtin-keyword-case.js';
 import { commentSpace } from './comment-space.js';
 import { loadClauseNewline } from './load-clause-newline.js';
 import { loadFieldPerLine } from './load-field-per-line.js';
+import { loadIndent } from './load-indent.js';
 import { maxLineLength } from './max-line-length.js';
 import { noLegacyPathVariables } from './no-legacy-path-variables.js';
 import { noMultipleEmptyLines } from './no-multiple-empty-lines.js';
@@ -16,6 +17,7 @@ import { trailingWhitespace } from './trailing-whitespace.js';
 import { variableCase } from './variable-case.js';
 import { variableCharset } from './variable-charset.js';
 export type { BlockIndentOptions, IndentStyle } from './block-indent.js';
+export type { LoadIndentOptions } from './load-indent.js';
 export type { MaxLineLengthOptions } from './max-line-length.js';
 export type { NoMultipleEmptyLinesOptions } from './no-multiple-empty-lines.js';
 export type { LineEnding, OneStatementPerLineOptions } from './one-statement-per-line.js';
@@ -37,6 +39,7 @@ export const recommended = [
   commentSpace,
   loadClauseNewline,
   loadFieldPerLine,
+  loadIndent,
   maxLineLength,
   noLegacyPathVariables,
   noMultipleEmptyLines,
@@ -54,6 +57,7 @@ export {
   commentSpace,
   loadClauseNewline,
   loadFieldPerLine,
+  loadIndent,
   maxLineLength,
   noLegacyPathVariables,
   noMultipleEmptyLines,

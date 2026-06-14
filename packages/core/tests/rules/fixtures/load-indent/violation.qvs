@@ -1,0 +1,40 @@
+// Field unindented — 1 finding (Id).
+[A]:
+Load
+Id
+From X;
+
+// Field overindented — 1 finding (Total).
+[B]:
+Load
+		Total
+From X;
+
+// Clause indented when it shouldn't be — 1 finding (From).
+[C]:
+Load
+	Id
+	From X;
+
+// Mixed: one field unindented, one clause overindented — 2 findings.
+[D]:
+Load
+	A,
+B,
+	C
+	From X;
+
+// Nested in a Sub. base = 1 tab (the Load line carries one tab of outer
+// indent). Field expected 2 tabs, clause expected 1 tab.
+Sub foo
+	[E]:
+	Load
+	Id
+		From X;
+End Sub
+
+// Field indented with spaces under default tab style — 1 finding.
+[F]:
+Load
+    Id
+From X;

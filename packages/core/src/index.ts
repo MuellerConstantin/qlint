@@ -1,12 +1,6 @@
 export { lint, format } from './runner.js';
 export type { Diagnostic, Rule, Severity, Fix } from './types.js';
-export type {
-  LintConfig,
-  RulesConfigOf,
-  RuleConfigEntry,
-  SeverityOrOff,
-  FormatResult,
-} from './runner.js';
+export type { LintConfig, RulesConfigOf, RuleConfigEntry, SeverityOrOff, FormatResult } from './runner.js';
 export {
   recommended,
   tableLabelBrackets,
@@ -16,6 +10,7 @@ export {
   commentSpace,
   loadClauseNewline,
   loadFieldPerLine,
+  loadIndent,
   noLegacyPathVariables,
   noMultipleEmptyLines,
   trailingWhitespace,
@@ -27,6 +22,7 @@ export type {
   CaseStyle,
   CaseRuleOptions,
   IndentStyle,
+  LoadIndentOptions,
   NoMultipleEmptyLinesOptions,
   VariableCaseStyle,
   VariableCaseOptions,

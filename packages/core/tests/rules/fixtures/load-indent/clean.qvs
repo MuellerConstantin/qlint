@@ -1,0 +1,107 @@
+// 1. Canonical shape — fields at base + 1 tab, clauses at base.
+[Sales]:
+NoConcatenate Load Distinct
+	OrderId,
+	CustomerId,
+	Amount,
+	If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// 2. Multi-line field expressions. Continuation lines are intentionally
+//    not checked, so any depth (including dedented or overdented) is fine.
+[LongExpr]:
+Load
+	Id,
+	If(
+		Status = 'A',
+		1,
+		0
+	) as Flag,
+	Sum(Amount)
+		& ' (' & Region & ')'
+		as Label,
+	Other
+From [lib://x.qvd] (qvd);
+
+// 3. Lone wildcard on the LOAD header — not a field, not checked.
+[Wildcard]:
+Load * From [lib://x.qvd] (qvd);
+
+// 4. Wildcard + Inline, multi-line bracket data block — interior is one
+//    bracket token, not separate token lines, so nothing to indent-check.
+[Inline2]:
+Load * Inline [
+	a, b
+	1, 2
+];
+
+// 5. Group By / Order By comma lists sit beyond the field-list boundary
+//    and on the clause line itself — neither flagged.
+[Aggregate]:
+Load
+	Region,
+	Country,
+	Sum(Amount) as Total
+Resident Sales
+Group By Region, Country
+Order By Total desc, Region asc;
+
+// 6. Where with In (...) and a multi-line clause continuation. Continuation
+//    indent is not checked.
+[InList]:
+Load
+	Id
+From [lib://x.qvd] (qvd)
+Where Id In (1, 2, 3)
+  and Active = 1;
+
+// 7. Standalone SQL passthrough — no LOAD keyword, not inspected.
+SQL Select Id, Name, Country From dbo.Customers;
+
+// 8. LOAD nested inside a Sub. base = 1 tab (the Sub body indent), so
+//    fields land at 2 tabs and clauses at 1 tab.
+Sub loadIt
+	[Inner]:
+	Load
+		Id,
+		Name
+	From [lib://x.qvd] (qvd);
+End Sub
+
+// 9. AutoGenerate without a From clause.
+[Tally]:
+Load
+	RecNo() as N,
+	Rand() as R
+AutoGenerate 100;
+
+// 10. Hierarchy prefix sits before the Load keyword; the Load header line
+//     starts a new line with no preceding indent.
+[Tree]:
+Hierarchy (NodeId, ParentId, NodeName)
+Load
+	NodeId,
+	ParentId,
+	NodeName
+From [lib://qvd/tree.qvd] (qvd);
+
+// 11. Trailing semicolon on its own line. Lonely `;` is not a field-start
+//     and not a clause-starter — its indent is left untouched.
+[Lonely]:
+Load
+	Id
+From [lib://x.qvd] (qvd)
+;
+
+// 12. Header torn across lines. base is the indent of the line containing
+//     the `Load` keyword (the line with the Load token).
+[Torn]:
+NoConcatenate
+Load
+Distinct
+	A,
+	B
+From [lib://x.qvd] (qvd);
