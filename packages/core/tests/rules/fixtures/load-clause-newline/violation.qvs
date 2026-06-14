@@ -1,0 +1,45 @@
+// All four clauses on the LOAD line — 3 findings (From, Where, Order).
+[A]: Load Id, Name From [lib://x.qvd] (qvd) Where Active = 1 Order By Id;
+
+// From smashed onto the last-field line — 1 finding (From).
+[B]:
+NoConcatenate Load
+	Id, Name From [lib://x.qvd] (qvd);
+
+// Where + Order jammed onto the From line — 2 findings (Where, Order).
+[C]:
+Load
+	Id
+From [lib://x.qvd] (qvd) Where Active = 1 Order By Id;
+
+// Group stuck to the end of the Where line — 1 finding (Group).
+[D]:
+Load
+	Region,
+	Sum(Amount) as Total
+From [lib://x.qvd] (qvd)
+Where Active = 1 Group By Region;
+
+// Two LOAD statements on one physical line — 2 findings (From, Resident).
+[E]: Load Id From [lib://x.qvd] (qvd); [F]: Load Id Resident E;
+
+// Resident wedged onto the field line — 1 finding (Resident).
+[G]:
+Load Id, Name Resident Sales;
+
+// Inline keyword on the same line as Load — 1 finding (Inline).
+[H]:
+Load * Inline [
+	a, b
+	1, 2
+];
+
+// AutoGenerate on the field line — 1 finding (AutoGenerate).
+[I]:
+Load RecNo() as N AutoGenerate 10;
+
+// While on the From line — 1 finding (While).
+[J]:
+Load
+	Id
+From [lib://x.qvd] (qvd) While IterNo() < 5;

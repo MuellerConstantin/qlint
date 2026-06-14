@@ -14,6 +14,7 @@ export {
   builtinFunctionCase,
   builtinKeywordCase,
   commentSpace,
+  loadClauseNewline,
   noLegacyPathVariables,
   noMultipleEmptyLines,
   trailingWhitespace,

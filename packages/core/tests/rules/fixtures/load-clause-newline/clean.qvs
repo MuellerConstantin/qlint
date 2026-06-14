@@ -1,0 +1,134 @@
+// 1. Canonical shape – every clause on its own line.
+[Sales]:
+NoConcatenate Load Distinct
+	OrderId,
+	CustomerId,
+	Amount,
+	If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// 2. Minimal compliance – the rule only enforces clause placement, so
+// jammed-up fields, weird indent, and trailing-space leading whitespace on
+// the clause line are all fine for this rule.
+[Sales2]: NoConcatenate Load Distinct OrderId, CustomerId, Amount, If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+   Where Year >= 2020
+Group By OrderId
+        Order By OrderId;
+
+// 3. Inline data with a torn-apart header. NoConcatenate/Load/Distinct are
+// modifiers, not clauses, so the rule leaves them alone. The bracketed data
+// block stays attached to its Inline clause keyword.
+[Numbers]:
+NoConcatenate
+Load
+Distinct
+	n,
+	n * 2 as Double
+Inline [
+	n
+	1
+	2
+	3
+];
+
+// 4. `Distinct` inside Concat(...) is inside parens (depth > 0) – ignored.
+//    `Resident` and `Where` are at depth 0 – on their own lines.
+[Audit]:
+Load
+	Id,
+	Concat(Distinct CustomerId, ', ') as Customers,
+	SubField(Path, '/', 1) as Root
+Resident Orders
+Where Status = 'active'
+Order By Id;
+
+// 5. AutoGenerate without a From clause – numeric argument stays on the
+//    AutoGenerate line.
+[Tally]:
+Load
+	RecNo() as N
+AutoGenerate 100;
+
+// 6. Standalone SQL passthrough. The statement contains no LOAD keyword, so
+//    the rule never inspects it – `From`/`Where`/`Order By` inside the SQL
+//    body must not be flagged.
+SQL Select Id, Name From dbo.Customers Where Active = 1 Order By Id;
+
+// 7. Preceding LOAD + SQL is two statements, split by the top-level `;`.
+//    The LOAD half is checked; the SQL half (no Load) is skipped.
+[Customers]:
+Load
+	Id,
+	Name;
+SQL Select Id, Name From dbo.Customers Where Active = 1;
+
+// 8. Hierarchy prefix – the wrapping `Hierarchy (...)` is parens around
+//    field args, then `Load` starts the inner statement and clauses follow
+//    on their own lines.
+[Tree]:
+Hierarchy (NodeId, ParentId, NodeName)
+Load
+	NodeId,
+	ParentId,
+	NodeName
+From [lib://qvd/tree.qvd] (qvd);
+
+// 9. LOAD nested inside a Sub block. Statement boundaries (`;`) are
+//    unaffected by surrounding block constructs.
+Sub loadIt
+	[Inner]:
+	Load
+		Id
+	From [lib://x.qvd] (qvd);
+End Sub
+
+// 10. Parenthesised expressions in the Where clause. The inner `(...)`
+//     pushes depth > 0 – any `Where`/`Order`/etc. inside would be ignored,
+//     but here only the outer Where exists and it sits on its own line.
+[Filter]:
+Load
+	Id
+From [lib://x.qvd] (qvd)
+Where (Id > 100 and Id < 200) or Id = 0;
+
+// 11. Trailing line comment between a field and the next clause keyword.
+//     The clause keyword still starts a new physical line, so no finding.
+[CommentBetween]:
+Load
+	Id // last field
+From [lib://x.qvd] (qvd);
+
+// 12. Multiple consecutive clauses on their own lines (the long form).
+[Aggregate]:
+Load
+	Region,
+	Sum(Amount) as Total
+Resident Sales
+Where Active = 1
+Group By Region
+Order By Total desc;
+
+// 13. Inline with Wildcard field list (`Load * Inline [...]`).
+[Inline2]:
+Load *
+Inline [
+	a, b
+	1, 2
+];
+
+// 14. Resident with no further clauses.
+[ResidentOnly]:
+Load
+	Id,
+	Name
+Resident Sales;
+
+// 15. From_Field source.
+[FieldSource]:
+Load
+	Value
+From_Field [Other], List;

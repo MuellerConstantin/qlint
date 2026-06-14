@@ -8,6 +8,7 @@
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
+| [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.       |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
@@ -449,6 +450,101 @@ LET vHour = 12;
 This rule has no options. The single-space convention is intentionally fixed —
 making it configurable would invite every project to redefine "well-formatted
 comment", which defeats the point of an opinionated linter.
+
+---
+
+## load-clause-newline
+
+Require each top-level clause of a `LOAD` statement to begin on its own line.
+
+### Rule Details
+
+A Qlik `LOAD` is built from a small set of clauses: the field list, a source
+(`From`, `Resident`, `Inline`, `AutoGenerate`, `Extension`, `From_Field`), an
+optional filter (`Where` / `While`), and optional `Group By` / `Order By`. When
+two clauses share a physical line, the structural shape of the statement is
+hidden — a long field list and an inlined `Where` read as one undifferentiated
+blob, diffs become harder, and a quick scan can no longer tell what the
+statement actually does.
+
+The rule walks each statement, locates the `LOAD` keyword, and flags every
+clause-starter keyword that is not the first non-whitespace token of its line.
+Detection happens at parenthesis depth zero, so a stray `Where` or `Distinct`
+inside an expression (`Concat(Distinct CustomerId, ', ')`, `If(Where = 1, …)`)
+is not mistaken for a clause. Statements without a `LOAD` keyword — standalone
+`SQL SELECT …`, `Hierarchy`-only forms, control flow — are ignored.
+
+The rule is intentionally narrow. It does **not**:
+
+- enforce one field per line — that is a separate concern;
+- enforce indentation of the field list — same;
+- require the `Load` header (`[NoConcatenate] Load [Distinct]`) to sit on a
+  single line — those are modifiers, not clauses;
+- touch the bracketed data block that follows `Inline [...]`, which stays
+  attached to its clause keyword and may span as many lines as it needs.
+
+The autofix replaces the whitespace between the previous token and the
+offending clause keyword with a single `\n`. Any comment sitting in that gap is
+preserved — the fix range starts after the last comment that ends before the
+keyword. The fix does not reindent the new line; that is left to
+[block-indent](#block-indent) and any future LOAD-body indent rule.
+
+`Group By` and `Order By` are treated as one clause each: only the `Group` /
+`Order` head needs to start the line; the trailing `By` stays attached.
+
+Recognised clause-starter keywords: `From`, `From_Field`, `Resident`, `Inline`,
+`AutoGenerate`, `Extension`, `Where`, `While`, `Group`, `Order`.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+[A]: Load Id, Name From [lib://x.qvd] (qvd) Where Active = 1 Order By Id;
+
+[B]:
+NoConcatenate Load
+    Id, Name From [lib://x.qvd] (qvd);
+
+[C]:
+Load
+    Id
+From [lib://x.qvd] (qvd) Where Active = 1 Order By Id;
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+[Sales]:
+NoConcatenate Load Distinct
+    OrderId,
+    CustomerId,
+    Amount,
+    If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+From [lib://qvd/sales.qvd] (qvd)
+Where Year >= 2020
+Group By OrderId
+Order By OrderId;
+
+// Header torn apart — also accepted; the rule does not police modifiers.
+[Numbers]:
+NoConcatenate
+Load
+Distinct
+    n,
+    n * 2 as Double
+Inline [
+    n
+    1
+    2
+];
+
+// Standalone SQL passthrough — no LOAD keyword, not inspected.
+SQL Select Id, Name From dbo.Customers Where Active = 1 Order By Id;
+```
+
+### Options
+
+This rule has no options. The set of recognised clause keywords is fixed by the
+Qlik grammar.
 
 ---
 
