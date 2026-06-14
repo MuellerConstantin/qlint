@@ -1,6 +1,7 @@
 import type {
   DiagnosticCounts,
   DiagnosticsMessage,
+  FixAllMessage,
   GetDiagnosticsMessage,
   GetStatusMessage,
   Message,
@@ -11,6 +12,7 @@ import type {
 const statusDot = document.getElementById('status-dot') as HTMLSpanElement;
 const statusLabel = document.getElementById('status-label') as HTMLSpanElement;
 const grantButton = document.getElementById('grant-button') as HTMLButtonElement;
+const fixAllButton = document.getElementById('fix-all-button') as HTMLButtonElement;
 
 const summary = document.getElementById('summary') as HTMLDivElement;
 const countError = document.getElementById('count-error') as HTMLSpanElement;
@@ -26,6 +28,8 @@ const STATUS_MESSAGE_KEYS: Record<Status, string> = {
   errored: 'statusErrored',
 };
 
+let activeTabId: number | null = null;
+
 function renderStatus(status: Status): void {
   statusLabel.textContent = chrome.i18n.getMessage(STATUS_MESSAGE_KEYS[status]);
 
@@ -33,10 +37,15 @@ function renderStatus(status: Status): void {
   statusDot.classList.toggle('inactive', status === 'inactive');
 
   grantButton.hidden = status !== 'not-granted';
+
+  if (status !== 'active') {
+    fixAllButton.hidden = true;
+  }
 }
 
-function renderCounts(counts: DiagnosticCounts | undefined): void {
+function renderCounts(counts: DiagnosticCounts | undefined, fixable: number): void {
   summary.hidden = !counts;
+  fixAllButton.hidden = !counts || fixable <= 0;
 
   if (!counts) {
     return;
@@ -48,6 +57,14 @@ function renderCounts(counts: DiagnosticCounts | undefined): void {
 }
 
 grantButton.textContent = chrome.i18n.getMessage('grantButton');
+fixAllButton.textContent = chrome.i18n.getMessage('fixAllButton');
+fixAllButton.onclick = () => {
+  if (activeTabId === null) {
+    return;
+  }
+  const request: FixAllMessage = { type: 'qlint:fix-all' };
+  chrome.tabs.sendMessage(activeTabId, request).catch(() => {});
+};
 renderStatus('loading');
 
 async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
@@ -84,11 +101,11 @@ async function queryStatus(tabId: number): Promise<Status> {
   }
 }
 
-async function queryDiagnostics(tabId: number): Promise<DiagnosticCounts | null> {
+async function queryDiagnostics(tabId: number): Promise<DiagnosticsMessage | null> {
   try {
     const request: GetDiagnosticsMessage = { type: 'qlint:get-diagnostics' };
     const response = (await chrome.tabs.sendMessage(tabId, request)) as DiagnosticsMessage | undefined;
-    return response?.counts ?? null;
+    return response ?? null;
   } catch {
     return null;
   }
@@ -96,6 +113,7 @@ async function queryDiagnostics(tabId: number): Promise<DiagnosticCounts | null>
 
 async function refresh(): Promise<void> {
   const tab = await getActiveTab();
+  activeTabId = tab?.id ?? null;
 
   if (!tab?.id || !tab.url) {
     renderStatus('unsupported');
@@ -131,9 +149,10 @@ async function refresh(): Promise<void> {
   renderStatus(status);
 
   if (status === 'active') {
-    renderCounts((await queryDiagnostics(tab.id)) ?? undefined);
+    const diagnostics = await queryDiagnostics(tab.id);
+    renderCounts(diagnostics?.counts, diagnostics?.fixable ?? 0);
   } else {
-    renderCounts(undefined);
+    renderCounts(undefined, 0);
   }
 }
 
@@ -142,12 +161,12 @@ chrome.runtime.onMessage.addListener((message: Message) => {
     renderStatus(message.status);
 
     if (message.status !== 'active') {
-      renderCounts(undefined);
+      renderCounts(undefined, 0);
     }
   }
 
   if (message?.type === 'qlint:diagnostics') {
-    renderCounts(message.counts);
+    renderCounts(message.counts, message.fixable);
   }
 });
 

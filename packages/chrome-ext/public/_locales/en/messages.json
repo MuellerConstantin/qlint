@@ -38,5 +38,9 @@
   "grantButton": {
     "message": "Enable qlint for this page",
     "description": "Button that triggers a permission request for the current origin."
+  },
+  "fixAllButton": {
+    "message": "Auto-Fix",
+    "description": "Button that triggers a fix-all pass over the current Qlik script."
   }
 }

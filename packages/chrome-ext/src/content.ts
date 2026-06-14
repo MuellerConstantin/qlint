@@ -1,10 +1,19 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
-import type { Message, Status, StatusMessage, DiagnosticCounts, BridgeMessage, DiagnosticsMessage } from './types.js';
+import type {
+  Message,
+  Status,
+  StatusMessage,
+  DiagnosticCounts,
+  BridgeMessage,
+  DiagnosticsMessage,
+  FixAllBridgeMessage,
+} from './types.js';
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
 let status: Status = 'inactive';
 let diagnosticCounts: DiagnosticCounts | null = null;
+let fixableCount = 0;
 
 function broadcastStatus(): void {
   const message: StatusMessage = { type: 'qlint:status', status };
@@ -20,6 +29,7 @@ async function activate(): Promise<void> {
 
   status = 'active';
   diagnosticCounts = null;
+  fixableCount = 0;
   console.log('[qlint] activated — qlik script editor detected on', location.href);
   broadcastStatus();
 }
@@ -31,6 +41,7 @@ async function deactivate(): Promise<void> {
 
   status = 'inactive';
   diagnosticCounts = null;
+  fixableCount = 0;
   console.log('[qlint] deactivated — left script editor');
   broadcastStatus();
 }
@@ -87,9 +98,15 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) =
 
   if (message?.type === 'qlint:get-diagnostics') {
     const response: DiagnosticsMessage | null = diagnosticCounts
-      ? { type: 'qlint:diagnostics', counts: diagnosticCounts }
+      ? { type: 'qlint:diagnostics', counts: diagnosticCounts, fixable: fixableCount }
       : null;
     sendResponse(response);
+    return false;
+  }
+
+  if (message?.type === 'qlint:fix-all') {
+    const bridge: FixAllBridgeMessage = { source: 'qlint-content', type: 'qlint:fix-all' };
+    window.postMessage(bridge, window.location.origin);
     return false;
   }
 
@@ -109,7 +126,12 @@ window.addEventListener('message', (event: MessageEvent) => {
 
   if (data.type === 'qlint:diagnostics') {
     diagnosticCounts = data.counts;
-    const message: DiagnosticsMessage = { type: 'qlint:diagnostics', counts: diagnosticCounts };
+    fixableCount = data.fixable;
+    const message: DiagnosticsMessage = {
+      type: 'qlint:diagnostics',
+      counts: diagnosticCounts,
+      fixable: fixableCount,
+    };
     chrome.runtime.sendMessage(message).catch(() => {});
   }
 });
