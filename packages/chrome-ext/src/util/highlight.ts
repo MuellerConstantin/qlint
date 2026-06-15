@@ -41,7 +41,7 @@ export function injectStyles(): void {
       border-radius: 50%; display: inline-flex; align-items: center;
       justify-content: center; font-size: 10px; font-weight: 700; color: #fff;
     }
-  
+
     .qlint-tt-icon[data-severity='error']   { background: #ef4444; }
     .qlint-tt-icon[data-severity='warning'] { background: #f59e0b; }
     .qlint-tt-icon[data-severity='info']    { background: #3b82f6; }
@@ -99,6 +99,7 @@ export function createHighlighter(editor: Editor): {
   const lineDecorations: { handle: LineHandle; className: string }[] = [];
   let tooltipElement: HTMLDivElement | null = null;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
+  let currentMarker: TextMarker | null = null;
 
   const clear = (): void => {
     for (const marker of byMarker.keys()) {
@@ -110,6 +111,7 @@ export function createHighlighter(editor: Editor): {
       editor.removeLineClass(handle, 'wrap', className);
     }
     lineDecorations.length = 0;
+    currentMarker = null;
   };
 
   const apply = (diagnostics: Diagnostic[]): void => {
@@ -165,6 +167,7 @@ export function createHighlighter(editor: Editor): {
     if (tooltipElement) {
       tooltipElement.style.display = 'none';
     }
+    currentMarker = null;
   };
 
   const applyIgnore = (diagnostic: Diagnostic): void => {
@@ -183,6 +186,7 @@ export function createHighlighter(editor: Editor): {
         if (tooltipElement) {
           tooltipElement.style.display = 'none';
         }
+        currentMarker = null;
         return;
       }
 
@@ -210,6 +214,7 @@ export function createHighlighter(editor: Editor): {
     if (tooltipElement) {
       tooltipElement.style.display = 'none';
     }
+    currentMarker = null;
   };
 
   const hideTooltip = (): void => {
@@ -217,10 +222,11 @@ export function createHighlighter(editor: Editor): {
       if (tooltipElement) {
         tooltipElement.style.display = 'none';
       }
+      currentMarker = null;
     }, TOOLTIP_HIDE_DELAY_MS);
   };
 
-  const showTooltipFor = (marker: TextMarker, diagnostic: Diagnostic): void => {
+  const showTooltipFor = (marker: TextMarker, diagnostic: Diagnostic, mouseX: number): void => {
     clearTimeout(hideTimer);
 
     if (!tooltipElement) {
@@ -230,6 +236,17 @@ export function createHighlighter(editor: Editor): {
       tooltipElement.addEventListener('mouseleave', hideTooltip);
       document.body.appendChild(tooltipElement);
     }
+
+    /*
+     * Same marker still hovered: keep the tooltip pinned where it first
+     * appeared. Re-anchoring on every mousemove would make it chase the
+     * cursor.
+     */
+    if (currentMarker === marker && tooltipElement.style.display === 'block') {
+      return;
+    }
+
+    currentMarker = marker;
 
     const range = marker.find();
 
@@ -285,10 +302,31 @@ export function createHighlighter(editor: Editor): {
 
     tooltipElement.append(actions);
 
-    const coords = editor.charCoords(range.from as Position, 'window');
+    /*
+     * Anchor X at the mouse so a horizontally scrolled-off token doesn't
+     * pull the tooltip outside the editor; anchor Y at the token's bottom
+     * so the tooltip sits below the offending line. Clamp horizontally to
+     * the editor wrapper so an over-wide tooltip can't overflow the
+     * editor on the right either.
+     */
+    const tokenBottom = editor.charCoords(range.from as Position, 'window').bottom;
+    const wrapperRect = editor.getWrapperElement().getBoundingClientRect();
+
     tooltipElement.style.display = 'block';
-    tooltipElement.style.left = `${coords.left}px`;
-    tooltipElement.style.top = `${coords.bottom + 4}px`;
+
+    const ttWidth = tooltipElement.offsetWidth;
+    let left = mouseX;
+
+    if (left + ttWidth > wrapperRect.right) {
+      left = wrapperRect.right - ttWidth;
+    }
+
+    if (left < wrapperRect.left) {
+      left = wrapperRect.left;
+    }
+
+    tooltipElement.style.left = `${left}px`;
+    tooltipElement.style.top = `${tokenBottom + 4}px`;
   };
 
   const onMouseMove = (event: MouseEvent): void => {
@@ -298,7 +336,7 @@ export function createHighlighter(editor: Editor): {
       const diagnostic = byMarker.get(marker);
 
       if (diagnostic) {
-        showTooltipFor(marker, diagnostic);
+        showTooltipFor(marker, diagnostic, event.clientX);
         return;
       }
     }
