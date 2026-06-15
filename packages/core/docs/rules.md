@@ -14,6 +14,7 @@
 | [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.              |
 | [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.      |
 | [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                 |
+| [multiline-call](#multiline-call)                     | Break overlong single-line function calls across multiple lines.|
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.            |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.             |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.               |
@@ -987,6 +988,87 @@ import { lint, maxLineLength } from '@qlint/core';
 lint(source, [maxLineLength], {
   rules: {
     'max-line-length': ['warning', { max: 100 }],
+  },
+});
+```
+
+---
+
+## multiline-call
+
+Break a single-line built-in function call across multiple lines once its
+host line exceeds the configured maximum length.
+
+### Rule Details
+
+Long nested expressions like
+`If(condA, 'really long branch a', 'really long branch b')` are readable when
+they fit on one line and unreadable as soon as they spill past the right
+margin. Splitting each top-level argument onto its own line — with the
+closing `)` realigned under the call's own indent — restores the visual
+structure of the call and makes diffs of individual branches local instead of
+shifting whole strings of arguments around.
+
+The rule walks the token stream and inspects every built-in function call
+(`If`, `Pick`, `Match`, `Alt`, `RangeSum`, ...). A call is flagged when **all**
+of the following hold:
+
+- The call starts and ends on the same line (already multi-line calls are
+  left alone).
+- That line is longer than `maxLineLength`.
+- The call has at least two top-level arguments — a single-argument call
+  cannot be meaningfully split.
+
+Only the outermost qualifying call on a line is flagged per pass. Nested
+calls are reached on subsequent format passes once their parent has been
+broken, so each level is handled in turn without overlapping fixes.
+
+User-defined function calls (`MyFunc(a, b)`) and `Call myFunc(...)` syntax
+are intentionally out of scope — only built-in functions are considered.
+
+The autofix replaces the parenthesised body with one argument per line at
+one indent step deeper than the call's own line, and places the closing `)`
+on its own line aligned to the call's leading indent. Anything after the
+closing paren on the original line (e.g. `As Field`, an operator, a
+semicolon) is preserved verbatim.
+
+Examples of **incorrect** code for this rule (with `maxLineLength: 80`):
+
+```qlik
+LET vCategory = If(vYear >= 2025 and vMonth >= 6, 'late 2025 or later', 'before mid-2025');
+LET vTotal = RangeSum(vSalesA, vSalesB, vSalesC, vSalesD, vSalesE, vSalesF, vSalesG);
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+LET vCategory = If(
+    vYear >= 2025 and vMonth >= 6,
+    'late 2025 or later',
+    'before mid-2025'
+);
+
+LET vSimple = If(vYear = 2025, 'this year', 'other');
+LET vTotal = Sum(vRevenue);
+```
+
+### Options
+
+| Option         | Type               | Default | Description                                                |
+| :------------- | :----------------- | :------ | :--------------------------------------------------------- |
+| `maxLineLength`| `number`           | `120`   | Threshold above which a single-line call must be broken.   |
+| `indentStyle`  | `'space' \| 'tab'` | `'tab'` | Character used for one indent unit in the broken-out body. |
+| `indentSize`   | `number`           | `1`     | Number of indent units per level (only used with spaces).  |
+
+Pair this rule with [block-indent](#block-indent) and set its `style` / `size`
+to the same values so autofixes from both rules agree on indentation.
+
+```ts
+import { lint, multilineCall } from '@qlint/core';
+
+lint(source, [multilineCall], {
+  rules: {
+    'multiline-call': ['warning', { maxLineLength: 100, indentStyle: 'space', indentSize: 4 }],
   },
 });
 ```

@@ -11,6 +11,7 @@ import { loadClauseNewline } from './load-clause-newline.js';
 import { loadFieldPerLine } from './load-field-per-line.js';
 import { loadIndent } from './load-indent.js';
 import { maxLineLength } from './max-line-length.js';
+import { multilineCall } from './multiline-call.js';
 import { noLegacyPathVariables } from './no-legacy-path-variables.js';
 import { noMultipleEmptyLines } from './no-multiple-empty-lines.js';
 import { oneStatementPerLine } from './one-statement-per-line.js';
@@ -21,6 +22,7 @@ import { variableCharset } from './variable-charset.js';
 export type { BlockIndentOptions, IndentStyle } from './block-indent.js';
 export type { LoadIndentOptions } from './load-indent.js';
 export type { MaxLineLengthOptions } from './max-line-length.js';
+export type { MultilineCallOptions } from './multiline-call.js';
 export type { NoMultipleEmptyLinesOptions } from './no-multiple-empty-lines.js';
 export type { LineEnding, OneStatementPerLineOptions } from './one-statement-per-line.js';
 export type { VariableCaseStyle, VariableCaseOptions } from './variable-case.js';
@@ -45,6 +47,7 @@ export const recommended = [
   loadFieldPerLine,
   loadIndent,
   maxLineLength,
+  multilineCall,
   noLegacyPathVariables,
   noMultipleEmptyLines,
   oneStatementPerLine,
@@ -65,6 +68,7 @@ export {
   loadFieldPerLine,
   loadIndent,
   maxLineLength,
+  multilineCall,
   noLegacyPathVariables,
   noMultipleEmptyLines,
   oneStatementPerLine,

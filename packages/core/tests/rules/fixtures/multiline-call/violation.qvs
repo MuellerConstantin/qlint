@@ -1,0 +1,2 @@
+LET vCategory = If(vYear >= 2025 and vMonth >= 6 and vDay >= 15, 'in the late second half of the year 2025', 'before mid-June 2025');
+LET vTotal = RangeSum(vMonthlySalesA, vMonthlySalesB, vMonthlySalesC, vMonthlySalesD, vMonthlySalesE, vMonthlySalesF, vMonthlySalesG);
