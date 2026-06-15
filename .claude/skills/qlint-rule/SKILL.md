@@ -128,7 +128,7 @@ export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
 };
 ```
 
-### Notes on `Finding`
+### General notes
 
 - `severity`: `'error' | 'warning' | 'info'`. Default for new rules: `'warning'`.
   Use `'error'` only when the script is broken or near-broken; `'info'` for purely
@@ -140,6 +140,8 @@ export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
 - `fix` is optional. Omit it entirely if the rule cannot safely auto-fix.
 - Disable directives (`// qlint-disable-next-line my-rule`) are handled by the
   runner — do not implement them in the rule.
+- Before adding a new rule, check whether it makes sense to extend or modify an existing rule.
+- Keep the rules as generic and configurable as possible, if feasible.
 
 ## Registration in `rules/index.ts`
 
