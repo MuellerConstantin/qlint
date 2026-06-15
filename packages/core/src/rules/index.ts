@@ -5,6 +5,7 @@ import { blockIndent } from './block-indent.js';
 import { builtinFunctionCase } from './builtin-function-case.js';
 import { builtinKeywordCase } from './builtin-keyword-case.js';
 import { commentSpace } from './comment-space.js';
+import { inlineCommentSpace } from './inline-comment-space.js';
 import { loadClauseNewline } from './load-clause-newline.js';
 import { loadFieldPerLine } from './load-field-per-line.js';
 import { loadIndent } from './load-indent.js';
@@ -37,6 +38,7 @@ export const recommended = [
   builtinFunctionCase,
   builtinKeywordCase,
   commentSpace,
+  inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,
   loadIndent,
@@ -55,6 +57,7 @@ export {
   builtinFunctionCase,
   builtinKeywordCase,
   commentSpace,
+  inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,
   loadIndent,

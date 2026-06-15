@@ -1,0 +1,14 @@
+// standalone line comment
+SET vYear = 2026; // exactly one space
+LET vMonth = 6; /* spaced block */
+LET vDay = 1; // trailing
+
+/* standalone block — first thing on the line */
+LET vHour = 12;
+
+/*
+ * multi-line block on its own
+ */
+LET vMinute = 0;
+
+LET vDouble = vDay * 2; /* one */ /* two */

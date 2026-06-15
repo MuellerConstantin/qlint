@@ -1,0 +1,6 @@
+SET vYear = 2026;// no space
+LET vMonth = 6;    // too many spaces
+LET vDay = 1;	// tab
+SET vHour = 12;/* tight inline block */
+LET vMinute = 0;  /* spaced too far */
+LET vDouble = vDay * 2;/* one */ /* two */

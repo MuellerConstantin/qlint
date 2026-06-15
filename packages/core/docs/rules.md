@@ -8,6 +8,7 @@
 | [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
+| [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment.|
 | [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.       |
 | [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.             |
 | [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.     |
@@ -452,6 +453,75 @@ LET vHour = 12;
 This rule has no options. The single-space convention is intentionally fixed —
 making it configurable would invite every project to redefine "well-formatted
 comment", which defeats the point of an opinionated linter.
+
+---
+
+## inline-comment-space
+
+Require exactly one space between code and a trailing comment on the same line.
+
+### Rule Details
+
+When a comment shares a line with code, the gap between the last code token and
+the comment marker tends to drift — no space at all (`LET x = 1;// note`), a
+single tab, or a long alignment run (`LET x = 1;        // note`). Each variant
+reads differently and inflates diffs whenever an unrelated edit nudges the
+column. Pinning that gap to exactly one ASCII space keeps trailing annotations
+visually attached to the code they describe and removes the temptation to
+hand-align comments into columns.
+
+The rule walks every comment token, looks at what sits before it on the same
+line, and only triggers when there is non-whitespace code before the marker. If
+the gap between the last code character and the comment marker is not exactly
+one space (`' '`), the rule flags the comment.
+
+This rule is intentionally narrow:
+
+- Standalone-line comments — where the comment is the first non-whitespace
+  token on its line — are **not** flagged. Their leading whitespace is the
+  domain of [block-indent](#block-indent), and the spacing _inside_ the
+  marker is covered by [comment-space](#comment-space).
+- Both `//` line comments and `/* … */` block comments are checked. A
+  multi-line block comment that starts after code on a line is still treated
+  as inline for the purpose of its leading gap; only the gap before `/*` is
+  enforced.
+- Comments hidden inside a `Trace` body are absorbed into the trace message
+  by the lexer and never reach this rule.
+
+The autofix replaces the whitespace between the last code character and the
+comment marker with a single space, so `LET x = 1;// note` and
+`LET x = 1;    // note` both converge on `LET x = 1; // note` in one format
+pass.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+SET vYear = 2026;// no space
+LET vMonth = 6;    // too many spaces
+LET vDay = 1;	// tab before comment
+SET vHour = 12;/* tight inline block */
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026; // exactly one space
+LET vMonth = 6; /* spaced block */
+
+// standalone-line comments are untouched
+LET vDay = 1;
+
+/*
+ * a standalone block comment is also untouched
+ */
+LET vHour = 12;
+```
+
+### Options
+
+This rule has no options. The single-space convention is intentionally fixed —
+making it configurable would invite every project to redefine "well-formatted
+inline comment", which defeats the point of an opinionated linter.
 
 ---
 
