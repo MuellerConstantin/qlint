@@ -11,7 +11,7 @@ import type {
 
 const DOM_POLL_TIMEOUT_MS = 10_000;
 
-let status: Status = 'inactive';
+let status: Status = 'not-applicable';
 let diagnosticCounts: DiagnosticCounts | null = null;
 let fixableCount = 0;
 
@@ -35,11 +35,11 @@ async function activate(): Promise<void> {
 }
 
 async function deactivate(): Promise<void> {
-  if (status === 'inactive') {
+  if (status === 'not-applicable') {
     return;
   }
 
-  status = 'inactive';
+  status = 'not-applicable';
   diagnosticCounts = null;
   fixableCount = 0;
   console.log('[qlint] deactivated — left script editor');

@@ -21,10 +21,9 @@ const countInfo = document.getElementById('count-info') as HTMLSpanElement;
 
 const STATUS_MESSAGE_KEYS: Record<Status, string> = {
   loading: 'statusLoading',
-  unsupported: 'statusUnsupported',
-  'not-granted': 'statusNotGranted',
   active: 'statusActive',
-  inactive: 'statusInactive',
+  'needs-permission': 'statusNeedsPermission',
+  'not-applicable': 'statusNotApplicable',
   errored: 'statusErrored',
 };
 
@@ -34,9 +33,9 @@ function renderStatus(status: Status): void {
   statusLabel.textContent = chrome.i18n.getMessage(STATUS_MESSAGE_KEYS[status]);
 
   statusDot.classList.toggle('active', status === 'active');
-  statusDot.classList.toggle('inactive', status === 'inactive');
+  statusDot.classList.toggle('errored', status === 'errored');
 
-  grantButton.hidden = status !== 'not-granted';
+  grantButton.hidden = status !== 'needs-permission';
 
   if (status !== 'active') {
     fixAllButton.hidden = true;
@@ -116,19 +115,19 @@ async function refresh(): Promise<void> {
   activeTabId = tab?.id ?? null;
 
   if (!tab?.id || !tab.url) {
-    renderStatus('unsupported');
+    renderStatus('not-applicable');
     return;
   }
 
   const origin = originPattern(tab.url);
 
   if (!origin) {
-    renderStatus('unsupported');
+    renderStatus('not-applicable');
     return;
   }
 
   if (!(await isOriginGranted(origin))) {
-    renderStatus('not-granted');
+    renderStatus('needs-permission');
 
     grantButton.onclick = () => {
       chrome.permissions

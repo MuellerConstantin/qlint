@@ -2,7 +2,7 @@ import type { Severity } from '@qlint/core';
 
 export type DiagnosticCounts = Record<Severity, number>;
 
-export type Status = 'active' | 'inactive' | 'errored' | 'loading' | 'not-granted' | 'unsupported';
+export type Status = 'active' | 'loading' | 'errored' | 'needs-permission' | 'not-applicable';
 
 export type StatusMessage = { type: 'qlint:status'; status: Status };
 export type DiagnosticsMessage = { type: 'qlint:diagnostics'; counts: DiagnosticCounts; fixable: number };

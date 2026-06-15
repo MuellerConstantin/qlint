@@ -5,7 +5,7 @@
   --fg: #1f2937;
   --dot-default: #d4d4d8;
   --dot-active: #16a34a;
-  --dot-inactive: #dc2626;
+  --dot-errored: #dc2626;
   --summary-bg: #f7f8fa;
   --border: #e5e7eb;
 }
@@ -16,7 +16,7 @@
     --fg: #e5e7eb;
     --dot-default: #52525b;
     --dot-active: #22c55e;
-    --dot-inactive: #ef4444;
+    --dot-errored: #ef4444;
     --summary-bg: #2a2a2a;
     --border: #3f3f46;
   }
@@ -51,8 +51,8 @@ body {
   background: var(--dot-active);
 }
 
-.status .dot.inactive {
-  background: var(--dot-inactive);
+.status .dot.errored {
+  background: var(--dot-errored);
 }
 
 button {

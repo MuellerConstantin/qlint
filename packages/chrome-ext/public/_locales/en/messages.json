@@ -19,17 +19,13 @@
     "message": "Status: Active",
     "description": "Status label shown when qlint is active on the current page."
   },
-  "statusInactive": {
-    "message": "Status: Inactive",
-    "description": "Status label shown when the current page is allowed but not a Qlik script editor."
-  },
-  "statusNotGranted": {
+  "statusNeedsPermission": {
     "message": "Status: Page not enabled",
     "description": "Status label shown when the user has not granted access to the current origin."
   },
-  "statusUnsupported": {
-    "message": "Status: Not available on this page",
-    "description": "Status label shown when the current tab is a chrome://, about:, file: or otherwise non-http(s) page."
+  "statusNotApplicable": {
+    "message": "Status: Not applicable",
+    "description": "Status label shown when the current page is either not http(s) or is a granted page without a Qlik script editor."
   },
   "statusErrored": {
     "message": "Status: An error occurred",
