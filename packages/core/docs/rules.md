@@ -1,24 +1,25 @@
 # Rules Reference
 
-| Rule                                                  | Description                                                   |
-| :---------------------------------------------------- | :------------------------------------------------------------ |
-| [block-comment-stars](#block-comment-stars)           | Align multi-line block comments with a leading ` *` rail.     |
-| [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.     |
-| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.              |
-| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.         |
-| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                   |
-| [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                |
-| [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment.|
-| [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.       |
-| [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.             |
-| [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.     |
-| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                |
-| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.           |
-| [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.            |
-| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.              |
-| [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                     |
-| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.      |
-| [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset. |
+| Rule                                                  | Description                                                    |
+| :---------------------------------------------------- | :------------------------------------------------------------- |
+| [block-comment-stars](#block-comment-stars)           | Align multi-line block comments with a leading ` *` rail.      |
+| [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.      |
+| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.               |
+| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.          |
+| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                    |
+| [comma-space](#comma-space)                           | Require exactly one space after a comma when followed by code. |
+| [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                 |
+| [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment. |
+| [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.        |
+| [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.              |
+| [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.      |
+| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                 |
+| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.            |
+| [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.             |
+| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.               |
+| [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                      |
+| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.       |
+| [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset.  |
 
 ---
 
@@ -378,6 +379,75 @@ LOAD
     Sum(Value) as Total
 RESIDENT [TableA];
 ```
+
+---
+
+## comma-space
+
+Require exactly one space after a comma when the next token is on the same line.
+
+### Rule Details
+
+Commas separate arguments, fields, and list elements. When the next token sits on
+the same line, a single space after the comma keeps the boundary visible without
+inflating the line; no space at all (`If(x>0,'pos','neg')`) makes arguments
+visually run together, and runs of two or more spaces (or a tab) are usually
+leftover alignment that bloats diffs whenever a sibling token changes length.
+
+The rule walks the token stream, finds every comma, and inspects what follows
+on the same line. If the next non-whitespace character is on a new line — the
+common multi-line case (`LOAD A,\n B,\n C`) — the comma is left alone. Otherwise
+the gap between the comma and the next character must be exactly one ASCII space.
+
+The rule is intentionally narrow:
+
+- Commas inside string literals (`'a,b,c'`), bracket identifiers (`[Order,Items]`),
+  and `Trace` bodies are absorbed by the lexer into a single token and never
+  reach this rule.
+- Trailing whitespace after the comma but before the newline (`LOAD A,   \n B`)
+  is not flagged here — that's the domain of [trailing-whitespace](#trailing-whitespace).
+- A space is required before an inline block comment that follows the comma
+  (`If(x, /* hint */ 'a', 'b')`), consistent with how
+  [inline-comment-space](#inline-comment-space) treats other inline comments.
+
+The autofix replaces the whitespace between the comma and the next same-line
+character with a single space, so `If(x,'a','b')` and `If(x,   'a',\t'b')` both
+converge on `If(x, 'a', 'b')` in one format pass.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+LET vSum = RangeSum(1,2,3);
+LET vIf = If(vSum > 0,'pos','neg');
+LET vMix = If(vSum > 0,  'pos', 'neg');
+LET vBlock = If(vSum > 0,/* hint */ 'pos', 'neg');
+LOAD A,B,C
+FROM [lib://x/y.qvd];
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+LET vSum = RangeSum(1, 2, 3);
+LET vIf = If(vSum > 0, 'pos', 'neg');
+LET vBlock = If(vSum > 0, /* hint */ 'pos', 'neg');
+
+LOAD
+    A,
+    B,
+    C
+FROM [lib://x/y.qvd];
+
+LET vStr = 'a,b,c';
+LOAD [Order,Items] AS OrderItems FROM [lib://x/y.qvd];
+Trace loading a,b,c;
+```
+
+### Options
+
+This rule has no options. "Exactly one space after a comma" is the universally
+expected convention; offering toggles for zero spaces or alignment runs would
+defeat the purpose of an opinionated linter.
 
 ---
 

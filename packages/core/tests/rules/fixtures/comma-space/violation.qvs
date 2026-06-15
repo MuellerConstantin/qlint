@@ -1,0 +1,7 @@
+LET vSum = RangeSum(1,2,3);
+LET vIf = If(vSum > 0,'pos','neg');
+LET vMix = If(vSum > 0,  'pos', 'neg');
+LET vTab = If(vSum > 0,	'pos','neg');
+LET vBlock = If(vSum > 0,/* hint */ 'pos', 'neg');
+LOAD A,B,C
+FROM [lib://x/y.qvd];

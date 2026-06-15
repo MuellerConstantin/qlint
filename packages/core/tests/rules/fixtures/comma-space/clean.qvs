@@ -1,0 +1,16 @@
+LET vSum = RangeSum(1, 2, 3);
+LET vIf = If(vSum > 0, 'pos', 'neg');
+LET vBlock = If(vSum > 0, /* hint */ 'pos', 'neg');
+
+// Comma at end of line: no trailing space required.
+LOAD
+    A,
+    B,
+    C
+FROM [lib://x/y.qvd];
+
+// Commas inside string literals, bracket identifiers, and Trace bodies are ignored.
+LET vStr = 'a,b,c';
+LOAD [Order,Items] AS OrderItems
+FROM [lib://x/y.qvd];
+Trace loading a,b,c;
