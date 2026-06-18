@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="250" alt="Logo" src="./docs/images/logo.svg">
+  <img width="200" alt="Logo" src="./docs/images/logo.svg">
   <h1 align="center">@qlint/chrome-ext</h1>
 </p>
 <p align="center">
@@ -12,7 +12,7 @@
 
 <table align="center">
   <tr><td align="center"><img src="./docs/images/demo.gif" width="600" alt="Demo"></td></tr>
-  <tr><td align="center"><sub><b>Demo:</b> Extension in action</sub></td></tr>
+  <tr><td align="center"><b>Demo:</b> Extension in action</td></tr>
 </table>
 
 <br />
