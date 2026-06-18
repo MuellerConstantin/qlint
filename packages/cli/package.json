@@ -9,11 +9,14 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsdown"
   },
   "dependencies": {
-    "@qlint/core": "*"
+    "@qlint/core": "^0.1.0"
   },
   "devDependencies": {
     "tsdown": "*",

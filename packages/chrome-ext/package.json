@@ -8,7 +8,7 @@
     "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\""
   },
   "dependencies": {
-    "@qlint/core": "*"
+    "@qlint/core": "^0.1.0"
   },
   "devDependencies": {
     "@types/codemirror": "^5.60.17",
