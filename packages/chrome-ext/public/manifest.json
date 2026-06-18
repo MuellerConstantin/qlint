@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
+  "homepage_url": "https://github.com/MuellerConstantin/qlint",
+  "minimum_chrome_version": "91",
   "permissions": ["scripting", "activeTab", "webNavigation"],
   "optional_host_permissions": ["<all_urls>"],
   "background": {
