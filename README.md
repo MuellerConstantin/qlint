@@ -1,21 +1,66 @@
-# qlint
+<p align="center">
+  <img width="200" alt="Logo" src="./docs/images/logo.svg">
+  <h1 align="center">qlint</h1>
+</p>
+<p align="center">
+  Opinionated linting and formatting utilities for Qlik script.
+</p>
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" />
+</p>
 
-> Opinionated linting/formatting utilities for Qlik Script (QVS)
+<table align="center">
+  <tr><td align="center"><img src="./packages/chrome-ext/docs/images/demo.gif" width="600" alt="Demo"></td></tr>
+  <tr><td align="center"><b>Demo:</b> qlint in the Qlik Sense Data Load Editor</td></tr>
+</table>
+
+<br />
 
 ## Table of contents
 
 - [Introduction](#introduction)
+  - [Packages](#packages)
+  - [How it's organized](#how-its-organized)
 - [License](#license)
   - [Forbidden](#forbidden)
 
 ## Introduction
 
-Opinionated linting and formatting utilities for Qlik script.
+Everyone on your team writes Qlik script their own way? Nothing consistent, code hard to
+read and a pain to maintain? qlint fixes that — it enforces a consistent, opinionated
+style for Qlik load scripts, autoformats on demand, and flags violations where you write
+them, so review time goes into logic instead of whitespace, casing, and keyword
+conventions.
 
-qlint enforces a consistent, opinionated style for Qlik load scripts — so you spend
-review time on logic, not on whitespace, casing, or keyword conventions. The linting and
-formatting logic lives in a single, dependency-free core; everything else (CLI, browser,
-IDE integrations) is a thin binding on top of it.
+qlint ships in multiple flavors depending on how you work:
+
+- a **Chrome extension** that hooks straight into the Qlik Sense Data Load Editor — no
+  install, no terminal, just click and lint;
+- a **CLI** for local checks, pre-commit hooks, and CI gates.
+
+Both are powered by the same engine, so the rules you see in the browser are the exact
+same rules that fail your pipeline.
+
+### Packages
+
+| Package                                                          | Audience                                | What it does                                                                                                                            |
+| ---------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| [**`@qlint/chrome-ext`**](./packages/chrome-ext)                 | Qlik developers, analysts, BI teams     | Chrome extension that injects inline lint feedback and one-click formatting directly into the Qlik Sense Data Load Editor.              |
+| [**`@qlint/cli`**](./packages/cli)                               | Developers, CI/CD pipelines             | Command-line interface that lints and auto-fixes `.qvs` files from the terminal or as a CI step. Drop-in for pre-commit hooks and gates. |
+| [**`@qlint/core`**](./packages/core)                             | Tool authors, IDE plugin developers     | The engine behind both bindings — string-in, diagnostics-out. Embed it in your own editor integration, custom check runner, or service. |
+
+### How it's organized
+
+qlint is a monorepo with one dependency-free engine (`@qlint/core`) and a set of thin
+bindings around it. The core owns the tokenizer, the complete ruleset, and the
+formatting logic; it has no I/O and no platform assumptions, so it runs equally well in
+Node, the browser, or a Web Worker. Every binding — CLI, Chrome extension, future IDE
+plugins — handles only its platform concerns and delegates every linting and formatting
+decision to core. That means a single source of truth for style and one place to add or
+tune rules.
+
+For the full list of built-in rules and their options, see
+[`packages/core/docs/rules.md`](./packages/core/docs/rules.md).
 
 ## License
 
