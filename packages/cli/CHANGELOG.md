@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   diagnostic per line).
 - `--quiet` flag that suppresses `warning` and `info` diagnostics, keeping only
   `error` output for stricter CI gates.
+- `--config` / `-c` flag pointing to a JSON config file. The file's `rules` map
+  is forwarded to Core, so individual rules can be turned off, re-severitied, or
+  reconfigured per project. Invalid JSON, unknown severities, and malformed
+  rule entries fail with a clear error before any linting starts.
 - `--help` / `-h` flag printing usage.
 - Exit codes suitable for CI: `0` when no errors, `1` when errors are present,
   `2` for invalid usage or missing input paths.

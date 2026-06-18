@@ -20,6 +20,7 @@
   - [Usage](#usage)
     - [Synopsis](#synopsis)
     - [Options](#options)
+    - [Configuration](#configuration)
     - [Examples](#examples)
     - [Exit codes](#exit-codes)
 
@@ -72,7 +73,32 @@ interpret glob patterns.
 | `--fix`                     | Auto-fix violations and write the formatted output back to disk.     |
 | `--format <stylish\|json>`  | Output format. `stylish` (default) is human-readable; `json` emits one JSON object per diagnostic for machine consumption. |
 | `--quiet`                   | Only print `error`-level diagnostics; suppress `warning` and `info`. |
+| `-c`, `--config <path>`     | Path to a JSON config file overriding the recommended defaults per rule. |
 | `-h`, `--help`              | Print the help text and exit.                                        |
+
+### Configuration
+
+By default the CLI runs Core's `recommended` rule set as-is. To turn individual
+rules off, change their severity, or pass options, point the CLI at a JSON file
+via `--config <path>`. There is no auto-discovery — the path must be supplied
+explicitly.
+
+The file has the same shape as Core's `LintConfig`: a top-level `rules` object
+keyed by rule ID. Each entry is either a severity string (`"error"`,
+`"warning"`, `"info"`, `"off"`) or a `[severity, options]` tuple:
+
+```json
+{
+  "rules": {
+    "trailing-whitespace": "off",
+    "max-line-length": ["warning", { "limit": 120 }]
+  }
+}
+```
+
+Unknown rule IDs are silently ignored — only the rules from Core's recommended
+set are evaluated. Invalid JSON, unknown severities, or malformed rule entries
+fail with a clear error and exit code `2` before any linting starts.
 
 ### Examples
 
@@ -88,6 +114,9 @@ qlint src/load.qvs src/transform.qvs lib/
 
 # Auto-fix and write changes back in place
 qlint --fix src/
+
+# Lint with a project-specific config
+qlint --config qlint.json src/
 
 # Errors only, machine-readable output (e.g. for CI reporters)
 qlint --quiet --format json src/

@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import { lint, format, recommended, type Diagnostic } from '@qlint/core';
+import { loadConfig } from './config.js';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
 
@@ -13,6 +14,7 @@ Options:
   --fix                     Auto-fix violations and write files in place
   --format <stylish|json>   Format (default: stylish)
   --quiet                   Show 'error' only, 'warning'/'info' is supressed
+  -c, --config <path>       Path to a JSON config file
   -h, --help                This help`;
 
 function collectScriptFiles(target: string): string[] {
@@ -51,6 +53,7 @@ function main(): void {
       fix: { type: 'boolean', default: false },
       format: { type: 'string', default: 'stylish' },
       quiet: { type: 'boolean', default: false },
+      config: { type: 'string', short: 'c' },
       help: { type: 'boolean', short: 'h', default: false },
     },
     allowPositionals: true,
@@ -68,6 +71,15 @@ function main(): void {
     process.exit(2);
   }
 
+  let config;
+
+  try {
+    config = values.config ? loadConfig(values.config) : {};
+  } catch (err) {
+    console.error(err instanceof Error ? err.message : String(err));
+    process.exit(2);
+  }
+
   let errors = 0;
   let warnings = 0;
   let fixedTotal = 0;
@@ -77,7 +89,7 @@ function main(): void {
     let diagnostics: Diagnostic[];
 
     if (values.fix) {
-      const result = format(source, recommended);
+      const result = format(source, recommended, config);
       diagnostics = result.diagnostics;
       fixedTotal += result.fixed;
 
@@ -85,7 +97,7 @@ function main(): void {
         writeFileSync(file, result.output, 'utf8');
       }
     } else {
-      diagnostics = lint(source, recommended);
+      diagnostics = lint(source, recommended, config);
     }
 
     if (values.quiet) {
