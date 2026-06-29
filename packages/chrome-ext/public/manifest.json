@@ -6,7 +6,7 @@
   "default_locale": "en",
   "homepage_url": "https://github.com/MuellerConstantin/qlint",
   "minimum_chrome_version": "91",
-  "permissions": ["scripting", "activeTab", "webNavigation"],
+  "permissions": ["scripting", "activeTab", "webNavigation", "storage"],
   "optional_host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background.js",
