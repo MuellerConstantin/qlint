@@ -13,6 +13,7 @@ const statusDot = document.getElementById('status-dot') as HTMLSpanElement;
 const statusLabel = document.getElementById('status-label') as HTMLSpanElement;
 const grantButton = document.getElementById('grant-button') as HTMLButtonElement;
 const fixAllButton = document.getElementById('fix-all-button') as HTMLButtonElement;
+const settingsButton = document.getElementById('settings-button') as HTMLButtonElement;
 
 const summary = document.getElementById('summary') as HTMLDivElement;
 const countError = document.getElementById('count-error') as HTMLSpanElement;
@@ -64,6 +65,14 @@ fixAllButton.onclick = () => {
   const request: FixAllMessage = { type: 'qlint:fix-all' };
   chrome.tabs.sendMessage(activeTabId, request).catch(() => {});
 };
+
+const settingsLabel = chrome.i18n.getMessage('settingsButton');
+settingsButton.setAttribute('aria-label', settingsLabel);
+settingsButton.title = settingsLabel;
+settingsButton.onclick = () => {
+  chrome.runtime.openOptionsPage();
+};
+
 renderStatus('loading');
 
 async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {

@@ -1,0 +1,70 @@
+:root {
+  color-scheme: light dark;
+
+  --bg: #ffffff;
+  --fg: #1f2937;
+  --fg-muted: #6b7280;
+  --surface: #f7f8fa;
+  --border: #e5e7eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1f1f1f;
+    --fg: #e5e7eb;
+    --fg-muted: #9ca3af;
+    --surface: #2a2a2a;
+    --border: #3f3f46;
+  }
+}
+
+body {
+  font:
+    14px system-ui,
+    sans-serif;
+  margin: 0;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+.page-header {
+  padding: 24px 32px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+.page-body {
+  max-width: 720px;
+  padding: 24px 32px;
+}
+
+.placeholder {
+  padding: 16px 18px;
+  margin: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 600px) {
+  .page-header {
+    padding: 18px 18px 14px;
+  }
+
+  .page-body {
+    padding: 18px;
+  }
+}

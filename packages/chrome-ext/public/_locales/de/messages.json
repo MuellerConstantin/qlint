@@ -38,5 +38,21 @@
   "fixAllButton": {
     "message": "Automatisch formatieren",
     "description": "Button that triggers a fix-all pass over the current Qlik script."
+  },
+  "settingsButton": {
+    "message": "Einstellungen öffnen",
+    "description": "Accessible label and tooltip for the gear icon button that opens the options page."
+  },
+  "optionsTitle": {
+    "message": "qlint – Einstellungen",
+    "description": "Heading of the options page."
+  },
+  "optionsSubtitle": {
+    "message": "Konfiguriere, wie qlint Qlik-Skripte in diesem Browser lintet und formatiert.",
+    "description": "Subtitle below the options page heading."
+  },
+  "optionsPlaceholder": {
+    "message": "Regel-spezifische Einstellungen folgen in Kürze.",
+    "description": "Placeholder text shown while the options page has no concrete settings yet."
   }
 }

@@ -16,6 +16,7 @@
     "default_title": "__MSG_actionTitle__",
     "default_popup": "popup.html"
   },
+  "options_page": "options.html",
   "icons": {
     "16": "images/qlint-16.png",
     "32": "images/qlint-32.png",

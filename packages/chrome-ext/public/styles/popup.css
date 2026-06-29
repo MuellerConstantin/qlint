@@ -3,6 +3,7 @@
 
   --bg: #ffffff;
   --fg: #1f2937;
+  --fg-muted: #6b7280;
   --dot-default: #d4d4d8;
   --dot-active: #16a34a;
   --dot-errored: #dc2626;
@@ -14,6 +15,7 @@
   :root {
     --bg: #1f1f1f;
     --fg: #e5e7eb;
+    --fg-muted: #9ca3af;
     --dot-default: #52525b;
     --dot-active: #22c55e;
     --dot-errored: #ef4444;
@@ -61,6 +63,29 @@ button {
   padding: 6px 10px;
   font: inherit;
   cursor: pointer;
+}
+
+.icon-button {
+  margin: 0 0 0 auto;
+  width: auto;
+  padding: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  color: var(--fg-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-button:hover,
+.icon-button:focus-visible {
+  background: var(--summary-bg);
+  color: var(--fg);
+}
+
+.icon-button svg {
+  display: block;
 }
 
 [hidden] {
