@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `format(source, rules, config?)` API that applies autofixes in successive
   passes until the output stabilizes, returning the formatted source, remaining
   diagnostics, and a fix count.
+- `validateConfig(value, sourceLabel?)` API that validates an arbitrary
+  JSON-parsed value against the `LintConfig` shape and returns it typed,
+  throwing readable errors for invalid severities and malformed rule entries.
+  The optional `sourceLabel` is interpolated into error messages so host
+  integrations (CLI, browser, IDE) can point users at the offending source.
 - Initial rule set covering layout (`block-indent`, `load-indent`,
   `load-clause-newline`, `load-field-per-line`, `multiline-call`,
   `one-statement-per-line`, `max-line-length`, `no-multiple-empty-lines`,
