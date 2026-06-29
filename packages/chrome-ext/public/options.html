@@ -11,7 +11,16 @@
       <p id="options-subtitle" class="subtitle"></p>
     </header>
     <main class="page-body">
-      <p id="options-placeholder" class="placeholder"></p>
+      <form id="options-form" novalidate>
+        <label for="options-config" id="options-config-label" class="field-label"></label>
+        <p id="options-config-help" class="field-help"></p>
+        <textarea id="options-config" spellcheck="false" autocomplete="off" rows="18"></textarea>
+        <div id="options-feedback" class="feedback" role="status" aria-live="polite" hidden></div>
+        <div class="actions">
+          <button type="submit" id="options-save" class="button button-primary"></button>
+          <button type="button" id="options-reset" class="button button-secondary"></button>
+        </div>
+      </form>
     </main>
     <script src="options.js" type="module"></script>
   </body>

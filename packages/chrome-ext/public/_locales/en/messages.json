@@ -51,8 +51,28 @@
     "message": "Configure how qlint lints and formats Qlik scripts in this browser.",
     "description": "Subtitle below the options page heading."
   },
-  "optionsPlaceholder": {
-    "message": "Per-rule settings are coming soon.",
-    "description": "Placeholder text shown while the options page has no concrete settings yet."
+  "optionsConfigLabel": {
+    "message": "Lint configuration (JSON)",
+    "description": "Label for the textarea that holds the JSON lint configuration on the options page."
+  },
+  "optionsConfigHelp": {
+    "message": "Override rule severities and options. Click Reset to restore the recommended defaults.",
+    "description": "Help text shown above the configuration textarea on the options page."
+  },
+  "optionsSaveButton": {
+    "message": "Save",
+    "description": "Label of the save button on the options page."
+  },
+  "optionsResetButton": {
+    "message": "Reset to defaults",
+    "description": "Label of the reset button on the options page that restores recommended defaults."
+  },
+  "optionsConfigSaved": {
+    "message": "Settings saved.",
+    "description": "Confirmation shown after a successful save on the options page."
+  },
+  "optionsResetConfirm": {
+    "message": "Reset all settings to the recommended defaults?",
+    "description": "Confirmation prompt shown before resetting the configuration on the options page."
   }
 }

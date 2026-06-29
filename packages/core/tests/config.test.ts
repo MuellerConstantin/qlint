@@ -26,6 +26,12 @@ describe('validateConfig', () => {
     expect(() => validateConfig({ rules: [] })).toThrow(/"rules".*must be an object/);
   });
 
+  it('throws on unknown top-level keys instead of silently dropping them', () => {
+    expect(() => validateConfig({ 'trailing-whitespace': 'off' })).toThrow(
+      /unknown key "trailing-whitespace".*Only "rules" is supported/,
+    );
+  });
+
   it('throws on an unknown severity string', () => {
     expect(() => validateConfig({ rules: { foo: 'fatal' } })).toThrow(/invalid severity "fatal"/);
   });

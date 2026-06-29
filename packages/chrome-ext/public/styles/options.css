@@ -6,6 +6,12 @@
   --fg-muted: #6b7280;
   --surface: #f7f8fa;
   --border: #e5e7eb;
+  --accent: #009c4d;
+  --accent-hover: #007a3c;
+  --error: #b91c1c;
+  --error-bg: #fee2e2;
+  --success: #15803d;
+  --success-bg: #dcfce7;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +21,12 @@
     --fg-muted: #9ca3af;
     --surface: #2a2a2a;
     --border: #3f3f46;
+    --accent: #00b859;
+    --accent-hover: #00d166;
+    --error: #f87171;
+    --error-bg: #3f1d1d;
+    --success: #4ade80;
+    --success-bg: #14331f;
   }
 }
 
@@ -49,14 +61,96 @@ body {
   padding: 24px 32px;
 }
 
-.placeholder {
-  padding: 16px 18px;
-  margin: 0;
+.field-label {
+  display: block;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.field-help {
+  margin: 0 0 12px;
+  color: var(--fg-muted);
+  font-size: 13px;
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 320px;
+  padding: 12px;
+  font:
+    13px ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+  color: var(--fg);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  color: var(--fg-muted);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  border-color: var(--accent);
+}
+
+.feedback {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
   font-size: 13px;
+  white-space: pre-wrap;
+}
+
+.feedback-error {
+  background: var(--error-bg);
+  color: var(--error);
+}
+
+.feedback-success {
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.button {
+  font: inherit;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.button-primary {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.button-primary:hover {
+  background: var(--accent-hover);
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border);
+}
+
+.button-secondary:hover {
+  background: var(--surface);
+}
+
+[hidden] {
+  display: none !important;
 }
 
 @media (max-width: 600px) {

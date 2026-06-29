@@ -51,8 +51,28 @@
     "message": "Konfiguriere, wie qlint Qlik-Skripte in diesem Browser lintet und formatiert.",
     "description": "Subtitle below the options page heading."
   },
-  "optionsPlaceholder": {
-    "message": "Regel-spezifische Einstellungen folgen in Kürze.",
-    "description": "Placeholder text shown while the options page has no concrete settings yet."
+  "optionsConfigLabel": {
+    "message": "Lint-Konfiguration (JSON)",
+    "description": "Label for the textarea that holds the JSON lint configuration on the options page."
+  },
+  "optionsConfigHelp": {
+    "message": "Überschreibe Regel-Schweregrade und -Optionen. „Zurücksetzen“ stellt die empfohlenen Vorgaben wieder her.",
+    "description": "Help text shown above the configuration textarea on the options page."
+  },
+  "optionsSaveButton": {
+    "message": "Speichern",
+    "description": "Label of the save button on the options page."
+  },
+  "optionsResetButton": {
+    "message": "Zurücksetzen",
+    "description": "Label of the reset button on the options page that restores recommended defaults."
+  },
+  "optionsConfigSaved": {
+    "message": "Einstellungen gespeichert.",
+    "description": "Confirmation shown after a successful save on the options page."
+  },
+  "optionsResetConfirm": {
+    "message": "Alle Einstellungen auf die empfohlenen Vorgaben zurücksetzen?",
+    "description": "Confirmation prompt shown before resetting the configuration on the options page."
   }
 }

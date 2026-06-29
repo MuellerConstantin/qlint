@@ -9,6 +9,12 @@ export function validateConfig(value: unknown, sourceLabel?: string): LintConfig
     throw new Error(`Config${where} must be a JSON object.`);
   }
 
+  for (const key of Object.keys(value)) {
+    if (key !== 'rules') {
+      throw new Error(`Config${where} has unknown key "${key}". Only "rules" is supported.`);
+    }
+  }
+
   if (value.rules === undefined) {
     return {};
   }
