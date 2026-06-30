@@ -1,18 +1,24 @@
 import { defineConfig } from 'tsdown';
 
-export default defineConfig({
-  entry: ['src/background.ts', 'src/content.ts', 'src/popup.ts', 'src/options.ts', 'src/main.ts'],
-  format: ['esm'],
-  platform: 'browser',
-  deps: { alwaysBundle: ['@qlint/core'] },
-  outExtensions: () => ({ js: '.js' }),
-  dts: false,
-  clean: true,
-  /*
-   * MV3 service workers forbid runtime import(); force a single inlined bundle
-   * per entry so rolldown doesn't split deps (chevrotain etc.) into separate
-   * chunks. Same applies to content scripts loaded by chrome.scripting.
-   */
-  // @ts-expect-error tsdown 0.22.2 accepts this at runtime but hasn't typed it yet.
-  codeSplitting: false,
-});
+const ENTRIES = ['background', 'content', 'popup', 'options', 'main'];
+
+/*
+ * MV3 service workers forbid runtime import(); content scripts (including
+ * world: 'MAIN' ones) are loaded as classic scripts by chrome.scripting and
+ * also choke on import statements. `codeSplitting: false` only suppresses
+ * dynamic splitting, not the shared-chunk extraction rolldown performs across
+ * entries — so once two entries depend on @qlint/core, the build emits a
+ * shared chunk that the extension cannot load. Building each entry as its
+ * own config keeps every output self-contained.
+ */
+export default defineConfig(
+  ENTRIES.map((name, index) => ({
+    entry: [`src/${name}.ts`],
+    format: 'esm' as const,
+    platform: 'browser' as const,
+    deps: { alwaysBundle: ['@qlint/core'] },
+    outExtensions: () => ({ js: '.js' }),
+    dts: false,
+    clean: index === 0,
+  })),
+);
