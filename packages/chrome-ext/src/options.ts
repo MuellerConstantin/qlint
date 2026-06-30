@@ -18,7 +18,8 @@ const subtitle = document.getElementById('options-subtitle') as HTMLParagraphEle
 const rulesLabel = document.getElementById('options-rules-label') as HTMLSpanElement;
 const rulesHelp = document.getElementById('options-rules-help') as HTMLParagraphElement;
 const ruleList = document.getElementById('options-rule-list') as HTMLUListElement;
-const configLabel = document.getElementById('options-config-label') as HTMLSpanElement;
+const advancedDetails = document.getElementById('options-advanced') as HTMLDetailsElement;
+const configLabel = document.getElementById('options-config-label') as HTMLElement;
 const configHelp = document.getElementById('options-config-help') as HTMLParagraphElement;
 const editorMount = document.getElementById('options-config') as HTMLDivElement;
 const feedback = document.getElementById('options-feedback') as HTMLDivElement;
@@ -121,6 +122,12 @@ const editor = CodeMirror(editorMount, {
 
 darkMediaQuery.addEventListener('change', (event) => {
   editor.setOption('theme', event.matches ? 'material-darker' : 'default');
+});
+
+advancedDetails.addEventListener('toggle', () => {
+  if (advancedDetails.open) {
+    editor.refresh();
+  }
 });
 
 function buildRuleList(): void {
