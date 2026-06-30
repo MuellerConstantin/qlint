@@ -16,7 +16,7 @@ export default defineConfig(
     entry: [`src/${name}.ts`],
     format: 'esm' as const,
     platform: 'browser' as const,
-    deps: { alwaysBundle: ['@qlint/core'] },
+    deps: { alwaysBundle: ['@qlint/core', /^codemirror(\/|$)/] },
     outExtensions: () => ({ js: '.js' }),
     dts: false,
     clean: index === 0,

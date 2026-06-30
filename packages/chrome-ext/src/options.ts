@@ -1,11 +1,15 @@
 import { validateConfig, type LintConfig } from '@qlint/core';
+import CodeMirror from 'codemirror';
+import 'codemirror/mode/javascript/javascript.js';
+import 'codemirror/addon/edit/matchbrackets.js';
+import 'codemirror/addon/edit/closebrackets.js';
 import { loadConfig, saveConfig } from './util/config.js';
 
 const title = document.getElementById('options-title') as HTMLHeadingElement;
 const subtitle = document.getElementById('options-subtitle') as HTMLParagraphElement;
-const configLabel = document.getElementById('options-config-label') as HTMLLabelElement;
+const configLabel = document.getElementById('options-config-label') as HTMLSpanElement;
 const configHelp = document.getElementById('options-config-help') as HTMLParagraphElement;
-const configField = document.getElementById('options-config') as HTMLTextAreaElement;
+const editorMount = document.getElementById('options-config') as HTMLDivElement;
 const feedback = document.getElementById('options-feedback') as HTMLDivElement;
 const saveButton = document.getElementById('options-save') as HTMLButtonElement;
 const resetButton = document.getElementById('options-reset') as HTMLButtonElement;
@@ -44,17 +48,36 @@ function errorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+const darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+const editor = CodeMirror(editorMount, {
+  value: '',
+  mode: { name: 'javascript', json: true },
+  lineNumbers: true,
+  matchBrackets: true,
+  autoCloseBrackets: true,
+  smartIndent: true,
+  indentUnit: 2,
+  tabSize: 2,
+  indentWithTabs: false,
+  theme: darkMediaQuery.matches ? 'material-darker' : 'default',
+});
+
+darkMediaQuery.addEventListener('change', (event) => {
+  editor.setOption('theme', event.matches ? 'material-darker' : 'default');
+});
+
+editor.on('change', clearFeedback);
+
 async function persist(config: LintConfig): Promise<void> {
   try {
     await saveConfig(config);
-    configField.value = formatConfig(config);
+    editor.setValue(formatConfig(config));
     showFeedback(chrome.i18n.getMessage('optionsConfigSaved'), 'success');
   } catch (err) {
     showFeedback(errorMessage(err), 'error');
   }
 }
-
-configField.addEventListener('input', clearFeedback);
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -62,7 +85,7 @@ form.addEventListener('submit', async (event) => {
   let parsed: unknown;
 
   try {
-    parsed = JSON.parse(configField.value);
+    parsed = JSON.parse(editor.getValue());
   } catch (err) {
     showFeedback(`Invalid JSON: ${errorMessage(err)}`, 'error');
     return;
@@ -92,7 +115,7 @@ resetButton.addEventListener('click', async () => {
 
 async function init(): Promise<void> {
   const config = await loadConfig();
-  configField.value = formatConfig(config);
+  editor.setValue(formatConfig(config));
 }
 
 void init();

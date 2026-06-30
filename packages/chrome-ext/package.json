@@ -5,10 +5,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\""
+    "build": "tsdown && node -e \"const fs=require('node:fs');const path=require('node:path');const cm=path.dirname(require.resolve('codemirror/package.json'));fs.cpSync('public','dist',{recursive:true});fs.cpSync(path.join(cm,'lib/codemirror.css'),'dist/styles/codemirror.css');fs.cpSync(path.join(cm,'theme/material-darker.css'),'dist/styles/material-darker.css');\""
   },
   "dependencies": {
-    "@qlint/core": "^0.1.0"
+    "@qlint/core": "^0.1.0",
+    "codemirror": "^5.65.18"
   },
   "devDependencies": {
     "@types/codemirror": "^5.60.17",

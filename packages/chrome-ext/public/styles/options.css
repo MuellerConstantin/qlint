@@ -73,26 +73,24 @@ body {
   font-size: 13px;
 }
 
-textarea {
-  display: block;
-  width: 100%;
-  min-height: 320px;
-  padding: 12px;
+.editor-mount {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.editor-mount .CodeMirror {
+  height: 320px;
   font:
     13px ui-monospace,
     SFMono-Regular,
     Menlo,
     Consolas,
     monospace;
-  color: var(--fg);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  resize: vertical;
-  box-sizing: border-box;
 }
 
-textarea:focus {
+.editor-mount:focus-within {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
   border-color: var(--accent);

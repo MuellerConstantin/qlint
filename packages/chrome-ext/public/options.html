@@ -3,6 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <title>qlint</title>
+    <link rel="stylesheet" href="styles/codemirror.css" />
+    <link rel="stylesheet" href="styles/material-darker.css" />
     <link rel="stylesheet" href="styles/options.css" />
   </head>
   <body>
@@ -12,9 +14,9 @@
     </header>
     <main class="page-body">
       <form id="options-form" novalidate>
-        <label for="options-config" id="options-config-label" class="field-label"></label>
+        <span id="options-config-label" class="field-label"></span>
         <p id="options-config-help" class="field-help"></p>
-        <textarea id="options-config" spellcheck="false" autocomplete="off" rows="18"></textarea>
+        <div id="options-config" class="editor-mount" aria-labelledby="options-config-label"></div>
         <div id="options-feedback" class="feedback" role="status" aria-live="polite" hidden></div>
         <div class="actions">
           <button type="submit" id="options-save" class="button button-primary"></button>
