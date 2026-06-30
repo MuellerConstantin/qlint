@@ -3,6 +3,8 @@ import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/addon/edit/matchbrackets.js';
 import 'codemirror/addon/edit/closebrackets.js';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material-darker.css';
 import { loadConfig, saveConfig } from './util/config.js';
 
 const title = document.getElementById('options-title') as HTMLHeadingElement;
