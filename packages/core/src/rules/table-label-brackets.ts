@@ -4,6 +4,7 @@ import { tokenRange, tokenFix } from '../runner.js';
 
 export const tableLabelBrackets: Rule<undefined, 'table-label-brackets'> = {
   id: 'table-label-brackets',
+  defaultSeverity: 'warning',
   check: ({ tokens, firstOnLine }) => {
     const firstSet = new Set(firstOnLine);
     const out: Finding[] = [];
@@ -13,7 +14,6 @@ export const tableLabelBrackets: Rule<undefined, 'table-label-brackets'> = {
       const next = tokens[index + 1];
       if (token.tokenType === identifierToken && next.tokenType === colonToken && firstSet.has(token)) {
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: `The table name '${token.image}' should be enclosed in brackets: '[${token.image}]'.`,
           fix: tokenFix(token, `[${token.image}]`),

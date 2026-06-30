@@ -9,6 +9,7 @@ const WHITESPACE_TAIL = /\s$/;
 
 export const commentSpace: Rule<undefined, 'comment-space'> = {
   id: 'comment-space',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ comments }) => {
     const out: Finding[] = [];
@@ -24,7 +25,6 @@ export const commentSpace: Rule<undefined, 'comment-space'> = {
         const insertAt = token.startOffset + 2;
 
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: "Expected a space after '//'.",
           fix: { range: { start: insertAt, end: insertAt }, replacement: ' ' },
@@ -47,7 +47,6 @@ export const commentSpace: Rule<undefined, 'comment-space'> = {
         const insertAt = token.startOffset + 2;
 
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: "Expected a space after '/*'.",
           fix: { range: { start: insertAt, end: insertAt }, replacement: ' ' },
@@ -59,7 +58,6 @@ export const commentSpace: Rule<undefined, 'comment-space'> = {
         const insertAt = endOffset - 2;
 
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: "Expected a space before '*/'.",
           fix: { range: { start: insertAt, end: insertAt }, replacement: ' ' },

@@ -18,6 +18,7 @@ function applyCaseStyle(canonical: string, style: CaseStyle): string {
 
 export const builtinFunctionCase: Rule<CaseRuleOptions, 'builtin-function-case'> = {
   id: 'builtin-function-case',
+  defaultSeverity: 'warning',
   defaultOptions: { style: 'pascal' },
   check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
@@ -37,7 +38,6 @@ export const builtinFunctionCase: Rule<CaseRuleOptions, 'builtin-function-case'>
 
       if (token.image !== expected) {
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: `Built-in function '${token.image}' should be written as '${expected}'.`,
           fix: tokenFix(token, expected),

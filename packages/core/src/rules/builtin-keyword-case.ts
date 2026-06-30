@@ -18,6 +18,7 @@ function applyCaseStyle(canonical: string, style: CaseStyle): string {
 
 export const builtinKeywordCase: Rule<CaseRuleOptions, 'builtin-keyword-case'> = {
   id: 'builtin-keyword-case',
+  defaultSeverity: 'warning',
   defaultOptions: { style: 'pascal' },
   check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
@@ -37,7 +38,6 @@ export const builtinKeywordCase: Rule<CaseRuleOptions, 'builtin-keyword-case'> =
 
       if (token.image !== expected) {
         out.push({
-          severity: 'warning',
           range: tokenRange(token),
           message: `Keyword '${token.image}' should be written as '${expected}'.`,
           fix: tokenFix(token, expected),

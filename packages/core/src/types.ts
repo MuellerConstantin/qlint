@@ -25,7 +25,7 @@ export interface Diagnostic {
   fix?: Fix;
 }
 
-export type Finding = Omit<Diagnostic, 'ruleId'>;
+export type Finding = Omit<Diagnostic, 'ruleId' | 'severity'>;
 
 export interface RuleContext {
   source: string;
@@ -36,6 +36,7 @@ export interface RuleContext {
 
 export interface Rule<O = undefined, Id extends string = string> {
   id: Id;
+  defaultSeverity: Severity;
   defaultOptions?: O;
   check(ctx: RuleContext, options: O): Finding[];
 }

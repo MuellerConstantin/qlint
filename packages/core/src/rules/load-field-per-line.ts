@@ -194,7 +194,6 @@ function fixStartOffset(prev: IToken, t: IToken, comments: IToken[]): number {
 
 function makeFinding(prev: IToken, t: IToken, comments: IToken[]): Finding {
   return {
-    severity: 'warning',
     range: tokenRange(t),
     message: 'Each LOAD field should start on its own line.',
     fix: {
@@ -263,6 +262,7 @@ function checkStatement(tokens: IToken[], comments: IToken[]): Finding[] {
 
 export const loadFieldPerLine: Rule<undefined, 'load-field-per-line'> = {
   id: 'load-field-per-line',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ tokens, comments }: RuleContext) => {
     const stmts = splitStatements(tokens);

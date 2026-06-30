@@ -4,6 +4,7 @@ import { tokenRange } from '../runner.js';
 
 export const commaSpace: Rule<undefined, 'comma-space'> = {
   id: 'comma-space',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ source, tokens }) => {
     const out: Finding[] = [];
@@ -31,7 +32,6 @@ export const commaSpace: Rule<undefined, 'comma-space'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: tokenRange(token),
         message: gap.length === 0 ? "Expected a space after ','." : "Expected exactly one space after ','.",
         fix: { range: { start: after, end: cursor }, replacement: ' ' },

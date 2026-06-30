@@ -30,6 +30,7 @@ function splitLines(source: string): LineSpan[] {
 
 export const noMultipleEmptyLines: Rule<NoMultipleEmptyLinesOptions, 'no-multiple-empty-lines'> = {
   id: 'no-multiple-empty-lines',
+  defaultSeverity: 'warning',
   defaultOptions: { max: 1 },
   check: ({ source }, { max }) => {
     const out: Finding[] = [];
@@ -60,7 +61,6 @@ export const noMultipleEmptyLines: Rule<NoMultipleEmptyLinesOptions, 'no-multipl
         const lastExcess = lines[i - 1];
 
         out.push({
-          severity: 'warning',
           range: {
             start: { line: runStart + max + 1, column: 1 },
             end: { line: i, column: 1 },

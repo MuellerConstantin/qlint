@@ -78,6 +78,7 @@ function lineLengthAt(source: string, line: number): number {
 
 export const multilineCall: Rule<MultilineCallOptions, 'multiline-call'> = {
   id: 'multiline-call',
+  defaultSeverity: 'warning',
   defaultOptions: { maxLineLength: 120, indentStyle: 'tab', indentSize: 1 },
   check: ({ source, tokens }, { maxLineLength, indentStyle, indentSize }) => {
     const out: Finding[] = [];
@@ -145,7 +146,6 @@ export const multilineCall: Rule<MultilineCallOptions, 'multiline-call'> = {
       const replacement = '\n' + args.map((a) => deepIndent + a).join(',\n') + '\n' + baseIndent;
 
       out.push({
-        severity: 'warning',
         range: tokenRange(funcToken),
         message: `Call '${funcToken.image}(...)' exceeds the maximum line length of ${maxLineLength}; break each argument onto its own line.`,
         fix: { range: { start: innerStart, end: innerEnd }, replacement },

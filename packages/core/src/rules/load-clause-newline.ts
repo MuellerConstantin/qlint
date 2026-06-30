@@ -148,7 +148,6 @@ function checkStatement(tokens: IToken[], comments: IToken[]): Finding[] {
 
         if (prevLine === tLine) {
           out.push({
-            severity: 'warning',
             range: tokenRange(t),
             message: `LOAD clause '${t.image}' should start on its own line.`,
             fix: {
@@ -168,6 +167,7 @@ function checkStatement(tokens: IToken[], comments: IToken[]): Finding[] {
 
 export const loadClauseNewline: Rule<undefined, 'load-clause-newline'> = {
   id: 'load-clause-newline',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ tokens, comments }: RuleContext) => {
     const stmts = splitStatements(tokens);

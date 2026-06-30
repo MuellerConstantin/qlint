@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `recommended` preset bundling the default rule selection and severities.
 - `allRules` export listing every rule shipped with Core. Host integrations (CLI,
   browser, IDE) can enumerate the full rule catalog.
+- `Rule.defaultSeverity` field declaring each rule's out-of-the-box severity.
+  Findings carry only location, message, and optional fix; the runner attaches
+  severity from the user config (if set) or from `rule.defaultSeverity`. Host
+  integrations can read this field to surface the recommended severity next to
+  per-rule controls.
 - `configure(rule, options)` helper for per-rule option overrides without
   re-implementing the rule.
 - Inline disable directives (`// qlint-disable`, `// qlint-disable-next-line`,

@@ -2,6 +2,7 @@ import type { Rule, Finding } from '../types.js';
 
 export const trailingWhitespace: Rule<undefined, 'trailing-whitespace'> = {
   id: 'trailing-whitespace',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ source }) => {
     const out: Finding[] = [];
@@ -22,7 +23,6 @@ export const trailingWhitespace: Rule<undefined, 'trailing-whitespace'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: {
           start: { line: lineNumber, column: trimEnd - lineStart + 1 },
           end: { line: lineNumber, column: lineEnd - lineStart + 1 },

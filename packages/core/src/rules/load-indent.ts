@@ -252,7 +252,6 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
   const endColumn = Math.max(actualColumn, 2);
 
   return {
-    severity: 'warning',
     range: {
       start: { line, column: 1 },
       end: { line, column: endColumn },
@@ -267,6 +266,7 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
 
 export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
   id: 'load-indent',
+  defaultSeverity: 'warning',
   defaultOptions: { size: 1, style: 'tab' },
   check: ({ tokens, firstOnLine }: RuleContext, { size, style }): Finding[] => {
     const indentChar = style === 'tab' ? '\t' : ' ';

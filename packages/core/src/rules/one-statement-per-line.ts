@@ -22,6 +22,7 @@ function resolveLineEnding(option: LineEnding, source: string): string {
 
 export const oneStatementPerLine: Rule<OneStatementPerLineOptions, 'one-statement-per-line'> = {
   id: 'one-statement-per-line',
+  defaultSeverity: 'warning',
   defaultOptions: { lineEnding: 'auto' },
   check: ({ source, tokens }, { lineEnding }) => {
     const newline = resolveLineEnding(lineEnding, source);
@@ -41,7 +42,6 @@ export const oneStatementPerLine: Rule<OneStatementPerLineOptions, 'one-statemen
       }
 
       out.push({
-        severity: 'warning',
         range: tokenRange(next),
         message: 'Each statement must start on its own line.',
         fix: {

@@ -128,6 +128,7 @@ function isSwitchClose(lineTokens: IToken[]): boolean {
 
 export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
   id: 'block-indent',
+  defaultSeverity: 'warning',
   defaultOptions: { size: 1, style: 'tab' },
   check: ({ tokens }, { size, style }) => {
     const out: Finding[] = [];
@@ -198,7 +199,6 @@ export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
         const endColumn = Math.max(actualColumn, 2);
 
         out.push({
-          severity: 'warning',
           range: {
             start: { line, column: 1 },
             end: { line, column: endColumn },

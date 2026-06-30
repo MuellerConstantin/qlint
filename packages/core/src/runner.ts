@@ -105,7 +105,7 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
         continue;
       }
 
-      out.push({ ruleId: rule.id, ...findings, severity: configSeverity ?? findings.severity });
+      out.push({ ruleId: rule.id, ...findings, severity: configSeverity ?? rule.defaultSeverity });
     }
   }
 

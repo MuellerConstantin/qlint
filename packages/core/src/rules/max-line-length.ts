@@ -6,6 +6,7 @@ export interface MaxLineLengthOptions {
 
 export const maxLineLength: Rule<MaxLineLengthOptions, 'max-line-length'> = {
   id: 'max-line-length',
+  defaultSeverity: 'warning',
   defaultOptions: { max: 120 },
   check: ({ source }, { max }) => {
     const out: Finding[] = [];
@@ -19,7 +20,6 @@ export const maxLineLength: Rule<MaxLineLengthOptions, 'max-line-length'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: {
           start: { line: index + 1, column: max + 1 },
           end: { line: index + 1, column: length + 1 },

@@ -7,6 +7,7 @@ const PATTERN = new RegExp(`^${SEGMENT.source}(?:\\.${SEGMENT.source})*$`);
 
 export const variableCharset: Rule<undefined, 'variable-charset'> = {
   id: 'variable-charset',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ tokens }) => {
     const out: Finding[] = [];
@@ -35,7 +36,6 @@ export const variableCharset: Rule<undefined, 'variable-charset'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: tokenRange(next),
         message:
           `Variable '${next.image}' must consist of letters, digits and underscores. ` +

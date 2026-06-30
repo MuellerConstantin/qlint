@@ -73,6 +73,7 @@ function normalizeBlockComment(text: string, indent: string): string {
 
 export const blockCommentStars: Rule<undefined, 'block-comment-stars'> = {
   id: 'block-comment-stars',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ source, comments }) => {
     const out: Finding[] = [];
@@ -112,7 +113,6 @@ export const blockCommentStars: Rule<undefined, 'block-comment-stars'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: tokenRange(token),
         message: "Multi-line block comment lines should start with aligned ' *'.",
         fix: {

@@ -4,6 +4,7 @@ import { tokenRange } from '../runner.js';
 
 export const inlineCommentSpace: Rule<undefined, 'inline-comment-space'> = {
   id: 'inline-comment-space',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ source, comments }) => {
     const out: Finding[] = [];
@@ -33,7 +34,6 @@ export const inlineCommentSpace: Rule<undefined, 'inline-comment-space'> = {
       const marker = token.tokenType === lineCommentToken ? '//' : '/*';
 
       out.push({
-        severity: 'warning',
         range: tokenRange(token),
         message:
           gap.length === 0 ? `Expected a space before '${marker}'.` : `Expected exactly one space before '${marker}'.`,

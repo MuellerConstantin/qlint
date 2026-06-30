@@ -24,6 +24,7 @@ const LABELS: Record<VariableCaseStyle, string> = {
 
 export const variableCase: Rule<VariableCaseOptions, 'variable-case'> = {
   id: 'variable-case',
+  defaultSeverity: 'warning',
   defaultOptions: { style: 'camel' },
   check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
@@ -53,7 +54,6 @@ export const variableCase: Rule<VariableCaseOptions, 'variable-case'> = {
       }
 
       out.push({
-        severity: 'warning',
         range: tokenRange(next),
         message: `Variable '${next.image}' should be written in ${LABELS[style]}.`,
       });

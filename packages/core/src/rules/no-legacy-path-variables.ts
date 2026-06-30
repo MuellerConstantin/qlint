@@ -15,6 +15,7 @@ const LEGACY_PATH_VARIABLES = new Set([
 
 export const noLegacyPathVariables: Rule<undefined, 'no-legacy-path-variables'> = {
   id: 'no-legacy-path-variables',
+  defaultSeverity: 'error',
   check: ({ tokens }) => {
     const out: Finding[] = [];
 
@@ -28,7 +29,6 @@ export const noLegacyPathVariables: Rule<undefined, 'no-legacy-path-variables'> 
       }
 
       out.push({
-        severity: 'error',
         range: tokenRange(token),
         message: `'${token.image}' is a legacy QlikView-era system variable; use a lib:// data connection instead.`,
       });
