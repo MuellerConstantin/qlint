@@ -34,6 +34,37 @@ export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Part
   };
 }
 
+/**
+ * Index of every rule shipped with Core. Use this to enumerate the full rule
+ * catalog — for example to populate an options UI that lists every available
+ * rule. Not a default lint preset; pass {@link recommended} to `lint()` /
+ * `format()` for the opinionated out-of-the-box behavior.
+ */
+export const allRules = [
+  tableLabelBrackets,
+  blockCommentStars,
+  blockIndent,
+  builtinFunctionCase,
+  builtinKeywordCase,
+  commaSpace,
+  commentSpace,
+  inlineCommentSpace,
+  loadClauseNewline,
+  loadFieldPerLine,
+  loadIndent,
+  maxLineLength,
+  multilineCall,
+  noLegacyPathVariables,
+  noMultipleEmptyLines,
+  oneStatementPerLine,
+  trailingWhitespace,
+  variableCase,
+  variableCharset,
+] as const;
+
+/**
+ * Curated preset of rules for the opinionated out-of-the-box experience.
+ */
 export const recommended = [
   tableLabelBrackets,
   blockCommentStars,

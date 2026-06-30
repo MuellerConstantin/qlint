@@ -3,6 +3,7 @@ export { validateConfig } from './config.js';
 export type { Diagnostic, Rule, Severity, Fix } from './types.js';
 export type { LintConfig, RulesConfigOf, RuleConfigEntry, SeverityOrOff, FormatResult } from './runner.js';
 export {
+  allRules,
   recommended,
   tableLabelBrackets,
   blockIndent,

@@ -31,6 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   correctness (`no-legacy-path-variables`, `table-label-brackets`,
   `variable-charset`).
 - `recommended` preset bundling the default rule selection and severities.
+- `allRules` export listing every rule shipped with Core. Host integrations (CLI,
+  browser, IDE) can enumerate the full rule catalog.
 - `configure(rule, options)` helper for per-rule option overrides without
   re-implementing the rule.
 - Inline disable directives (`// qlint-disable`, `// qlint-disable-next-line`,
