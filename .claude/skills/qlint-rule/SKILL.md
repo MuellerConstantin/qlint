@@ -49,6 +49,7 @@ The contract from [types.ts](../../../packages/core/src/types.ts):
 ```ts
 interface Rule<O = undefined, Id extends string = string> {
   id: Id;
+  defaultSeverity: Severity;
   defaultOptions?: O;
   check(ctx: RuleContext, options: O): Finding[];
 }
@@ -60,8 +61,12 @@ interface RuleContext {
   comments: IToken[];
 }
 
-type Finding = Omit<Diagnostic, 'ruleId'>; // severity, range, message, fix?
+type Finding = Omit<Diagnostic, 'ruleId' | 'severity'>; // range, message, fix?
 ```
+
+Severity is declared once on the rule via `defaultSeverity` — the runner attaches it
+to every finding the rule emits (or overrides it from the user config). Findings
+themselves only carry location, message, and optional fix.
 
 Helpers in [runner.ts](../../../packages/core/src/runner.ts):
 
@@ -75,13 +80,13 @@ import type { Rule, Finding } from '../types.js';
 
 export const myRule: Rule<undefined, 'my-rule'> = {
   id: 'my-rule',
+  defaultSeverity: 'warning',
   defaultOptions: undefined,
   check: ({ source }) => {
     const out: Finding[] = [];
 
     // ... detect violations, push Findings ...
     out.push({
-      severity: 'warning',
       range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
       message: 'Describe the violation.',
       fix: { range: { start: 0, end: 1 }, replacement: '' }, // optional
@@ -107,6 +112,7 @@ export interface MyRuleOptions {
 
 export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
   id: 'my-rule',
+  defaultSeverity: 'warning',
   defaultOptions: { style: 'a' },
   check: ({ tokens }, { style }) => {
     const out: Finding[] = [];
@@ -117,7 +123,6 @@ export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
       }
       // ... use `style` ...
       out.push({
-        severity: 'warning',
         range: tokenRange(token),
         message: `Violation in ${style} style.`,
       });
@@ -130,9 +135,10 @@ export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
 
 ### General notes
 
-- `severity`: `'error' | 'warning' | 'info'`. Default for new rules: `'warning'`.
+- `defaultSeverity`: `'error' | 'warning' | 'info'`. Default for new rules: `'warning'`.
   Use `'error'` only when the script is broken or near-broken; `'info'` for purely
-  stylistic nudges.
+  stylistic nudges. The runner attaches this to every finding the rule emits; do
+  not set severity in the finding itself.
 - `range`: 1-based `line`/`column`, end-exclusive. Use `tokenRange()` for token
   scoped findings.
 - `fix.range`: **byte offsets** into `source` (0-based), not line/column. Use
