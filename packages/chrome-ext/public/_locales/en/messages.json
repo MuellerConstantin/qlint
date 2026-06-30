@@ -51,13 +51,21 @@
     "message": "Configure how qlint lints and formats Qlik scripts in this browser.",
     "description": "Subtitle below the options page heading."
   },
+  "optionsRulesLabel": {
+    "message": "Rules",
+    "description": "Label of the per-rule severity section on the options page."
+  },
+  "optionsRulesHelp": {
+    "message": "Set the severity for each rule. \"default\" follows the recommended preset.",
+    "description": "Help text shown above the per-rule severity list on the options page."
+  },
   "optionsConfigLabel": {
-    "message": "Lint configuration (JSON)",
-    "description": "Label for the textarea that holds the JSON lint configuration on the options page."
+    "message": "Advanced (JSON)",
+    "description": "Label of the raw JSON editor section on the options page."
   },
   "optionsConfigHelp": {
-    "message": "Override rule severities and options. Click Reset to restore the recommended defaults.",
-    "description": "Help text shown above the configuration textarea on the options page."
+    "message": "Edit the configuration directly. Use this for rule options that are not exposed in the rule list above.",
+    "description": "Help text shown above the JSON editor on the options page."
   },
   "optionsSaveButton": {
     "message": "Save",
