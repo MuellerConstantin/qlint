@@ -1,4 +1,4 @@
-import type { Severity } from '@qlint/core';
+import type { LintConfig, Severity } from '@qlint/core';
 
 export type DiagnosticCounts = Record<Severity, number>;
 
@@ -25,4 +25,10 @@ export type DiagnosticsBridgeMessage = {
   fixable: number;
 };
 export type FixAllBridgeMessage = { source: 'qlint-content'; type: 'qlint:fix-all' };
-export type BridgeMessage = DiagnosticsBridgeMessage | FixAllBridgeMessage;
+export type ConfigBridgeMessage = { source: 'qlint-content'; type: 'qlint:config'; config: LintConfig };
+export type GetConfigBridgeMessage = { source: 'qlint-main'; type: 'qlint:get-config' };
+export type BridgeMessage =
+  | DiagnosticsBridgeMessage
+  | FixAllBridgeMessage
+  | ConfigBridgeMessage
+  | GetConfigBridgeMessage;

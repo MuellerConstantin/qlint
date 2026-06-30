@@ -1,10 +1,13 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
+import { loadConfig, onConfigChange } from './util/config.js';
+import type { LintConfig } from '@qlint/core';
 import type {
   Message,
   Status,
   StatusMessage,
   DiagnosticCounts,
   BridgeMessage,
+  ConfigBridgeMessage,
   DiagnosticsMessage,
   FixAllBridgeMessage,
 } from './types.js';
@@ -14,6 +17,26 @@ const DOM_POLL_TIMEOUT_MS = 10_000;
 let status: Status = 'not-applicable';
 let diagnosticCounts: DiagnosticCounts | null = null;
 let fixableCount = 0;
+let currentConfig: LintConfig = {};
+
+function postConfig(): void {
+  const message: ConfigBridgeMessage = {
+    source: 'qlint-content',
+    type: 'qlint:config',
+    config: currentConfig,
+  };
+  window.postMessage(message, window.location.origin);
+}
+
+void loadConfig().then((config) => {
+  currentConfig = config;
+  postConfig();
+});
+
+onConfigChange((config) => {
+  currentConfig = config;
+  postConfig();
+});
 
 function broadcastStatus(): void {
   const message: StatusMessage = { type: 'qlint:status', status };
@@ -121,6 +144,11 @@ window.addEventListener('message', (event: MessageEvent) => {
   const data = event.data as BridgeMessage | undefined;
 
   if (data?.source !== 'qlint-main') {
+    return;
+  }
+
+  if (data.type === 'qlint:get-config') {
+    postConfig();
     return;
   }
 
