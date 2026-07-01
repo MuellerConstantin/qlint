@@ -3,6 +3,22 @@ import type { LintConfig } from './rules/index.js';
 
 const VALID_SEVERITIES = new Set(['error', 'warning', 'info', 'off']);
 
+/**
+ * Validates an untrusted, JSON-parsed value against the {@link LintConfig} shape
+ * and returns it typed.
+ *
+ * Ensures the value is an object whose only key is `rules`, that every rule id is
+ * known to the built-in registry, and that each entry is a valid severity or a
+ * `[severity, options]` tuple. Intended for host integrations (the CLI `--config`
+ * flag, the browser settings page) that load configuration from disk or storage.
+ *
+ * @param value - The parsed JSON value to validate.
+ * @param sourceLabel - Optional label (e.g. a file path) interpolated into error
+ *   messages so users can locate the offending source.
+ * @returns The same value, typed as {@link LintConfig}.
+ * @throws If the value is not a valid config — unknown top-level key, unknown
+ *   rule id, invalid severity, or malformed rule entry.
+ */
 export function validateConfig(value: unknown, sourceLabel?: string): LintConfig {
   const where = sourceLabel ? ` in ${sourceLabel}` : '';
 

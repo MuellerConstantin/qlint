@@ -38,6 +38,30 @@ function parseEntry(entry: RuleConfigEntry<unknown> | undefined): {
   return { severity: entry[0], options: entry[1] };
 }
 
+/**
+ * Lints a Qlik load script against the rules enabled in `config`.
+ *
+ * Only rules listed in `config.rules` run — a rule that is absent is not checked.
+ * Each rule id is resolved against the built-in rule registry, and an unknown id
+ * throws. Inline `// qlint-disable` directives are honored, and each finding's
+ * severity comes from its config entry (or the rule's `defaultSeverity`).
+ *
+ * @param source - The Qlik load script to lint.
+ * @param config - Which rules to run and their severities/options. Pass
+ *   {@link recommended} for the opinionated default preset.
+ * @returns The diagnostics found, sorted by line then column.
+ * @throws If `config.rules` references an unknown rule id.
+ *
+ * @example
+ * ```ts
+ * import { lint, recommended } from '@qlint/core';
+ *
+ * const diagnostics = lint(source, recommended);
+ *
+ * // Layer an override on top of the preset:
+ * lint(source, { rules: { ...recommended.rules, 'max-line-length': ['error', { max: 100 }] } });
+ * ```
+ */
 export function lint(source: string, config: LintConfig): Diagnostic[] {
   const result = lexer.tokenize(source);
 
@@ -91,6 +115,12 @@ function mergeOptions(defaults: unknown, override: unknown): unknown {
   return override ?? defaults;
 }
 
+/**
+ * Applies a set of fixes to `source`, greedily skipping any fix that overlaps an
+ * already-accepted one (rightmost wins). Not part of the public API.
+ *
+ * @internal
+ */
 export function applyFixes(source: string, fixes: Fix[]): { output: string; applied: number } {
   const sorted = [...fixes].sort((a, b) => b.range.start - a.range.start);
   const accepted: Fix[] = [];
@@ -116,7 +146,10 @@ export function applyFixes(source: string, fixes: Fix[]): { output: string; appl
 /**
  * Runs the multi-pass autofix loop against an arbitrary diagnostic producer.
  * The public {@link format} binds this to {@link lint}; keeping it rule-agnostic
- * lets the convergence machinery be exercised in isolation.
+ * lets the convergence machinery be exercised in isolation. Not part of the
+ * public API.
+ *
+ * @internal
  */
 export function runFormatLoop(source: string, run: (src: string) => Diagnostic[]): FormatResult {
   let current = source;
@@ -150,6 +183,29 @@ export function runFormatLoop(source: string, run: (src: string) => Diagnostic[]
   return { output: current, diagnostics: finalDiagnostics, fixed: totalFixed };
 }
 
+/**
+ * Lints a Qlik load script and applies every available autofix, repeating in
+ * successive passes until the output stabilizes.
+ *
+ * Runs {@link lint} and applies the fix from every diagnostic that provides one
+ * (a fix can expose further fixes, hence the passes). Diagnostics without a fix
+ * are left untouched and reported in the result.
+ *
+ * @param source - The Qlik load script to format.
+ * @param config - Which rules to run and their severities/options. Pass
+ *   {@link recommended} for the opinionated default preset.
+ * @returns The formatted `output`, the `diagnostics` that remain after fixing,
+ *   and the number of fixes applied (`fixed`).
+ * @throws If `config.rules` references an unknown rule id, or if the autofixes do
+ *   not converge after the internal pass limit.
+ *
+ * @example
+ * ```ts
+ * import { format, recommended } from '@qlint/core';
+ *
+ * const { output, fixed, diagnostics } = format(source, recommended);
+ * ```
+ */
 export function format(source: string, config: LintConfig): FormatResult {
   return runFormatLoop(source, (src) => lint(src, config));
 }
