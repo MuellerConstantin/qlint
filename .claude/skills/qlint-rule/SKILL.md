@@ -33,8 +33,8 @@ For a rule named `my-rule`, all five identifiers share the same kebab-case stem:
 
 A new or modified rule must **never** edit these files:
 
-- `packages/core/src/types.ts` — `Rule`, `RuleContext`, `Finding`, `Diagnostic`, `Fix`, `Range`, `Severity`, `Position`.
-- `packages/core/src/runner.ts` — `lint`, `format`, `applyFixes`, `runFormatLoop`, `FormatResult`.
+- `packages/core/src/types.ts` — the shared type vocabulary: `Rule`, `RuleContext`, `Finding`, `Diagnostic`, `Fix`, `Range`, `Severity`, `Position`, `SeverityOrOff`, `RuleConfigEntry`, `AnyRule`, `RulesConfigOf`, `FormatResult`.
+- `packages/core/src/runner.ts` — `lint`, `format`, `applyFixes`, `runFormatLoop`.
 - `packages/core/src/token.ts` — `tokenRange`, `tokenFix`.
 - `packages/core/src/disableDirectives.ts` — disable wiring is automatic; rules need no participation.
 

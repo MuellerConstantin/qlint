@@ -1,4 +1,4 @@
-import type { AnyRule, RulesConfigOf } from '../runner.js';
+import type { AnyRule, RulesConfigOf } from '../types.js';
 export type { CaseStyle, CaseRuleOptions } from './types';
 import { blockCommentStars } from './block-comment-stars.js';
 import { blockIndent } from './block-indent.js';

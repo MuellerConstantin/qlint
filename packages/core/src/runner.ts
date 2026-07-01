@@ -3,7 +3,7 @@ import { collectDisabledLines, isDisabled } from './disableDirectives.js';
 import { COMMENT_GROUP, lexer } from './lexer.js';
 import { registry } from './rules/index.js';
 import type { LintConfig } from './rules/index.js';
-import type { Rule, Fix, Severity, Diagnostic, RuleContext } from './types.js';
+import type { Rule, Fix, Diagnostic, RuleContext, RuleConfigEntry, SeverityOrOff, FormatResult } from './types.js';
 
 function firstTokenPerLine(tokens: IToken[]): IToken[] {
   const seen = new Set<number>();
@@ -19,29 +19,6 @@ function firstTokenPerLine(tokens: IToken[]): IToken[] {
   }
 
   return out;
-}
-
-export type SeverityOrOff = Severity | 'off';
-
-export type RuleConfigEntry<O = unknown> = [O] extends [undefined]
-  ? SeverityOrOff | [SeverityOrOff]
-  : SeverityOrOff | [SeverityOrOff] | [SeverityOrOff, Partial<O>];
-
-/*
- * Rule is invariant in O, so heterogeneous rule tuples can
- * only share a common element type via `any`.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyRule = Rule<any, string>;
-
-export type RulesConfigOf<R extends readonly AnyRule[]> = {
-  [I in R[number]['id']]?: RuleConfigEntry<Extract<R[number], { id: I }> extends Rule<infer O, string> ? O : never>;
-};
-
-export interface FormatResult {
-  output: string;
-  diagnostics: Diagnostic[];
-  fixed: number;
 }
 
 const MAX_PASSES = 10;

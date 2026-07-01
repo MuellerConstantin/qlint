@@ -1,7 +1,15 @@
 export { lint, format } from './runner.js';
 export { validateConfig } from './config.js';
-export type { Diagnostic, Rule, Severity, Fix } from './types.js';
-export type { RulesConfigOf, RuleConfigEntry, SeverityOrOff, FormatResult } from './runner.js';
+export type {
+  Diagnostic,
+  Rule,
+  Severity,
+  Fix,
+  RulesConfigOf,
+  RuleConfigEntry,
+  SeverityOrOff,
+  FormatResult,
+} from './types.js';
 export type { LintConfig, RulesConfig, RuleId } from './rules/index.js';
 export {
   allRules,
