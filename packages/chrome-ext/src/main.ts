@@ -12,6 +12,11 @@ let currentConfig: LintConfig = {};
 let triggerLint: (() => void) | undefined;
 let editorRef: Editor | undefined;
 
+// Start from the recommended preset; the loaded user config overrides it per rule.
+function effectiveConfig(): LintConfig {
+  return { rules: { ...recommended.rules, ...currentConfig.rules } };
+}
+
 function countBySeverity(diagnostics: Diagnostic[]): DiagnosticCounts {
   const counts: DiagnosticCounts = { error: 0, warning: 0, info: 0 };
 
@@ -26,7 +31,7 @@ function fixAll(editor: Editor): void {
   const source = editor.getValue();
 
   try {
-    const { output, fixed } = format(source, recommended, currentConfig);
+    const { output, fixed } = format(source, effectiveConfig());
 
     if (fixed === 0 || output === source) {
       return;
@@ -48,7 +53,7 @@ function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
   const highlighter = createHighlighter(editor);
 
   const onScriptChange = debounce((): void => {
-    const diagnostics = lint(editor.getValue(), recommended, currentConfig);
+    const diagnostics = lint(editor.getValue(), effectiveConfig());
     highlighter.apply(diagnostics);
 
     const fixable = diagnostics.reduce((count, diagnostic) => (diagnostic.fix ? count + 1 : count), 0);
