@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
-import { lint, format, recommended, type Diagnostic } from '@qlint/core';
+import { lint, format, recommended, type Diagnostic, type LintConfig } from '@qlint/core';
 import { loadConfig } from './config.js';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
@@ -71,14 +71,17 @@ function main(): void {
     process.exit(2);
   }
 
-  let config;
+  let userConfig: LintConfig;
 
   try {
-    config = values.config ? loadConfig(values.config) : {};
+    userConfig = values.config ? loadConfig(values.config) : {};
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
     process.exit(2);
   }
+
+  // Start from the recommended preset; the user config overrides it per rule.
+  const config: LintConfig = { rules: { ...recommended.rules, ...userConfig.rules } };
 
   let errors = 0;
   let warnings = 0;
@@ -89,7 +92,7 @@ function main(): void {
     let diagnostics: Diagnostic[];
 
     if (values.fix) {
-      const result = format(source, recommended, config);
+      const result = format(source, config);
       diagnostics = result.diagnostics;
       fixedTotal += result.fixed;
 
@@ -97,7 +100,7 @@ function main(): void {
         writeFileSync(file, result.output, 'utf8');
       }
     } else {
-      diagnostics = lint(source, recommended, config);
+      diagnostics = lint(source, config);
     }
 
     if (values.quiet) {
