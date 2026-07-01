@@ -1,6 +1,6 @@
 import { identifierToken, keywordToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 const SEGMENT = /[A-Za-z_][A-Za-z0-9_]*/;
 const PATTERN = new RegExp(`^${SEGMENT.source}(?:\\.${SEGMENT.source})*$`);

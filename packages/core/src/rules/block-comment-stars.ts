@@ -1,6 +1,6 @@
 import { blockCommentToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 const ONLY_WHITESPACE = /^[ \t]*$/;
 const LEADING_WS = /^[ \t]*/;

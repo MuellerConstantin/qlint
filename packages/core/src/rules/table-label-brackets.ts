@@ -1,6 +1,6 @@
 import { identifierToken, colonToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange, tokenFix } from '../runner.js';
+import { tokenRange, tokenFix } from '../token.js';
 
 export const tableLabelBrackets: Rule<undefined, 'table-label-brackets'> = {
   id: 'table-label-brackets',

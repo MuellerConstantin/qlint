@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { format, lint } from '../../src/index.js';
+import { formatRule, formatRules, lintRule } from '../support.js';
 import { loadFieldPerLine } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
@@ -13,13 +13,13 @@ function readFixture(kind: 'violation' | 'clean'): string {
 
 describe('load-field-per-line', () => {
   it('does not flag any clean LOAD shape', () => {
-    const diagnostics = lintFixture('load-field-per-line', 'clean', loadFieldPerLine);
+    const diagnostics = lintFixture('clean', loadFieldPerLine);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('flags every field that does not start its own line', () => {
-    const diagnostics = lintFixture('load-field-per-line', 'violation', loadFieldPerLine);
+    const diagnostics = lintFixture('violation', loadFieldPerLine);
 
     expect(diagnostics.map((d) => d.range.start.line)).toEqual([2, 2, 2, 6, 11, 11, 18, 23, 23, 33, 38, 38, 38, 38]);
     for (const d of diagnostics) {
@@ -33,7 +33,7 @@ describe('load-field-per-line', () => {
   it('autofix moves every field onto its own line', () => {
     const source = '[A]: Load Id, Name, Total From X;';
 
-    const result = format(source, [loadFieldPerLine]);
+    const result = formatRule(source, loadFieldPerLine);
 
     expect(result.output).toBe('[A]: Load\nId,\nName,\nTotal From X;');
     expect(result.diagnostics).toEqual([]);
@@ -43,7 +43,7 @@ describe('load-field-per-line', () => {
   it('preserves a block comment that sits between the previous token and the field', () => {
     const source = '[A]: Load /* keep me */ Id From X;';
 
-    const result = format(source, [loadFieldPerLine]);
+    const result = formatRule(source, loadFieldPerLine);
 
     expect(result.output).toBe('[A]: Load /* keep me */\nId From X;');
   });
@@ -58,7 +58,7 @@ describe('load-field-per-line', () => {
       'From X;',
     ].join('\n');
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toEqual([]);
   });
@@ -74,7 +74,7 @@ describe('load-field-per-line', () => {
       'Order By Region, Country desc;',
     ].join('\n');
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toEqual([]);
   });
@@ -82,7 +82,7 @@ describe('load-field-per-line', () => {
   it('leaves a lone wildcard on the Load header line', () => {
     const source = '[A]: Load * From X;';
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toEqual([]);
   });
@@ -90,7 +90,7 @@ describe('load-field-per-line', () => {
   it('treats a wildcard combined with real fields as a regular field', () => {
     const source = '[A]: Load *, Field1 From X;';
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toHaveLength(2);
     expect(diagnostics[0].message).toContain('own line');
@@ -99,7 +99,7 @@ describe('load-field-per-line', () => {
   it('does not flag statements that contain no LOAD keyword', () => {
     const source = 'SQL Select Id, Name From dbo.X;';
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toEqual([]);
   });
@@ -107,13 +107,13 @@ describe('load-field-per-line', () => {
   it('checks each LOAD statement independently when several share a line', () => {
     const source = '[A]: Load A, B From X; [B]: Load C, D Resident A;';
 
-    const diagnostics = lint(source, [loadFieldPerLine]);
+    const diagnostics = lintRule(source, loadFieldPerLine);
 
     expect(diagnostics).toHaveLength(4);
   });
 
   it('autofix on the full violation fixture converges with no remaining findings', () => {
-    const result = format(readFixture('violation'), [loadFieldPerLine]);
+    const result = formatRule(readFixture('violation'), loadFieldPerLine);
 
     expect(result.diagnostics).toEqual([]);
     expect(result.fixed).toBe(14);
@@ -123,7 +123,7 @@ describe('load-field-per-line', () => {
     const { loadClauseNewline } = await import('../../src/rules/index.js');
     const source = '[A]: Load Id, Name From X Where Active = 1 Order By Id;';
 
-    const result = format(source, [loadFieldPerLine, loadClauseNewline]);
+    const result = formatRules(source, [loadFieldPerLine, loadClauseNewline]);
 
     expect(result.output).toBe('[A]: Load\nId,\nName\nFrom X\nWhere Active = 1\nOrder By Id;');
     expect(result.diagnostics).toEqual([]);

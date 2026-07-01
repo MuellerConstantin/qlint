@@ -4,7 +4,7 @@ import { lintFixture } from './helpers.js';
 
 describe('no-legacy-path-variables', () => {
   it('flags legacy path variables', () => {
-    const diagnostics = lintFixture('no-legacy-path-variables', 'violation', noLegacyPathVariables);
+    const diagnostics = lintFixture('violation', noLegacyPathVariables);
 
     expect(diagnostics).toHaveLength(2);
     expect(diagnostics[0]).toMatchObject({
@@ -17,7 +17,7 @@ describe('no-legacy-path-variables', () => {
   });
 
   it('does not offer an autofix', () => {
-    const diagnostics = lintFixture('no-legacy-path-variables', 'violation', noLegacyPathVariables);
+    const diagnostics = lintFixture('violation', noLegacyPathVariables);
 
     for (const diagnostic of diagnostics) {
       expect(diagnostic.fix).toBeUndefined();
@@ -25,7 +25,7 @@ describe('no-legacy-path-variables', () => {
   });
 
   it('does not flag a script without legacy path variables', () => {
-    const diagnostics = lintFixture('no-legacy-path-variables', 'clean', noLegacyPathVariables);
+    const diagnostics = lintFixture('clean', noLegacyPathVariables);
 
     expect(diagnostics).toEqual([]);
   });

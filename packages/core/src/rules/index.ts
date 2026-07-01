@@ -1,4 +1,4 @@
-import type { Rule } from '../types.js';
+import type { AnyRule, RulesConfigOf } from '../runner.js';
 export type { CaseStyle, CaseRuleOptions } from './types';
 import { blockCommentStars } from './block-comment-stars.js';
 import { blockIndent } from './block-indent.js';
@@ -26,13 +26,6 @@ export type { MultilineCallOptions } from './multiline-call.js';
 export type { NoMultipleEmptyLinesOptions } from './no-multiple-empty-lines.js';
 export type { LineEnding, OneStatementPerLineOptions } from './one-statement-per-line.js';
 export type { VariableCaseStyle, VariableCaseOptions } from './variable-case.js';
-
-export function configure<O, Id extends string>(rule: Rule<O, Id>, options: Partial<O>): Rule<O, Id> {
-  return {
-    ...rule,
-    defaultOptions: { ...(rule.defaultOptions as object), ...(options as object) } as O,
-  };
-}
 
 /**
  * Index of every rule shipped with Core. Use this to enumerate the full rule
@@ -63,29 +56,33 @@ export const allRules = [
 ] as const;
 
 /**
- * Curated preset of rules for the opinionated out-of-the-box experience.
+ * Registry mapping every built-in rule id to its rule object. The runner
+ * resolves a config's rule ids against this map — a rule not present here is
+ * unknown and rejected.
  */
-export const recommended = [
-  tableLabelBrackets,
-  blockCommentStars,
-  blockIndent,
-  builtinFunctionCase,
-  builtinKeywordCase,
-  commaSpace,
-  commentSpace,
-  inlineCommentSpace,
-  loadClauseNewline,
-  loadFieldPerLine,
-  loadIndent,
-  maxLineLength,
-  multilineCall,
-  noLegacyPathVariables,
-  noMultipleEmptyLines,
-  oneStatementPerLine,
-  trailingWhitespace,
-  variableCase,
-  variableCharset,
-] as const;
+export const registry: ReadonlyMap<string, AnyRule> = new Map(allRules.map((rule) => [rule.id, rule] as const));
+
+/** Union of every built-in rule id. */
+export type RuleId = (typeof allRules)[number]['id'];
+
+/** Per-rule configuration keyed by built-in rule id, with rule-specific option typing. */
+export type RulesConfig = RulesConfigOf<typeof allRules>;
+
+/**
+ * A lint/format configuration. `rules` both selects which rules run (a rule not
+ * listed is not checked) and configures their severity and options.
+ */
+export interface LintConfig {
+  rules?: RulesConfig;
+}
+
+/**
+ * Curated preset for the opinionated out-of-the-box experience: every rule
+ * enabled at its declared {@link Rule.defaultSeverity}.
+ */
+export const recommended: LintConfig = {
+  rules: Object.fromEntries(allRules.map((rule) => [rule.id, rule.defaultSeverity])) as RulesConfig,
+};
 
 export {
   blockCommentStars,

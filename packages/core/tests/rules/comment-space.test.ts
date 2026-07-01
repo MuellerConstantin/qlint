@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { format, lint } from '../../src/index.js';
+import { formatRule, lintRule } from '../support.js';
 import { commentSpace } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('comment-space', () => {
   it('flags missing spaces in line and block comments from the fixture', () => {
-    const diagnostics = lintFixture('comment-space', 'violation', commentSpace);
+    const diagnostics = lintFixture('violation', commentSpace);
 
     expect(diagnostics).toHaveLength(5);
     for (const d of diagnostics) {
@@ -20,13 +20,13 @@ describe('comment-space', () => {
   });
 
   it('does not flag well-formatted comments, empty markers, or decorative banners', () => {
-    const diagnostics = lintFixture('comment-space', 'clean', commentSpace);
+    const diagnostics = lintFixture('clean', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('flags a line comment with no space after //', () => {
-    const diagnostics = lint('//foo\n', [commentSpace] as const);
+    const diagnostics = lintRule('//foo\n', commentSpace);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toBe("Expected a space after '//'.");
@@ -34,39 +34,39 @@ describe('comment-space', () => {
   });
 
   it('accepts an empty line comment', () => {
-    const diagnostics = lint('//\n', [commentSpace] as const);
+    const diagnostics = lintRule('//\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('accepts a decorative // banner (only slashes after //)', () => {
-    const diagnostics = lint('//////////////////\n', [commentSpace] as const);
+    const diagnostics = lintRule('//////////////////\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('accepts a tab after //', () => {
-    const diagnostics = lint('//\tfoo\n', [commentSpace] as const);
+    const diagnostics = lintRule('//\tfoo\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('flags a block comment with no space after /*', () => {
-    const diagnostics = lint('/*foo */\n', [commentSpace] as const);
+    const diagnostics = lintRule('/*foo */\n', commentSpace);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toBe("Expected a space after '/*'.");
   });
 
   it('flags a block comment with no space before */', () => {
-    const diagnostics = lint('/* foo*/\n', [commentSpace] as const);
+    const diagnostics = lintRule('/* foo*/\n', commentSpace);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toBe("Expected a space before '*/'.");
   });
 
   it('flags both sides of a fully tight block comment', () => {
-    const diagnostics = lint('/*foo*/\n', [commentSpace] as const);
+    const diagnostics = lintRule('/*foo*/\n', commentSpace);
 
     expect(diagnostics).toHaveLength(2);
     expect(diagnostics.map((d) => d.message)).toEqual([
@@ -76,37 +76,37 @@ describe('comment-space', () => {
   });
 
   it('accepts an empty block comment', () => {
-    const diagnostics = lint('/**/\n', [commentSpace] as const);
+    const diagnostics = lintRule('/**/\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('accepts a decorative /*** banner (only asterisks inside)', () => {
-    const diagnostics = lint('/****/\n', [commentSpace] as const);
+    const diagnostics = lintRule('/****/\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('accepts a multi-line block comment that opens with a newline', () => {
-    const diagnostics = lint('/*\n * doc\n */\n', [commentSpace] as const);
+    const diagnostics = lintRule('/*\n * doc\n */\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('does not look inside string literals', () => {
-    const diagnostics = lint("LET vMsg = '//foo';\n", [commentSpace] as const);
+    const diagnostics = lintRule("LET vMsg = '//foo';\n", commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('does not flag comments hidden inside a Trace body', () => {
-    const diagnostics = lint('Trace this //is just a message;\n', [commentSpace] as const);
+    const diagnostics = lintRule('Trace this //is just a message;\n', commentSpace);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('autofixes a line comment by inserting a single space after //', () => {
-    const result = format('//foo\n', [commentSpace]);
+    const result = formatRule('//foo\n', commentSpace);
 
     expect(result.output).toBe('// foo\n');
     expect(result.fixed).toBe(1);
@@ -114,7 +114,7 @@ describe('comment-space', () => {
   });
 
   it('autofixes both sides of a tight block comment', () => {
-    const result = format('/*foo*/\n', [commentSpace]);
+    const result = formatRule('/*foo*/\n', commentSpace);
 
     expect(result.output).toBe('/* foo */\n');
     expect(result.fixed).toBe(2);
@@ -122,7 +122,7 @@ describe('comment-space', () => {
   });
 
   it('autofixes a block comment that only misses the trailing space', () => {
-    const result = format('/* foo*/\n', [commentSpace]);
+    const result = formatRule('/* foo*/\n', commentSpace);
 
     expect(result.output).toBe('/* foo */\n');
     expect(result.fixed).toBe(1);
@@ -131,26 +131,9 @@ describe('comment-space', () => {
   it('autofixes a multi-comment source in a single format pass', () => {
     const source = '//foo\n/*bar*/\n';
 
-    const result = format(source, [commentSpace]);
+    const result = formatRule(source, commentSpace);
 
     expect(result.output).toBe('// foo\n/* bar */\n');
     expect(result.fixed).toBe(3);
-  });
-
-  it('exposes comment tokens via the RuleContext.comments field', () => {
-    const seen: number[] = [];
-    const probe = {
-      id: 'probe',
-      check: ({ comments }: { comments: { startLine?: number }[] }) => {
-        for (const c of comments) {
-          seen.push(c.startLine ?? 0);
-        }
-        return [];
-      },
-    };
-
-    lint('// one\n/* two */\nLET x = 1;\n', [probe] as const);
-
-    expect(seen).toEqual([1, 2]);
   });
 });

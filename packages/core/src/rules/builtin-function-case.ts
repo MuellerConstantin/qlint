@@ -1,6 +1,6 @@
 import { builtinFunctionToken, FUNCTIONS } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange, tokenFix } from '../runner.js';
+import { tokenRange, tokenFix } from '../token.js';
 import type { CaseStyle, CaseRuleOptions } from './types.js';
 
 const canonicalFunctionByLower = new Map(FUNCTIONS.map((name) => [name.toLowerCase(), name]));

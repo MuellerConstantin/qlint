@@ -1,8 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { format, type Rule } from '../src/index.js';
+import { format, type Diagnostic, type Fix } from '../src/index.js';
+import { applyFixes, runFormatLoop } from '../src/runner.js';
 import { tableLabelBrackets, builtinFunctionCase, builtinKeywordCase, recommended } from '../src/rules/index.js';
+import { formatRule } from './support.js';
 
 const FIXTURES = join(import.meta.dirname, 'rules', 'fixtures');
 
@@ -16,7 +18,7 @@ describe('format', () => {
       const violation = readFixture('table-label-brackets', 'violation');
       const expected = readFixture('table-label-brackets', 'clean');
 
-      const result = format(violation, [tableLabelBrackets]);
+      const result = formatRule(violation, tableLabelBrackets);
 
       expect(result.output).toBe(expected);
       expect(result.fixed).toBe(1);
@@ -27,7 +29,7 @@ describe('format', () => {
       const violation = readFixture('builtin-function-case', 'violation');
       const expected = readFixture('builtin-function-case', 'clean');
 
-      const result = format(violation, [builtinFunctionCase]);
+      const result = formatRule(violation, builtinFunctionCase);
 
       expect(result.output).toBe(expected);
       expect(result.fixed).toBe(1);
@@ -38,7 +40,7 @@ describe('format', () => {
       const violation = readFixture('builtin-keyword-case', 'violation');
       const expected = readFixture('builtin-keyword-case', 'clean');
 
-      const result = format(violation, [builtinKeywordCase]);
+      const result = formatRule(violation, builtinKeywordCase);
 
       expect(result.output).toBe(expected);
       expect(result.fixed).toBe(1);
@@ -60,102 +62,63 @@ describe('format', () => {
 
   describe('overlapping fixes', () => {
     it('applies only the first of two overlapping fixes within a single pass', () => {
-      const source = 'abcdef';
-      const ruleA: Rule = {
-        id: 'rule-a',
-        check: ({ tokens }) => {
-          if (tokens[0]?.image !== 'abcdef') {
-            return [];
-          }
-          return [
-            {
-              severity: 'warning',
-              range: { start: { line: 1, column: 1 }, end: { line: 1, column: 4 } },
-              message: 'a',
-              fix: { range: { start: 0, end: 3 }, replacement: 'XXX' },
-            },
-          ];
-        },
-      };
-      const ruleB: Rule = {
-        id: 'rule-b',
-        check: ({ tokens }) => {
-          if (tokens[0]?.image !== 'abcdef') {
-            return [];
-          }
-          return [
-            {
-              severity: 'warning',
-              range: { start: { line: 1, column: 2 }, end: { line: 1, column: 5 } },
-              message: 'b',
-              fix: { range: { start: 1, end: 4 }, replacement: 'YYY' },
-            },
-          ];
-        },
-      };
+      const fixA: Fix = { range: { start: 0, end: 3 }, replacement: 'XXX' };
+      const fixB: Fix = { range: { start: 1, end: 4 }, replacement: 'YYY' };
 
-      const result = format(source, [ruleA, ruleB]);
+      const { output, applied } = applyFixes('abcdef', [fixA, fixB]);
 
-      const possibleOutputs = ['XXXdef', 'aYYYef'];
-      expect(possibleOutputs).toContain(result.output);
-      expect(result.fixed).toBe(1);
+      expect(['XXXdef', 'aYYYef']).toContain(output);
+      expect(applied).toBe(1);
     });
   });
 
   describe('multi-pass convergence', () => {
-    it('iterates until no more fixes are produced', () => {
-      const chainRule: Rule = {
-        id: 'chain',
-        check: ({ tokens }) => {
-          const out = [];
-          for (const token of tokens) {
-            const replacement = token.image === 'A' ? 'B' : token.image === 'B' ? 'C' : null;
-            if (replacement) {
-              out.push({
-                severity: 'warning' as const,
-                range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
-                message: `replace ${token.image}`,
-                fix: {
-                  range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
-                  replacement,
-                },
-              });
-            }
-          }
-          return out;
-        },
-      };
+    /** Diagnostic producer that rewrites the whole source A -> B -> C, one step per pass. */
+    function chain(src: string): Diagnostic[] {
+      const replacement = src === 'A' ? 'B' : src === 'B' ? 'C' : null;
 
-      const result = format('A', [chainRule]);
+      if (replacement === null) {
+        return [];
+      }
+
+      return [
+        {
+          ruleId: 'chain',
+          severity: 'warning',
+          range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
+          message: `replace ${src}`,
+          fix: { range: { start: 0, end: src.length }, replacement },
+        },
+      ];
+    }
+
+    it('iterates until no more fixes are produced', () => {
+      const result = runFormatLoop('A', chain);
 
       expect(result.output).toBe('C');
       expect(result.fixed).toBe(2);
     });
 
     it('throws when fixes never stabilize', () => {
-      const flipRule: Rule = {
-        id: 'flip',
-        check: ({ tokens }) => {
-          const out = [];
-          for (const token of tokens) {
-            const replacement = token.image === 'A' ? 'B' : token.image === 'B' ? 'A' : null;
-            if (replacement) {
-              out.push({
-                severity: 'warning' as const,
-                range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
-                message: `flip ${token.image}`,
-                fix: {
-                  range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
-                  replacement,
-                },
-              });
-            }
-          }
-          return out;
-        },
+      const flip = (src: string): Diagnostic[] => {
+        const replacement = src === 'A' ? 'B' : src === 'B' ? 'A' : null;
+
+        if (replacement === null) {
+          return [];
+        }
+
+        return [
+          {
+            ruleId: 'flip',
+            severity: 'warning',
+            range: { start: { line: 1, column: 1 }, end: { line: 1, column: 2 } },
+            message: `flip ${src}`,
+            fix: { range: { start: 0, end: src.length }, replacement },
+          },
+        ];
       };
 
-      expect(() => format('A', [flipRule])).toThrow(/did not converge/);
+      expect(() => runFormatLoop('A', flip)).toThrow(/did not converge/);
     });
   });
 });

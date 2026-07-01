@@ -1,6 +1,6 @@
 import { semicolonToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 export type LineEnding = 'auto' | 'lf' | 'crlf';
 

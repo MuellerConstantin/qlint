@@ -1,6 +1,6 @@
 import { blockCommentToken, lineCommentToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 export const inlineCommentSpace: Rule<undefined, 'inline-comment-space'> = {
   id: 'inline-comment-space',

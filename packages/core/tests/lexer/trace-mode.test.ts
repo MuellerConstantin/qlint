@@ -1,12 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { lint } from '../../src/index.js';
-import {
-  keywordToken,
-  lexer,
-  traceEndToken,
-  traceKeywordToken,
-  traceMessageToken,
-} from '../../src/lexer.js';
+import { lintRule } from '../support.js';
+import { keywordToken, lexer, traceEndToken, traceKeywordToken, traceMessageToken } from '../../src/lexer.js';
 import { builtinKeywordCase, variableCase } from '../../src/rules/index.js';
 
 describe('trace_body lexer mode', () => {
@@ -59,15 +53,15 @@ describe('trace_body lexer mode', () => {
 
 describe('rules + trace_body interaction', () => {
   it('builtin-keyword-case does not flag keywords appearing inside a trace message', () => {
-    const source = "Trace LOAD WHERE this is FREE text;\nLoad * Resident [t];";
-    const diagnostics = lint(source, [builtinKeywordCase] as const);
+    const source = 'Trace LOAD WHERE this is FREE text;\nLoad * Resident [t];';
+    const diagnostics = lintRule(source, builtinKeywordCase);
 
     // The only finding (if any) must be on line 2, never inside the trace body.
     expect(diagnostics.every((d) => d.range.start.line === 2)).toBe(true);
   });
 
   it('builtin-keyword-case still flags the trace keyword itself', () => {
-    const diagnostics = lint('TRACE hello world;', [builtinKeywordCase] as const);
+    const diagnostics = lintRule('TRACE hello world;', builtinKeywordCase);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].message).toContain("'TRACE'");
@@ -75,8 +69,8 @@ describe('rules + trace_body interaction', () => {
   });
 
   it('variable-case does not pick up "Set" or "Let" appearing as words in a trace body', () => {
-    const source = "Trace Set foo Let bar;";
-    const diagnostics = lint(source, [variableCase] as const);
+    const source = 'Trace Set foo Let bar;';
+    const diagnostics = lintRule(source, variableCase);
 
     expect(diagnostics).toEqual([]);
   });

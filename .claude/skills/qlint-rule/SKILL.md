@@ -34,8 +34,14 @@ For a rule named `my-rule`, all five identifiers share the same kebab-case stem:
 A new or modified rule must **never** edit these files:
 
 - `packages/core/src/types.ts` — `Rule`, `RuleContext`, `Finding`, `Diagnostic`, `Fix`, `Range`, `Severity`, `Position`.
-- `packages/core/src/runner.ts` — `lint`, `format`, `tokenRange`, `tokenFix`, `LintConfig`, `FormatResult`.
+- `packages/core/src/runner.ts` — `lint`, `format`, `applyFixes`, `runFormatLoop`, `FormatResult`.
+- `packages/core/src/token.ts` — `tokenRange`, `tokenFix`.
 - `packages/core/src/disableDirectives.ts` — disable wiring is automatic; rules need no participation.
+
+`packages/core/src/rules/index.ts` holds the rule **registry**, the `LintConfig` /
+`RulesConfig` / `RuleId` types, and the derived `recommended` config. You edit this file
+to register a rule (see below), but touch only the import, `allRules`, options re-export,
+and named-export lines — never the registry or config machinery.
 
 If a rule appears to need a change in one of these files, **stop and confirm with
 the user first**. State which downstream consumer (CLI, Chrome extension) is
@@ -68,7 +74,7 @@ Severity is declared once on the rule via `defaultSeverity` — the runner attac
 to every finding the rule emits (or overrides it from the user config). Findings
 themselves only carry location, message, and optional fix.
 
-Helpers in [runner.ts](../../../packages/core/src/runner.ts):
+Helpers in [token.ts](../../../packages/core/src/token.ts):
 
 - `tokenRange(token)` — converts a chevrotain `IToken` to a `Range`.
 - `tokenFix(token, replacement)` — `Fix` that replaces a single token.
@@ -102,7 +108,7 @@ export const myRule: Rule<undefined, 'my-rule'> = {
 ```ts
 import { keywordToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 export type MyRuleStyle = 'a' | 'b';
 
@@ -161,7 +167,9 @@ Four edits, alphabetical placement, in this order:
    ```ts
    export type { MyRuleOptions, MyRuleStyle } from './my-rule.js';
    ```
-3. **Add to `recommended` array** (always — every existing rule is in this list).
+3. **Add to the `allRules` array** (always — every existing rule is in this list). The
+   registry and the `recommended` config both derive from `allRules`, so this single
+   edit enables the rule everywhere.
 4. **Add to the named `export { ... }` block** at the bottom.
 
 ## Tests + fixtures
@@ -180,21 +188,24 @@ packages/core/tests/rules/
 Fixtures are plain `.qvs` Qlik script — no metadata. `violation.qvs` must trigger
 the rule at least once; `clean.qvs` must not trigger it at all.
 
-Helper: `lintFixture(ruleId, kind, rule, config?)` from
+Helper: `lintFixture(kind, rule, options?)` from
 [helpers.ts](../../../packages/core/tests/rules/helpers.ts) reads
-`fixtures/{ruleId}/{kind}.qvs` and lints it with the provided rule.
+`fixtures/{rule.id}/{kind}.qvs` and lints it with the given rule at its default
+severity, optionally passing rule `options`. For inline sources (not fixtures) use
+`lintRule` / `formatRule` (single rule) or `lintRules` / `formatRules` (several rules)
+from [support.ts](../../../packages/core/tests/support.ts).
 
 ### Test template
 
 ```ts
 import { describe, expect, it } from 'vitest';
-import { format } from '../../src/index.js';
 import { myRule } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
+import { formatRule } from '../support.js';
 
 describe('my-rule', () => {
   it('flags violations in the violation fixture', () => {
-    const diagnostics = lintFixture('my-rule', 'violation', myRule);
+    const diagnostics = lintFixture('violation', myRule);
 
     expect(diagnostics.length).toBeGreaterThan(0);
     expect(diagnostics[0]).toMatchObject({
@@ -204,14 +215,14 @@ describe('my-rule', () => {
   });
 
   it('does not flag the clean fixture', () => {
-    const diagnostics = lintFixture('my-rule', 'clean', myRule);
+    const diagnostics = lintFixture('clean', myRule);
 
     expect(diagnostics).toEqual([]);
   });
 
   // Only if the rule provides a fix:
   it('autofixes the violation', () => {
-    const result = format('<input>', [myRule]);
+    const result = formatRule('<input>', myRule);
 
     expect(result.output).toBe('<expected output>');
     expect(result.fixed).toBeGreaterThan(0);
@@ -220,9 +231,10 @@ describe('my-rule', () => {
 });
 ```
 
-For rules with options, add a nested `describe('style option', ...)` block using
-`configure(myRule, { ... })` from `../../src/index.js` — see
-`variable-case.test.ts` for the pattern.
+For rules with options, add a nested `describe('style option', ...)` block that passes
+the options as the third argument to `lintFixture` (e.g.
+`lintFixture('clean', myRule, { style: 'b' })`) — see `variable-case.test.ts` for the
+pattern.
 
 Disable-directive behavior is covered centrally; do not test it per rule.
 

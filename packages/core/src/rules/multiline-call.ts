@@ -1,7 +1,7 @@
 import type { IToken } from 'chevrotain';
 import { builtinFunctionToken, commaToken, punctuationToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 import type { IndentStyle } from './block-indent.js';
 
 export interface MultilineCallOptions {

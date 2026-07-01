@@ -1,6 +1,6 @@
 import { blockCommentToken, lineCommentToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 const LINE_BANNER = /^\/+$/;
 const BLOCK_BANNER = /^\*+$/;

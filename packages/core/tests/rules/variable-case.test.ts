@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { configure, lint } from '../../src/index.js';
 import { variableCase } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
+import { lintRule } from '../support.js';
 
 describe('variable-case', () => {
   it('flags variables that are not camelCase by default', () => {
-    const diagnostics = lintFixture('variable-case', 'violation', variableCase);
+    const diagnostics = lintFixture('violation', variableCase);
 
     expect(diagnostics).toHaveLength(2);
     expect(diagnostics[0]).toMatchObject({
@@ -19,7 +19,7 @@ describe('variable-case', () => {
   });
 
   it('does not offer an autofix', () => {
-    const diagnostics = lintFixture('variable-case', 'violation', variableCase);
+    const diagnostics = lintFixture('violation', variableCase);
 
     for (const diagnostic of diagnostics) {
       expect(diagnostic.fix).toBeUndefined();
@@ -27,13 +27,13 @@ describe('variable-case', () => {
   });
 
   it('does not flag a script where all variables are camelCase', () => {
-    const diagnostics = lintFixture('variable-case', 'clean', variableCase);
+    const diagnostics = lintFixture('clean', variableCase);
 
     expect(diagnostics).toEqual([]);
   });
 
   it('does not flag system variables assigned via SET / LET', () => {
-    const diagnostics = lintFixture('variable-case', 'violation', variableCase);
+    const diagnostics = lintFixture('violation', variableCase);
 
     const flagged = diagnostics.map((diagnostic) => diagnostic.message);
     expect(flagged.some((message) => message.includes("'DateFormat'"))).toBe(false);
@@ -41,7 +41,7 @@ describe('variable-case', () => {
 
   describe('unicode identifiers', () => {
     it('reports the full variable name when it contains non-ASCII letters', () => {
-      const diagnostics = lint("SET v_öäü = 'x';", [variableCase] as const);
+      const diagnostics = lintRule("SET v_öäü = 'x';", variableCase);
 
       expect(diagnostics).toHaveLength(1);
       expect(diagnostics[0].message).toContain("'v_öäü'");
@@ -52,15 +52,13 @@ describe('variable-case', () => {
     });
 
     it('accepts umlauts and accents in camelCase identifiers', () => {
-      const diagnostics = lint('SET änderungsLog = 1;\nLET fürPaul = 2;', [variableCase] as const);
+      const diagnostics = lintRule('SET änderungsLog = 1;\nLET fürPaul = 2;', variableCase);
 
       expect(diagnostics).toEqual([]);
     });
 
     it('accepts non-ASCII letters in PascalCase identifiers', () => {
-      const diagnostics = lint('SET ÄnderungsLog = 1;', [variableCase] as const, {
-        rules: { 'variable-case': ['warning', { style: 'pascal' }] },
-      });
+      const diagnostics = lintRule('SET ÄnderungsLog = 1;', variableCase, { style: 'pascal' });
 
       expect(diagnostics).toEqual([]);
     });
@@ -68,7 +66,7 @@ describe('variable-case', () => {
 
   describe('style option', () => {
     it('with style "pascal" flags camelCase variables', () => {
-      const diagnostics = lintFixture('variable-case', 'clean', configure(variableCase, { style: 'pascal' }));
+      const diagnostics = lintFixture('clean', variableCase, { style: 'pascal' });
 
       const flagged = diagnostics.map((diagnostic) => diagnostic.message);
       expect(flagged.some((message) => message.includes("'vYear'"))).toBe(true);
@@ -76,7 +74,7 @@ describe('variable-case', () => {
     });
 
     it('with style "snake" accepts snake_case and flags camelCase', () => {
-      const diagnostics = lintFixture('variable-case', 'violation', configure(variableCase, { style: 'snake' }));
+      const diagnostics = lintFixture('violation', variableCase, { style: 'snake' });
 
       const flagged = diagnostics.map((diagnostic) => diagnostic.message);
       expect(flagged.some((message) => message.includes("'other_var'"))).toBe(false);
@@ -85,7 +83,7 @@ describe('variable-case', () => {
     });
 
     it('with style "upperSnake" accepts UPPER_SNAKE_CASE and flags camelCase', () => {
-      const diagnostics = lintFixture('variable-case', 'clean', configure(variableCase, { style: 'upperSnake' }));
+      const diagnostics = lintFixture('clean', variableCase, { style: 'upperSnake' });
 
       const flagged = diagnostics.map((diagnostic) => diagnostic.message);
       expect(flagged.some((message) => message.includes("'vYear'"))).toBe(true);

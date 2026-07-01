@@ -4,7 +4,7 @@ import { lintFixture } from './helpers.js';
 
 describe('table-label-brackets', () => {
   it('flags an unbracketed table label', () => {
-    const diagnostics = lintFixture('table-label-brackets', 'violation', tableLabelBrackets);
+    const diagnostics = lintFixture('violation', tableLabelBrackets);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]).toMatchObject({
@@ -16,7 +16,7 @@ describe('table-label-brackets', () => {
   });
 
   it('does not flag a bracketed table label', () => {
-    const diagnostics = lintFixture('table-label-brackets', 'clean', tableLabelBrackets);
+    const diagnostics = lintFixture('clean', tableLabelBrackets);
 
     expect(diagnostics).toEqual([]);
   });

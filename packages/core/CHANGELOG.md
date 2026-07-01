@@ -12,15 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tokenizer for Qlik load script built on Chevrotain, covering keywords, builtin
   functions, variables, comments, string literals, and the LOAD/SELECT statement
   surface.
-- `lint(source, rules, config?)` API that runs a rule set over a script and
-  returns structured `Diagnostic` objects (severity, range, ruleId, message).
-- `format(source, rules, config?)` API that applies autofixes in successive
-  passes until the output stabilizes, returning the formatted source, remaining
-  diagnostics, and a fix count.
+- `lint(source, config)` API that runs the rules named in `config.rules` over a
+  script and returns structured `Diagnostic` objects (severity, range, ruleId,
+  message). Rules are resolved against an internal registry keyed by rule id; a
+  rule not listed in the config is not checked, and an unknown rule id throws.
+- `format(source, config)` API that applies autofixes in successive passes until
+  the output stabilizes, returning the formatted source, remaining diagnostics,
+  and a fix count.
 - `validateConfig(value, sourceLabel?)` API that validates an arbitrary
-  JSON-parsed value against the `LintConfig` shape and returns it typed,
-  throwing readable errors for invalid severities and malformed rule entries.
-  The optional `sourceLabel` is interpolated into error messages so host
+  JSON-parsed value against the `LintConfig` shape and returns it typed, throwing
+  readable errors for unknown rule ids, invalid severities, and malformed rule
+  entries. The optional `sourceLabel` is interpolated into error messages so host
   integrations (CLI, browser, IDE) can point users at the offending source.
 - Initial rule set covering layout (`block-indent`, `load-indent`,
   `load-clause-newline`, `load-field-per-line`, `multiline-call`,
@@ -30,7 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `comment-space`, `inline-comment-space`, `block-comment-stars`), and
   correctness (`no-legacy-path-variables`, `table-label-brackets`,
   `variable-charset`).
-- `recommended` preset bundling the default rule selection and severities.
+- `recommended` preset, a ready-to-use `LintConfig` that enables every rule at
+  its declared `defaultSeverity`. Pass it straight to `lint()` / `format()`.
 - `allRules` export listing every rule shipped with Core. Host integrations (CLI,
   browser, IDE) can enumerate the full rule catalog.
 - `Rule.defaultSeverity` field declaring each rule's out-of-the-box severity.
@@ -38,11 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   severity from the user config (if set) or from `rule.defaultSeverity`. Host
   integrations can read this field to surface the recommended severity next to
   per-rule controls.
-- `configure(rule, options)` helper for per-rule option overrides without
-  re-implementing the rule.
 - Inline disable directives (`// qlint-disable`, `// qlint-disable-next-line`,
   `// qlint-disable-line`) for opting individual lines or blocks out of
   linting.
 - Public TypeScript types: `Diagnostic`, `Rule`, `Severity`, `Fix`,
-  `LintConfig`, `RulesConfigOf`, `RuleConfigEntry`, `SeverityOrOff`,
-  `FormatResult`, and per-rule option types.
+  `LintConfig`, `RulesConfig`, `RuleId`, `RulesConfigOf`, `RuleConfigEntry`,
+  `SeverityOrOff`, `FormatResult`, and per-rule option types.

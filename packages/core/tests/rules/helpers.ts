@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { lint, type Diagnostic, type LintConfig, type Rule } from '../../src/index.js';
+import type { Diagnostic, Rule } from '../../src/index.js';
+import { lintRule } from '../support.js';
 
 const FIXTURES = join(import.meta.dirname, 'fixtures');
 
@@ -10,11 +11,10 @@ const FIXTURES = join(import.meta.dirname, 'fixtures');
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function lintFixture<R extends Rule<any, string>>(
-  ruleId: string,
   kind: 'violation' | 'clean',
   rule: R,
-  config?: LintConfig<readonly [R]>,
+  options?: object,
 ): Diagnostic[] {
-  const source = readFileSync(join(FIXTURES, ruleId, `${kind}.qvs`), 'utf8');
-  return lint(source, [rule] as const, config);
+  const source = readFileSync(join(FIXTURES, rule.id, `${kind}.qvs`), 'utf8');
+  return lintRule(source, rule, options);
 }

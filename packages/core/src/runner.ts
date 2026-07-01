@@ -1,21 +1,9 @@
 import type { IToken } from 'chevrotain';
 import { collectDisabledLines, isDisabled } from './disableDirectives.js';
 import { COMMENT_GROUP, lexer } from './lexer.js';
-import type { Rule, Range, Fix, Severity, Diagnostic, RuleContext } from './types.js';
-
-export function tokenRange(token: IToken): Range {
-  return {
-    start: { line: token.startLine ?? 1, column: token.startColumn ?? 1 },
-    end: { line: token.endLine ?? token.startLine ?? 1, column: (token.endColumn ?? token.startColumn ?? 1) + 1 },
-  };
-}
-
-export function tokenFix(token: IToken, replacement: string): Fix {
-  return {
-    range: { start: token.startOffset, end: (token.endOffset ?? token.startOffset) + 1 },
-    replacement,
-  };
-}
+import { registry } from './rules/index.js';
+import type { LintConfig } from './rules/index.js';
+import type { Rule, Fix, Severity, Diagnostic, RuleContext } from './types.js';
 
 function firstTokenPerLine(tokens: IToken[]): IToken[] {
   const seen = new Set<number>();
@@ -44,15 +32,11 @@ export type RuleConfigEntry<O = unknown> = [O] extends [undefined]
  * only share a common element type via `any`.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyRule = Rule<any, string>;
+export type AnyRule = Rule<any, string>;
 
 export type RulesConfigOf<R extends readonly AnyRule[]> = {
   [I in R[number]['id']]?: RuleConfigEntry<Extract<R[number], { id: I }> extends Rule<infer O, string> ? O : never>;
 };
-
-export interface LintConfig<R extends readonly AnyRule[] = readonly AnyRule[]> {
-  rules?: RulesConfigOf<R>;
-}
 
 export interface FormatResult {
   output: string;
@@ -77,7 +61,7 @@ function parseEntry(entry: RuleConfigEntry<unknown> | undefined): {
   return { severity: entry[0], options: entry[1] };
 }
 
-export function lint<R extends readonly AnyRule[]>(source: string, rules: R, config: LintConfig<R> = {}): Diagnostic[] {
+export function lint(source: string, config: LintConfig): Diagnostic[] {
   const result = lexer.tokenize(source);
 
   const ctx: RuleContext = {
@@ -89,13 +73,23 @@ export function lint<R extends readonly AnyRule[]>(source: string, rules: R, con
 
   const disabled = collectDisabledLines(source);
   const out: Diagnostic[] = [];
-  const rulesMap = config.rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
+  const rulesConfig = config.rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
 
-  for (const rule of rules) {
-    const { severity: configSeverity, options: configOptions } = parseEntry(rulesMap?.[rule.id]);
+  if (!rulesConfig) {
+    return out;
+  }
+
+  for (const [ruleId, entry] of Object.entries(rulesConfig)) {
+    const { severity: configSeverity, options: configOptions } = parseEntry(entry);
 
     if (configSeverity === 'off') {
       continue;
+    }
+
+    const rule = registry.get(ruleId);
+
+    if (!rule) {
+      throw new Error(`Unknown rule "${ruleId}".`);
     }
 
     const ruleOptions = mergeOptions(rule.defaultOptions, configOptions);
@@ -120,7 +114,7 @@ function mergeOptions(defaults: unknown, override: unknown): unknown {
   return override ?? defaults;
 }
 
-function applyFixes(source: string, fixes: Fix[]): { output: string; applied: number } {
+export function applyFixes(source: string, fixes: Fix[]): { output: string; applied: number } {
   const sorted = [...fixes].sort((a, b) => b.range.start - a.range.start);
   const accepted: Fix[] = [];
   let lastStart = Number.POSITIVE_INFINITY;
@@ -142,16 +136,17 @@ function applyFixes(source: string, fixes: Fix[]): { output: string; applied: nu
   return { output, applied: accepted.length };
 }
 
-export function format<R extends readonly AnyRule[]>(
-  source: string,
-  rules: R,
-  config: LintConfig<R> = {},
-): FormatResult {
+/**
+ * Runs the multi-pass autofix loop against an arbitrary diagnostic producer.
+ * The public {@link format} binds this to {@link lint}; keeping it rule-agnostic
+ * lets the convergence machinery be exercised in isolation.
+ */
+export function runFormatLoop(source: string, run: (src: string) => Diagnostic[]): FormatResult {
   let current = source;
   let totalFixed = 0;
 
   for (let pass = 0; pass < MAX_PASSES; pass++) {
-    const diagnostics = lint(current, rules, config);
+    const diagnostics = run(current);
     const fixes = diagnostics.map((diagnostic) => diagnostic.fix).filter((fix): fix is Fix => fix !== undefined);
 
     if (fixes.length === 0) {
@@ -168,7 +163,7 @@ export function format<R extends readonly AnyRule[]>(
     totalFixed += applied;
   }
 
-  const finalDiagnostics = lint(current, rules, config);
+  const finalDiagnostics = run(current);
   const remainingFixes = finalDiagnostics.filter((diagnostic) => diagnostic.fix !== undefined);
 
   if (remainingFixes.length > 0) {
@@ -176,4 +171,8 @@ export function format<R extends readonly AnyRule[]>(
   }
 
   return { output: current, diagnostics: finalDiagnostics, fixed: totalFixed };
+}
+
+export function format(source: string, config: LintConfig): FormatResult {
+  return runFormatLoop(source, (src) => lint(src, config));
 }

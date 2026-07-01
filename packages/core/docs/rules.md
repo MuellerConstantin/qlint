@@ -1,26 +1,26 @@
 # Rules Reference
 
-| Rule                                                  | Description                                                    |
-| :---------------------------------------------------- | :------------------------------------------------------------- |
-| [block-comment-stars](#block-comment-stars)           | Align multi-line block comments with a leading ` *` rail.      |
-| [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.      |
-| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.               |
-| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.          |
-| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                    |
-| [comma-space](#comma-space)                           | Require exactly one space after a comma when followed by code. |
-| [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                 |
-| [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment. |
-| [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.        |
-| [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.              |
-| [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.      |
-| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                 |
-| [multiline-call](#multiline-call)                     | Break overlong single-line function calls across multiple lines.|
-| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.            |
-| [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.             |
-| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.               |
-| [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                      |
-| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.       |
-| [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset.  |
+| Rule                                                  | Description                                                      |
+| :---------------------------------------------------- | :--------------------------------------------------------------- |
+| [block-comment-stars](#block-comment-stars)           | Align multi-line block comments with a leading ` *` rail.        |
+| [block-indent](#block-indent)                         | Enforce consistent indentation for Qlik block constructs.        |
+| [table-label-brackets](#table-label-brackets)         | Require table labels to be enclosed in brackets.                 |
+| [builtin-function-case](#builtin-function-case)       | Enforce canonical casing for Qlik built-in functions.            |
+| [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                      |
+| [comma-space](#comma-space)                           | Require exactly one space after a comma when followed by code.   |
+| [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                   |
+| [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment.   |
+| [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.          |
+| [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.                |
+| [load-indent](#load-indent)                           | Indent LOAD fields one step deeper than the LOAD keyword.        |
+| [max-line-length](#max-line-length)                   | Limit how long a single line of script may be.                   |
+| [multiline-call](#multiline-call)                     | Break overlong single-line function calls across multiple lines. |
+| [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.              |
+| [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.               |
+| [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.                 |
+| [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                        |
+| [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.         |
+| [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset.    |
 
 ---
 
@@ -199,9 +199,9 @@ End Switch
 Example configuration:
 
 ```ts
-import { lint, blockIndent } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [blockIndent], {
+lint(source, {
   rules: {
     'block-indent': ['warning', { style: 'space', size: 4 }],
   },
@@ -300,9 +300,9 @@ Resident [TableA];
 Example configuration:
 
 ```ts
-import { lint, builtinFunctionCase } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [builtinFunctionCase], {
+lint(source, {
   rules: {
     'builtin-function-case': ['warning', { style: 'upper' }],
   },
@@ -363,9 +363,9 @@ Resident [TableA];
 Example configuration:
 
 ```ts
-import { lint, builtinKeywordCase } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [builtinKeywordCase], {
+lint(source, {
   rules: {
     'builtin-keyword-case': ['warning', { style: 'upper' }],
   },
@@ -909,9 +909,9 @@ a script formatted with a tab-based `block-indent` and a space-based
 Example configuration:
 
 ```ts
-import { lint, blockIndent, loadIndent } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [blockIndent, loadIndent], {
+lint(source, {
   rules: {
     'block-indent': ['warning', { style: 'space', size: 4 }],
     'load-indent': ['warning', { style: 'space', size: 4 }],
@@ -983,9 +983,9 @@ From [lib://Sales/orders.qvd] (qvd);
 Example configuration:
 
 ```ts
-import { lint, maxLineLength } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [maxLineLength], {
+lint(source, {
   rules: {
     'max-line-length': ['warning', { max: 100 }],
   },
@@ -1054,19 +1054,19 @@ LET vTotal = Sum(vRevenue);
 
 ### Options
 
-| Option         | Type               | Default | Description                                                |
-| :------------- | :----------------- | :------ | :--------------------------------------------------------- |
-| `maxLineLength`| `number`           | `120`   | Threshold above which a single-line call must be broken.   |
-| `indentStyle`  | `'space' \| 'tab'` | `'tab'` | Character used for one indent unit in the broken-out body. |
-| `indentSize`   | `number`           | `1`     | Number of indent units per level (only used with spaces).  |
+| Option          | Type               | Default | Description                                                |
+| :-------------- | :----------------- | :------ | :--------------------------------------------------------- |
+| `maxLineLength` | `number`           | `120`   | Threshold above which a single-line call must be broken.   |
+| `indentStyle`   | `'space' \| 'tab'` | `'tab'` | Character used for one indent unit in the broken-out body. |
+| `indentSize`    | `number`           | `1`     | Number of indent units per level (only used with spaces).  |
 
 Pair this rule with [block-indent](#block-indent) and set its `style` / `size`
 to the same values so autofixes from both rules agree on indentation.
 
 ```ts
-import { lint, multilineCall } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [multilineCall], {
+lint(source, {
   rules: {
     'multiline-call': ['warning', { maxLineLength: 100, indentStyle: 'space', indentSize: 4 }],
   },
@@ -1178,9 +1178,9 @@ SET vDay = 1;
 Example configuration:
 
 ```ts
-import { lint, noMultipleEmptyLines } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [noMultipleEmptyLines], {
+lint(source, {
   rules: {
     'no-multiple-empty-lines': ['warning', { max: 2 }],
   },
@@ -1270,9 +1270,9 @@ SET vDone = 1;
 Example configuration:
 
 ```ts
-import { lint, oneStatementPerLine } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [oneStatementPerLine], {
+lint(source, {
   rules: {
     'one-statement-per-line': ['warning', { lineEnding: 'crlf' }],
   },
@@ -1385,9 +1385,9 @@ Let DateFormat = 'YYYY-MM-DD';
 Example configuration:
 
 ```ts
-import { lint, variableCase } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-lint(source, [variableCase], {
+lint(source, {
   rules: {
     'variable-case': ['warning', { style: 'snake' }],
   },

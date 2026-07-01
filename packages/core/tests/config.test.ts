@@ -32,16 +32,22 @@ describe('validateConfig', () => {
     );
   });
 
+  it('throws on an unknown rule id', () => {
+    expect(() => validateConfig({ rules: { 'not-a-rule': 'off' } })).toThrow(/unknown rule "not-a-rule"/);
+  });
+
   it('throws on an unknown severity string', () => {
-    expect(() => validateConfig({ rules: { foo: 'fatal' } })).toThrow(/invalid severity "fatal"/);
+    expect(() => validateConfig({ rules: { 'trailing-whitespace': 'fatal' } })).toThrow(/invalid severity "fatal"/);
   });
 
   it('throws when a rule entry has the wrong shape', () => {
-    expect(() => validateConfig({ rules: { foo: 42 } })).toThrow(/must be a severity string or an array/);
+    expect(() => validateConfig({ rules: { 'trailing-whitespace': 42 } })).toThrow(
+      /must be a severity string or an array/,
+    );
   });
 
   it('throws when a [severity, options] array has too many elements', () => {
-    expect(() => validateConfig({ rules: { foo: ['warning', {}, 'extra'] } })).toThrow(
+    expect(() => validateConfig({ rules: { 'trailing-whitespace': ['warning', {}, 'extra'] } })).toThrow(
       /\[severity\] or \[severity, options\]/,
     );
   });

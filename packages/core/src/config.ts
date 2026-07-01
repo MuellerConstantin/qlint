@@ -1,4 +1,5 @@
-import type { LintConfig } from './runner.js';
+import { registry } from './rules/index.js';
+import type { LintConfig } from './rules/index.js';
 
 const VALID_SEVERITIES = new Set(['error', 'warning', 'info', 'off']);
 
@@ -24,6 +25,9 @@ export function validateConfig(value: unknown, sourceLabel?: string): LintConfig
   }
 
   for (const [ruleId, entry] of Object.entries(value.rules)) {
+    if (!registry.has(ruleId)) {
+      throw new Error(`Config${where} references unknown rule "${ruleId}".`);
+    }
     validateRuleEntry(ruleId, entry, where);
   }
 

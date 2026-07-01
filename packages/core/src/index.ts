@@ -1,7 +1,8 @@
 export { lint, format } from './runner.js';
 export { validateConfig } from './config.js';
 export type { Diagnostic, Rule, Severity, Fix } from './types.js';
-export type { LintConfig, RulesConfigOf, RuleConfigEntry, SeverityOrOff, FormatResult } from './runner.js';
+export type { RulesConfigOf, RuleConfigEntry, SeverityOrOff, FormatResult } from './runner.js';
+export type { LintConfig, RulesConfig, RuleId } from './rules/index.js';
 export {
   allRules,
   recommended,
@@ -17,7 +18,6 @@ export {
   noMultipleEmptyLines,
   trailingWhitespace,
   variableCase,
-  configure,
 } from './rules/index.js';
 export type {
   BlockIndentOptions,

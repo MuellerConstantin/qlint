@@ -1,6 +1,6 @@
 import { keywordToken, traceKeywordToken, KEYWORDS } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
-import { tokenRange, tokenFix } from '../runner.js';
+import { tokenRange, tokenFix } from '../token.js';
 import type { CaseStyle, CaseRuleOptions } from './types.js';
 
 const canonicalKeywordByLower = new Map(KEYWORDS.map((name) => [name.toLowerCase(), name]));

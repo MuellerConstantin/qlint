@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { configure } from '../../src/index.js';
 import { builtinKeywordCase } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 
 describe('builtin-keyword-case', () => {
   it('flags a keyword in non-canonical case', () => {
-    const diagnostics = lintFixture('builtin-keyword-case', 'violation', builtinKeywordCase);
+    const diagnostics = lintFixture('violation', builtinKeywordCase);
 
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]).toMatchObject({
@@ -18,29 +17,21 @@ describe('builtin-keyword-case', () => {
   });
 
   it('does not flag a keyword in canonical case', () => {
-    const diagnostics = lintFixture('builtin-keyword-case', 'clean', builtinKeywordCase);
+    const diagnostics = lintFixture('clean', builtinKeywordCase);
 
     expect(diagnostics).toEqual([]);
   });
 
   describe('style option', () => {
     it('with style "upper" does not flag SQL-style LOAD', () => {
-      const diagnostics = lintFixture(
-        'builtin-keyword-case',
-        'violation',
-        configure(builtinKeywordCase, { style: 'upper' }),
-      );
+      const diagnostics = lintFixture('violation', builtinKeywordCase, { style: 'upper' });
 
       const flaggedImages = diagnostics.map((diagnostic) => diagnostic.fix?.replacement);
       expect(flaggedImages).not.toContain('LOAD');
     });
 
     it('with style "upper" flags PascalCase keyword', () => {
-      const diagnostics = lintFixture(
-        'builtin-keyword-case',
-        'clean',
-        configure(builtinKeywordCase, { style: 'upper' }),
-      );
+      const diagnostics = lintFixture('clean', builtinKeywordCase, { style: 'upper' });
 
       const loadDiagnostic = diagnostics.find((diagnostic) => diagnostic.message.includes("'Load'"));
       expect(loadDiagnostic).toBeDefined();
@@ -48,11 +39,7 @@ describe('builtin-keyword-case', () => {
     });
 
     it('with style "lower" flags PascalCase keyword', () => {
-      const diagnostics = lintFixture(
-        'builtin-keyword-case',
-        'clean',
-        configure(builtinKeywordCase, { style: 'lower' }),
-      );
+      const diagnostics = lintFixture('clean', builtinKeywordCase, { style: 'lower' });
 
       const loadDiagnostic = diagnostics.find((diagnostic) => diagnostic.message.includes("'Load'"));
       expect(loadDiagnostic).toBeDefined();

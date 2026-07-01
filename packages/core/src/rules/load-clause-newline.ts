@@ -1,7 +1,7 @@
 import type { IToken } from 'chevrotain';
 import { keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 /*
  * Keywords that start a top-level clause inside a LOAD statement. Each one

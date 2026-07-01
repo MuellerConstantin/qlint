@@ -1,7 +1,7 @@
 import type { IToken } from 'chevrotain';
 import { commaToken, keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
-import { tokenRange } from '../runner.js';
+import { tokenRange } from '../token.js';
 
 /*
  * Keywords that close the LOAD field list. The set must stay in sync with
