@@ -3,6 +3,12 @@
   "version": "0.1.0",
   "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlint/core.",
   "type": "module",
+  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MuellerConstantin/qlint.git",
+    "directory": "packages/cli"
+  },
   "bin": {
     "qlint": "./dist/index.js"
   },

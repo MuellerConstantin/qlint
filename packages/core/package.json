@@ -6,6 +6,12 @@
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MuellerConstantin/qlint.git",
+    "directory": "packages/core"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

@@ -4,6 +4,11 @@
   "description": "Opinionated linting/formatting utilities for Qlik Script (QVS)",
   "private": true,
   "type": "module",
+  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MuellerConstantin/qlint.git"
+  },
   "workspaces": [
     "packages/*"
   ],
