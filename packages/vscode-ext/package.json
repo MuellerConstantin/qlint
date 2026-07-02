@@ -20,7 +20,9 @@
   ],
   "icon": "images/qlint-128.png",
   "main": "./dist/extension.js",
-  "activationEvents": [],
+  "activationEvents": [
+    "onLanguage:qlik"
+  ],
   "contributes": {
     "languages": [
       {
@@ -43,6 +45,9 @@
   "scripts": {
     "build": "tsdown",
     "package": "npm run build && vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@qlint/core": "^0.1.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.90.0",

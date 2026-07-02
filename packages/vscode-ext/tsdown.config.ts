@@ -9,7 +9,7 @@ export default defineConfig({
   entry: ['src/extension.ts'],
   format: ['cjs'],
   platform: 'node',
-  deps: { neverBundle: ['vscode'] },
+  deps: { alwaysBundle: ['@qlint/core'], neverBundle: ['vscode'] },
   outExtensions: () => ({ js: '.js' }),
   dts: false,
   clean: true,
