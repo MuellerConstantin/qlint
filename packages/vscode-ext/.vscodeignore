@@ -1,6 +1,6 @@
-# Sources and build config — only the bundled `dist/` output ships in the VSIX.
+# Sources and build config — only the bundled `dist/` output, the `images/`
+# assets (icon + README logo), and the README ship in the VSIX.
 src/**
-docs/**
 node_modules/**
 tsconfig.json
 tsdown.config.ts

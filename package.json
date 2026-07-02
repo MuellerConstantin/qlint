@@ -13,11 +13,12 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @qlint/core && npm run build -w @qlint/cli && npm run build -w @qlint/chrome-ext && npm run build -w @qlint/vscode-ext",
+    "build": "npm run build -w @qlint/core && npm run build -w @qlint/cli && npm run build -w @qlint/chrome-ext && npm run build -w qlint-vscode-ext",
     "build:core": "npm run build -w @qlint/core",
     "build:cli": "npm run build -w @qlint/cli",
     "build:chrome-ext": "npm run build -w @qlint/chrome-ext",
-    "build:vscode-ext": "npm run build -w @qlint/vscode-ext",
+    "build:vscode-ext": "npm run build -w qlint-vscode-ext",
+    "package:vscode-ext": "npm run package -w qlint-vscode-ext",
     "test": "npm test -w @qlint/core && npm test -w @qlint/cli",
     "test:core": "npm test -w @qlint/core",
     "test:cli": "npm test -w @qlint/cli",

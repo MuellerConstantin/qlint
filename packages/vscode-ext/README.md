@@ -1,6 +1,6 @@
 <p align="center">
-  <img width="200" alt="Logo" src="./docs/images/logo.svg">
-  <h1 align="center">@qlint/vscode-ext</h1>
+  <img width="128" alt="Logo" src="./images/qlint-128.png">
+  <h1 align="center">qlint-vscode-ext</h1>
 </p>
 <p align="center">
   VS Code extension for qlint — brings inline linting and one-click formatting for Qlik load scripts into the editor.

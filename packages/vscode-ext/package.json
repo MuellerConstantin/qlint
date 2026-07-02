@@ -1,5 +1,5 @@
 {
-  "name": "@qlint/vscode-ext",
+  "name": "qlint-vscode-ext",
   "displayName": "qlint",
   "version": "0.1.0",
   "description": "VS Code extension that lints and formats Qlik load scripts, powered by @qlint/core.",
@@ -31,10 +31,12 @@
     ]
   },
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "package": "npm run build && vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.2.0",
     "tsdown": "*",
     "typescript": "^5.6.0"
   }

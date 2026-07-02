@@ -49,7 +49,7 @@ same rules that fail your pipeline.
 | ---------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | [**`@qlint/chrome-ext`**](./packages/chrome-ext)                 | Qlik developers, analysts, BI teams     | Chrome extension that injects inline lint feedback and one-click formatting directly into the Qlik Sense Data Load Editor.              |
 | [**`@qlint/cli`**](./packages/cli)                               | Developers, CI/CD pipelines             | Command-line interface that lints and auto-fixes `.qvs` files from the terminal or as a CI step. Drop-in for pre-commit hooks and gates. |
-| [**`@qlint/vscode-ext`**](./packages/vscode-ext)                 | Developers editing `.qvs` in VS Code    | VS Code extension bringing linting and formatting into the editor. _Early scaffold — Core integration not wired up yet._                 |
+| [**`qlint-vscode-ext`**](./packages/vscode-ext)                  | Developers editing `.qvs` in VS Code    | VS Code extension bringing linting and formatting into the editor. _Early scaffold — Core integration not wired up yet._                 |
 | [**`@qlint/core`**](./packages/core)                             | Tool authors, IDE plugin developers     | The engine behind every binding — string-in, diagnostics-out. Embed it in your own editor integration, custom check runner, or service. |
 
 ### How it's organized
