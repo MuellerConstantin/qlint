@@ -23,6 +23,10 @@ The following sub-modules/projects exists:
   Editor, providing inline lint feedback and one-click formatting directly in the editor.
   All processing runs client-side via the bundled Core engine.
 
+- **VS Code Extension**: An editor binding that integrates Core into VS Code, providing
+  inline lint feedback and formatting for Qlik load scripts in the editor. All processing
+  runs locally via the bundled Core engine.
+
 # Project Structure
 
 ```
@@ -40,10 +44,16 @@ The following sub-modules/projects exists:
 │   |   ├── package.json
 │   |   ├── tsconfig.json
 │   |   └── tsdown.config.ts
-|   └── chrome-ext/               # Chrome extension
+│   ├── chrome-ext/               # Chrome extension
+│   |   ├── src
+│   |   ├── tests
+│   |   ├── public
+│   |   ├── package.json
+│   |   ├── tsconfig.json
+│   |   └── tsdown.config.ts
+|   └── vscode-ext/               # VS Code extension
 │       ├── src
-│       ├── tests
-│       ├── public
+│       ├── images
 │       ├── package.json
 │       ├── tsconfig.json
 │       └── tsdown.config.ts

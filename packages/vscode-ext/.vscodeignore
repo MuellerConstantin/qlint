@@ -1,0 +1,7 @@
+# Sources and build config — only the bundled `dist/` output ships in the VSIX.
+src/**
+docs/**
+node_modules/**
+tsconfig.json
+tsdown.config.ts
+.vscodeignore
