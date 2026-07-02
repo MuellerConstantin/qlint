@@ -22,11 +22,21 @@
   "main": "./dist/extension.js",
   "activationEvents": [],
   "contributes": {
-    "commands": [
+    "languages": [
       {
-        "command": "qlint.about",
-        "title": "About",
-        "category": "qlint"
+        "id": "qlik",
+        "aliases": [
+          "Qlik Script",
+          "qlik",
+          "qvs"
+        ],
+        "extensions": [
+          ".qvs"
+        ],
+        "icon": {
+          "light": "./images/file-icon.svg",
+          "dark": "./images/file-icon.svg"
+        }
       }
     ]
   },
