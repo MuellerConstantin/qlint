@@ -1,0 +1,23 @@
+SET vYear = 2026;
+LET vFlag = If(vYear >= 2025, 'new', 'old');
+LET vNe = If(vYear <> 2025, 'no', 'yes');
+LET vLe = If(vYear <= 2025, 'le', 'gt');
+LET vLabel = 'Year: ' & vYear;
+LET vEval = $(=Max(OrderDate));
+
+// Arithmetic and the Load wildcard are intentionally not enforced.
+LET vSum = 1+2;
+LET vNeg = -1;
+
+[Sales]:
+Load *
+Resident [Raw];
+
+[Filtered]:
+Load
+    Amount,
+    'Prefix: '
+        & Region
+        as Label
+Resident [Raw]
+Where Amount > 0;

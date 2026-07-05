@@ -18,6 +18,7 @@
 | [no-legacy-path-variables](#no-legacy-path-variables) | Disallow legacy QlikView-era path system variables.              |
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.               |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.                 |
+| [operator-spacing](#operator-spacing)                 | Require exactly one space around binary operators.               |
 | [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                        |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.         |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset.    |
@@ -1278,6 +1279,91 @@ lint(source, {
   },
 });
 ```
+
+---
+
+## operator-spacing
+
+Require exactly one space on both sides of a binary operator.
+
+### Rule Details
+
+Operators packed tight against their operands (`vX=1`, `'a'&vName`, `Amount>0`)
+read as one run of characters and hide the structure of an expression. A single
+space on each side of the operator restores that structure, keeps assignments
+and comparisons visually uniform, and removes the temptation to hand-align
+runs of spaces that bloat diffs.
+
+The rule walks the token stream and enforces exactly one space around a fixed
+set of **unambiguously binary** operators:
+
+- assignment / equality: `=`
+- relational: `<`, `>`, `<=`, `>=`, `<>`
+- string concatenation: `&`
+
+The multi-character relational operators (`<=`, `>=`, `<>`) are treated as a
+single unit — spacing is enforced around the whole operator, never between its
+two characters.
+
+Two boundaries are deliberately left alone, because there the layout belongs to
+another concern:
+
+- An operator whose side sits against a **line boundary** — leading
+  indentation, or an operator that ends its line for a wrapped expression
+  (`'Prefix: '\n    & Region`) — is not flagged on that side. Multi-line
+  `&`-chains and wrapped conditions keep whatever indent the author chose;
+  that is the domain of [block-indent](#block-indent) and
+  [load-indent](#load-indent).
+- The leading `=` of a `$(= …)` dollar-sign expansion is an evaluation marker,
+  not a binary operator, and is left untouched.
+
+Arithmetic operators (`+`, `-`, `*`, `/`) are intentionally **out of scope**.
+`+` and `-` are ambiguously unary (`LET x = -1`), and `*` doubles as the
+`Load *` wildcard — a mechanical space around any of them could change what the
+script means. They are left for the author to space by hand.
+
+The autofix replaces the whitespace on each offending side with a single space,
+so `vX=1`, `vX =1`, and `vX  =  1` all converge on `vX = 1` in one format pass.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+SET vYear=2026;
+LET vFlag = If(vYear>=2025, 'new', 'old');
+LET vLabel = 'Year: '&vYear;
+LET vGap = vYear  &  ' end';
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026;
+LET vFlag = If(vYear >= 2025, 'new', 'old');
+LET vLabel = 'Year: ' & vYear;
+LET vEval = $(=Max(OrderDate));
+
+// Arithmetic and the Load wildcard are not enforced.
+LET vSum = 1+2;
+LET vNeg = -1;
+
+[Sales]:
+Load *
+Resident [Raw];
+
+// A wrapped concatenation keeps its multi-line layout.
+[Labelled]:
+Load
+    'Prefix: '
+        & Region
+        as Label
+Resident [Raw];
+```
+
+### Options
+
+This rule has no options. "Exactly one space around a binary operator" is the
+universally expected convention; offering toggles for tight or aligned operators
+would defeat the purpose of an opinionated linter.
 
 ---
 

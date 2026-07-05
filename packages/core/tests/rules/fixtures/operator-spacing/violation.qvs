@@ -1,0 +1,12 @@
+SET vYear=2026;
+LET vFlag = If(vYear>=2025, 'new', 'old');
+LET vNe = If(vYear<>2025, 'no', 'yes');
+LET vLe = If(vYear<=2025, 'le', 'gt');
+LET vLabel = 'Year: '&vYear;
+LET vGap = vYear  &  ' end';
+
+[Sales]:
+Load
+    Amount
+Resident [Raw]
+Where Amount>0;
