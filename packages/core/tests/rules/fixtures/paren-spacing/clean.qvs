@@ -1,0 +1,13 @@
+[Sales]:
+Load
+    Sum(Amount) as Total,
+    If(Amount > 0, 'pos', 'neg') as Sign,
+    RangeSum(
+        1,
+        2
+    ) as Total2
+Resident [Raw]
+Where (Amount > 0);
+
+LET vEval = $(=Max(OrderDate));
+LET vEmpty = Rand();

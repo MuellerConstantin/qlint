@@ -1,0 +1,6 @@
+[Sales]:
+Load
+    Sum (Amount) as Total,
+    If( Amount > 0, 'pos', 'neg' ) as Sign
+Resident [Raw]
+Where ( Amount > 0 );

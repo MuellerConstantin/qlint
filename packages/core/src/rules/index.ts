@@ -17,6 +17,7 @@ import { noLegacyPathVariables } from './no-legacy-path-variables.js';
 import { noMultipleEmptyLines } from './no-multiple-empty-lines.js';
 import { oneStatementPerLine } from './one-statement-per-line.js';
 import { operatorSpacing } from './operator-spacing.js';
+import { parenSpacing } from './paren-spacing.js';
 import { tableLabelBrackets } from './table-label-brackets.js';
 import { trailingWhitespace } from './trailing-whitespace.js';
 import { variableCase } from './variable-case.js';
@@ -54,6 +55,7 @@ export const allRules = [
   noMultipleEmptyLines,
   oneStatementPerLine,
   operatorSpacing,
+  parenSpacing,
   trailingWhitespace,
   variableCase,
   variableCharset,
@@ -106,6 +108,7 @@ export {
   noMultipleEmptyLines,
   oneStatementPerLine,
   operatorSpacing,
+  parenSpacing,
   tableLabelBrackets,
   trailingWhitespace,
   variableCase,

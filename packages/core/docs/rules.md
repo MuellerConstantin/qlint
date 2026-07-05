@@ -20,6 +20,7 @@
 | [no-multiple-empty-lines](#no-multiple-empty-lines)   | Limit how many consecutive empty lines may appear.               |
 | [one-statement-per-line](#one-statement-per-line)     | Require each statement to start on its own line.                 |
 | [operator-spacing](#operator-spacing)                 | Require exactly one space around binary operators.               |
+| [paren-spacing](#paren-spacing)                       | Disallow function-call and inner-padding spaces around parens.   |
 | [trailing-whitespace](#trailing-whitespace)           | Disallow whitespace at the end of a line.                        |
 | [variable-case](#variable-case)                       | Enforce a consistent casing style for user-defined vars.         |
 | [variable-charset](#variable-charset)                 | Restrict user-defined variables to a safe identifier charset.    |
@@ -1426,6 +1427,84 @@ Resident [Raw];
 This rule has no options. "Exactly one space around a binary operator" is the
 universally expected convention; offering toggles for tight or aligned operators
 would defeat the purpose of an opinionated linter.
+
+---
+
+## paren-spacing
+
+Disallow the space between a built-in function and its opening parenthesis, and
+any padding immediately inside parentheses.
+
+### Rule Details
+
+Parentheses carry structure in a Qlik expression, and inconsistent spacing
+around them blurs it. A call written `Sum (Amount)` reads as if `Sum` and
+`(Amount)` were two separate things; padding like `If( x, y )` pushes the
+arguments away from the parens that bound them and invites hand-alignment that
+bloats diffs. The rule pins both down:
+
+- **Function calls.** A built-in function name sits flush against its opening
+  paren — `Sum(x)`, never `Sum (x)`. Only built-in functions are considered
+  (the same scope as [multiline-call](#multiline-call)); the space between a
+  **keyword** and a grouping paren (`Where (x > 0)`, `Not (a and b)`) is left
+  alone, because gluing a keyword to a paren reads worse, not better.
+- **Inner padding.** No space directly after `(` or directly before `)`, so
+  `( x )` becomes `(x)` and `Rand( )` becomes `Rand()`. This applies to every
+  paren, grouping ones included.
+
+The rule only ever closes a gap that is **pure spaces or tabs**. Two situations
+are therefore left untouched by design:
+
+- A gap that spans a **line break** — the broken-out argument list produced by
+  [multiline-call](#multiline-call), where `(` ends its line and `)` starts its
+  own — keeps its layout; that is owned by the indent rules.
+- A gap that contains a **comment** (`Sum /* note */ (x)`) is not collapsed, so
+  the comment survives.
+
+The autofix deletes the offending whitespace. `Sum ( x )` converges on
+`Sum(x)` in one format pass.
+
+Examples of **incorrect** code for this rule:
+
+```qlik
+LET vTotal = Sum (Amount);
+LET vSign = If( Amount > 0, 'pos', 'neg' );
+LET vEmpty = Rand( );
+
+[Sales]:
+Load
+    Amount
+Resident [Raw]
+Where ( Amount > 0 );
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+LET vTotal = Sum(Amount);
+LET vSign = If(Amount > 0, 'pos', 'neg');
+LET vEmpty = Rand();
+LET vEval = $(=Max(OrderDate));
+
+// A keyword keeps its space before a grouping paren.
+[Sales]:
+Load
+    Amount
+Resident [Raw]
+Where (Amount > 0);
+
+// A broken-out call keeps its multi-line layout.
+LET vRange = RangeSum(
+    1,
+    2
+);
+```
+
+### Options
+
+This rule has no options. The no-call-space / no-padding convention is
+intentionally fixed — making it configurable would defeat the point of an
+opinionated linter.
 
 ---
 
