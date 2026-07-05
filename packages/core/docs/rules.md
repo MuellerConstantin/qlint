@@ -9,6 +9,7 @@
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                      |
 | [comma-space](#comma-space)                           | Require exactly one space after a comma when followed by code.   |
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                   |
+| [eol-last](#eol-last)                                 | Require the file to end with exactly one newline.                |
 | [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment.   |
 | [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.          |
 | [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.                |
@@ -525,6 +526,67 @@ LET vHour = 12;
 This rule has no options. The single-space convention is intentionally fixed —
 making it configurable would invite every project to redefine "well-formatted
 comment", which defeats the point of an opinionated linter.
+
+---
+
+## eol-last
+
+Require the file to end with exactly one newline.
+
+### Rule Details
+
+A file should end with a single line terminator. A missing final newline leaves
+the last line incomplete: many tools render it with a "no newline at end of
+file" marker, and editing that line later shows up in the diff as a change to
+the newline as well as the content. Trailing blank lines at the other extreme
+are pure padding that inflate diffs without conveying anything. Pinning the end
+of the file to exactly one newline removes both.
+
+The rule inspects only the very end of the file:
+
+- A file whose last line has content but no terminator is flagged, and the
+  autofix appends one newline.
+- A file that ends with more than one line terminator (one or more trailing
+  blank lines) is flagged, and the autofix trims the run back to a single
+  newline.
+- An empty file, or a file that is nothing but newlines, is left alone — there
+  is no content to terminate.
+
+The autofix reuses the source's dominant line ending: `\r\n` if the file
+contains any CRLF, otherwise `\n`. Trailing spaces on the last line are not
+this rule's concern — they are stripped by
+[trailing-whitespace](#trailing-whitespace) — and blank-line runs in the middle
+of the script belong to [no-multiple-empty-lines](#no-multiple-empty-lines);
+the three compose so that the whole file, including its end, converges in one
+format run.
+
+Examples of **incorrect** code for this rule (`¬` marks the end of the file):
+
+```qlik
+SET vYear = 2026;
+LET vMonth = 6;¬
+```
+
+```qlik
+SET vYear = 2026;
+LET vMonth = 6;
+
+¬
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+SET vYear = 2026;
+LET vMonth = 6;
+¬
+```
+
+### Options
+
+This rule has no options. "Exactly one newline at end of file" is the universal
+convention; making it configurable would defeat the point of an opinionated
+linter.
 
 ---
 

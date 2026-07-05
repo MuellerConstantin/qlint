@@ -6,6 +6,7 @@ import { builtinFunctionCase } from './builtin-function-case.js';
 import { builtinKeywordCase } from './builtin-keyword-case.js';
 import { commaSpace } from './comma-space.js';
 import { commentSpace } from './comment-space.js';
+import { eolLast } from './eol-last.js';
 import { inlineCommentSpace } from './inline-comment-space.js';
 import { loadClauseNewline } from './load-clause-newline.js';
 import { loadFieldPerLine } from './load-field-per-line.js';
@@ -42,6 +43,7 @@ export const allRules = [
   builtinKeywordCase,
   commaSpace,
   commentSpace,
+  eolLast,
   inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,
@@ -93,6 +95,7 @@ export {
   builtinKeywordCase,
   commaSpace,
   commentSpace,
+  eolLast,
   inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,
