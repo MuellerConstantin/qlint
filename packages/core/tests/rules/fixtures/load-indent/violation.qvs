@@ -7,34 +7,34 @@ From X;
 // Field overindented — 1 finding (Total).
 [B]:
 Load
-		Total
+        Total
 From X;
 
 // Clause indented when it shouldn't be — 1 finding (From).
 [C]:
 Load
-	Id
-	From X;
+    Id
+    From X;
 
 // Mixed: one field unindented, one clause overindented — 2 findings.
 [D]:
 Load
-	A,
+    A,
 B,
-	C
-	From X;
+    C
+    From X;
 
-// Nested in a Sub. base = 1 tab (the Load line carries one tab of outer
-// indent). Field expected 2 tabs, clause expected 1 tab.
+// Nested in a Sub. base = one step (the Load line carries one step of outer
+// indent). Field expected two steps, clause expected one step.
 Sub foo
-	[E]:
-	Load
-	Id
-		From X;
+    [E]:
+    Load
+    Id
+        From X;
 End Sub
 
-// Field indented with spaces under default tab style — 1 finding.
+// Field indented with a tab under the default space style — 1 finding.
 [F]:
 Load
-    Id
+	Id
 From X;

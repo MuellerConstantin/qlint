@@ -1,10 +1,10 @@
-// 1. Canonical shape — fields at base + 1 tab, clauses at base.
+// 1. Canonical shape — fields at base + one step, clauses at base.
 [Sales]:
 NoConcatenate Load Distinct
-	OrderId,
-	CustomerId,
-	Amount,
-	If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
+    OrderId,
+    CustomerId,
+    Amount,
+    If(Region = 'EU', Amount * 1.2, Amount) as AmountEUR
 From [lib://qvd/sales.qvd] (qvd)
 Where Year >= 2020
 Group By OrderId
@@ -14,16 +14,16 @@ Order By OrderId;
 //    not checked, so any depth (including dedented or overdented) is fine.
 [LongExpr]:
 Load
-	Id,
-	If(
-		Status = 'A',
-		1,
-		0
-	) as Flag,
-	Sum(Amount)
-		& ' (' & Region & ')'
-		as Label,
-	Other
+    Id,
+    If(
+        Status = 'A',
+        1,
+        0
+    ) as Flag,
+    Sum(Amount)
+            & ' (' & Region & ')'
+            as Label,
+    Other
 From [lib://x.qvd] (qvd);
 
 // 3. Lone wildcard on the LOAD header — not a field, not checked.
@@ -34,17 +34,17 @@ Load * From [lib://x.qvd] (qvd);
 //    bracket token, not separate token lines, so nothing to indent-check.
 [Inline2]:
 Load * Inline [
-	a, b
-	1, 2
+    a, b
+    1, 2
 ];
 
 // 5. Group By / Order By comma lists sit beyond the field-list boundary
 //    and on the clause line itself — neither flagged.
 [Aggregate]:
 Load
-	Region,
-	Country,
-	Sum(Amount) as Total
+    Region,
+    Country,
+    Sum(Amount) as Total
 Resident Sales
 Group By Region, Country
 Order By Total desc, Region asc;
@@ -53,7 +53,7 @@ Order By Total desc, Region asc;
 //    indent is not checked.
 [InList]:
 Load
-	Id
+    Id
 From [lib://x.qvd] (qvd)
 Where Id In (1, 2, 3)
   and Active = 1;
@@ -61,21 +61,21 @@ Where Id In (1, 2, 3)
 // 7. Standalone SQL passthrough — no LOAD keyword, not inspected.
 SQL Select Id, Name, Country From dbo.Customers;
 
-// 8. LOAD nested inside a Sub. base = 1 tab (the Sub body indent), so
-//    fields land at 2 tabs and clauses at 1 tab.
+// 8. LOAD nested inside a Sub. base = one step (the Sub body indent), so
+//    fields land at two steps and clauses at one step.
 Sub loadIt
-	[Inner]:
-	Load
-		Id,
-		Name
-	From [lib://x.qvd] (qvd);
+    [Inner]:
+    Load
+        Id,
+        Name
+    From [lib://x.qvd] (qvd);
 End Sub
 
 // 9. AutoGenerate without a From clause.
 [Tally]:
 Load
-	RecNo() as N,
-	Rand() as R
+    RecNo() as N,
+    Rand() as R
 AutoGenerate 100;
 
 // 10. Hierarchy prefix sits before the Load keyword; the Load header line
@@ -83,16 +83,16 @@ AutoGenerate 100;
 [Tree]:
 Hierarchy (NodeId, ParentId, NodeName)
 Load
-	NodeId,
-	ParentId,
-	NodeName
+    NodeId,
+    ParentId,
+    NodeName
 From [lib://qvd/tree.qvd] (qvd);
 
 // 11. Trailing semicolon on its own line. Lonely `;` is not a field-start
 //     and not a clause-starter — its indent is left untouched.
 [Lonely]:
 Load
-	Id
+    Id
 From [lib://x.qvd] (qvd)
 ;
 
@@ -103,17 +103,17 @@ From [lib://x.qvd] (qvd)
 NoConcatenate
 Load
 Distinct
-	A,
-	B
+    A,
+    B
 From [lib://x.qvd] (qvd);
 
 // 13. LOAD continues a prefixed statement (Left Join + IntervalMatch). base is
 //     the Join line's indent, so fields land one step deeper and the clause
 //     aligns with the Join line — even though the `Load` sits on its own line.
 Sub mapIt
-	Left Join([M]) IntervalMatch (Stichtag, PERNR)
-	Load
-		BEGDA,
-		PERNR
-	Resident [Src];
+    Left Join([M]) IntervalMatch (Stichtag, PERNR)
+    Load
+        BEGDA,
+        PERNR
+    Resident [Src];
 End Sub

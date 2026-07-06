@@ -35,7 +35,7 @@ describe('load-indent', () => {
 
     const result = formatRule(source, loadIndent);
 
-    expect(result.output).toBe(['[A]:', 'Load', '\tId,', '\tName', 'From X;'].join('\n'));
+    expect(result.output).toBe(['[A]:', 'Load', '    Id,', '    Name', 'From X;'].join('\n'));
     expect(result.diagnostics).toEqual([]);
     expect(result.fixed).toBe(2);
   });
@@ -49,7 +49,7 @@ describe('load-indent', () => {
   });
 
   it('does not touch continuation lines inside a multi-line field expression', () => {
-    const source = ['[A]:', 'Load', '\tSum(', 'x', '\t) as Total', 'From X;'].join('\n');
+    const source = ['[A]:', 'Load', '    Sum(', 'x', '    ) as Total', 'From X;'].join('\n');
 
     const diagnostics = lintRule(source, loadIndent);
 
@@ -65,7 +65,7 @@ describe('load-indent', () => {
   });
 
   it('inherits the enclosing indent when the LOAD sits inside a Sub', () => {
-    const source = ['Sub foo', '\t[A]:', '\tLoad', '\t\tId', '\tFrom X;', 'End Sub'].join('\n');
+    const source = ['Sub foo', '    [A]:', '    Load', '        Id', '    From X;', 'End Sub'].join('\n');
 
     const diagnostics = lintRule(source, loadIndent);
 
@@ -74,22 +74,22 @@ describe('load-indent', () => {
 
   it('bases indent on the statement-start line, not a continuation line the LOAD lands on', () => {
     const source = [
-      '\tLeft Join([M]) IntervalMatch (Stichtag, PERNR)',
-      '    Load',
-      '\t\t\t\t\tBEGDA,',
-      '\t\t\t\t\tPERNR',
-      '\t\t\t\tResident [Src];',
+      '    Left Join([M]) IntervalMatch (Stichtag, PERNR)',
+      '  Load',
+      'BEGDA,',
+      'PERNR',
+      '            Resident [Src];',
     ].join('\n');
 
     const result = formatRule(source, loadIndent);
 
     expect(result.output).toBe(
       [
-        '\tLeft Join([M]) IntervalMatch (Stichtag, PERNR)',
-        '    Load',
-        '\t\tBEGDA,',
-        '\t\tPERNR',
-        '\tResident [Src];',
+        '    Left Join([M]) IntervalMatch (Stichtag, PERNR)',
+        '  Load',
+        '        BEGDA,',
+        '        PERNR',
+        '    Resident [Src];',
       ].join('\n'),
     );
     expect(result.diagnostics).toEqual([]);
@@ -97,11 +97,11 @@ describe('load-indent', () => {
 
   it('treats a correctly-indented continuation LOAD as clean', () => {
     const source = [
-      '\tLeft Join([M]) IntervalMatch (K)',
-      '\tLoad',
-      '\t\tA,',
-      '\t\tB',
-      '\tResident [Src];',
+      '    Left Join([M]) IntervalMatch (K)',
+      '    Load',
+      '        A,',
+      '        B',
+      '    Resident [Src];',
     ].join('\n');
 
     const diagnostics = lintRule(source, loadIndent);
@@ -157,7 +157,7 @@ describe('load-indent', () => {
     const result = formatRules(source, [loadFieldPerLine, loadClauseNewline, loadIndent]);
 
     expect(result.output).toBe(
-      ['[A]: Load', '\tId,', '\tName', 'From X', 'Where Active = 1', 'Order By Id;'].join('\n'),
+      ['[A]: Load', '    Id,', '    Name', 'From X', 'Where Active = 1', 'Order By Id;'].join('\n'),
     );
     expect(result.diagnostics).toEqual([]);
   });

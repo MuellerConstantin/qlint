@@ -79,7 +79,7 @@ function lineLengthAt(source: string, line: number): number {
 export const multilineCall: Rule<MultilineCallOptions, 'multiline-call'> = {
   id: 'multiline-call',
   defaultSeverity: 'warning',
-  defaultOptions: { maxLineLength: 120, indentStyle: 'tab', indentSize: 1 },
+  defaultOptions: { maxLineLength: 120, indentStyle: 'space', indentSize: 4 },
   check: ({ source, tokens }, { maxLineLength, indentStyle, indentSize }) => {
     const out: Finding[] = [];
     const indentUnit = indentStyle === 'tab' ? '\t' : ' '.repeat(indentSize);

@@ -3,9 +3,9 @@ LET vSum = RangeSum(a, b, c);
 
 // Already broken across lines — the rule does not collapse it.
 LET vCategory = If(
-	vYear >= 2025 and vMonth >= 6 and vDay >= 15,
-	'in the late second half of the year 2025',
-	'before mid-June 2025'
+    vYear >= 2025 and vMonth >= 6 and vDay >= 15,
+    'in the late second half of the year 2025',
+    'before mid-June 2025'
 );
 
 // A single-argument call cannot be meaningfully split, so it is never flagged.

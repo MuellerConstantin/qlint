@@ -292,7 +292,7 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
 export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
   id: 'load-indent',
   defaultSeverity: 'warning',
-  defaultOptions: { size: 1, style: 'tab' },
+  defaultOptions: { size: 4, style: 'space' },
   check: ({ tokens, firstOnLine }: RuleContext, { size, style }): Finding[] => {
     const indentChar = style === 'tab' ? '\t' : ' ';
     const step = style === 'tab' ? 1 : size;

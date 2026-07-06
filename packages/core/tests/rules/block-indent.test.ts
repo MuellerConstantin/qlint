@@ -38,22 +38,22 @@ describe('block-indent', () => {
     expect(result.output).toBe(
       [
         'Sub greet',
-        '\tTrace hello;',
+        '    Trace hello;',
         'End Sub',
         '',
         'If vYear = 2026 Then',
-        "\tLET vMsg = 'this year';",
+        "    LET vMsg = 'this year';",
         'ElseIf vYear < 2026 Then',
-        "\tLET vMsg = 'past';",
+        "    LET vMsg = 'past';",
         'Else',
-        "\tLET vMsg = 'other';",
+        "    LET vMsg = 'other';",
         'End If',
         '',
         'Switch vMode',
-        "\tCase 'A'",
-        '\t\tTrace mode A;',
-        '\tDefault',
-        '\t\tTrace unknown;',
+        "    Case 'A'",
+        '        Trace mode A;',
+        '    Default',
+        '        Trace unknown;',
         'End Switch',
         '',
       ].join('\n'),
@@ -63,11 +63,11 @@ describe('block-indent', () => {
   it('handles nested blocks', () => {
     const source = [
       'Sub outer',
-      '\tIf x = 1 Then',
-      '\t\tFor j = 1 to 2',
-      '\t\t\tTrace nested;',
-      '\t\tNext',
-      '\tEnd If',
+      '    If x = 1 Then',
+      '        For j = 1 to 2',
+      '            Trace nested;',
+      '        Next',
+      '    End If',
       'End Sub',
     ].join('\n');
 
@@ -77,7 +77,7 @@ describe('block-indent', () => {
   });
 
   it('ignores continuation lines inside multi-line If conditions', () => {
-    const source = ['If x = 1', '   and y = 2 Then', '\tbody;', 'End If'].join('\n');
+    const source = ['If x = 1', '   and y = 2 Then', '    body;', 'End If'].join('\n');
 
     const diagnostics = lintRule(source, blockIndent);
 
@@ -85,9 +85,14 @@ describe('block-indent', () => {
   });
 
   it('keeps Case/Default one level inside Switch and bodies two levels in', () => {
-    const source = ['Switch vMode', '\tCase 1', '\t\tTrace one;', '\tDefault', '\t\tTrace other;', 'End Switch'].join(
-      '\n',
-    );
+    const source = [
+      'Switch vMode',
+      '    Case 1',
+      '        Trace one;',
+      '    Default',
+      '        Trace other;',
+      'End Switch',
+    ].join('\n');
 
     const diagnostics = lintRule(source, blockIndent);
 
@@ -102,10 +107,18 @@ describe('block-indent', () => {
     expect(diagnostics).toEqual([]);
   });
 
-  it('accepts the default tab/size-1 indent', () => {
-    const source = ['Sub greet', '\tTrace hello;', 'End Sub'].join('\n');
+  it('accepts the default 4-space indent', () => {
+    const source = ['Sub greet', '    Trace hello;', 'End Sub'].join('\n');
 
     const diagnostics = lintRule(source, blockIndent);
+
+    expect(diagnostics).toEqual([]);
+  });
+
+  it('accepts a tab/size-1 indent via the style option', () => {
+    const source = ['Sub greet', '\tTrace hello;', 'End Sub'].join('\n');
+
+    const diagnostics = lintRule(source, blockIndent, { style: 'tab', size: 1 });
 
     expect(diagnostics).toEqual([]);
   });
@@ -157,7 +170,7 @@ describe('block-indent', () => {
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0].fix).toBeDefined();
     expect(diagnostics[0].fix?.range).toEqual({ start: 10, end: 13 });
-    expect(diagnostics[0].fix?.replacement).toBe('\t');
+    expect(diagnostics[0].fix?.replacement).toBe('    ');
   });
 
   it('emits a non-empty range even when the misindented line has no leading whitespace', () => {

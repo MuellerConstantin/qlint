@@ -49,13 +49,17 @@ describe('multiline-call', () => {
   it('autofixes by breaking each top-level argument onto its own line', () => {
     const result = formatRule("LET x = If(a, 'b', 'c');\n", multilineCall, { maxLineLength: 20 });
 
-    expect(result.output).toBe("LET x = If(\n\ta,\n\t'b',\n\t'c'\n);\n");
+    expect(result.output).toBe("LET x = If(\n    a,\n    'b',\n    'c'\n);\n");
     expect(result.fixed).toBe(1);
     expect(result.diagnostics).toEqual([]);
   });
 
-  it('preserves the leading indent when breaking a nested call', () => {
-    const result = formatRule("Sub greet\n\tLET x = If(a, 'b', 'c');\nEnd Sub\n", multilineCall, { maxLineLength: 20 });
+  it('preserves the leading indent when breaking a nested call (tab style)', () => {
+    const result = formatRule("Sub greet\n\tLET x = If(a, 'b', 'c');\nEnd Sub\n", multilineCall, {
+      maxLineLength: 20,
+      indentStyle: 'tab',
+      indentSize: 1,
+    });
 
     expect(result.output).toBe("Sub greet\n\tLET x = If(\n\t\ta,\n\t\t'b',\n\t\t'c'\n\t);\nEnd Sub\n");
     expect(result.fixed).toBe(1);
@@ -77,14 +81,16 @@ describe('multiline-call', () => {
       maxLineLength: 20,
     });
 
-    expect(result.output).toBe("LOAD If(\n\ta,\n\t'b',\n\t'c'\n) As Category\nFROM [lib://x/y.qvd];\n");
+    expect(result.output).toBe("LOAD If(\n    a,\n    'b',\n    'c'\n) As Category\nFROM [lib://x/y.qvd];\n");
     expect(result.fixed).toBe(1);
   });
 
   it('breaks nested calls iteratively across format passes', () => {
     const result = formatRule("LET x = If(Pick(aaa, bbb, ccc), 'y', 'n');\n", multilineCall, { maxLineLength: 15 });
 
-    expect(result.output).toBe("LET x = If(\n\tPick(\n\t\taaa,\n\t\tbbb,\n\t\tccc\n\t),\n\t'y',\n\t'n'\n);\n");
+    expect(result.output).toBe(
+      "LET x = If(\n    Pick(\n        aaa,\n        bbb,\n        ccc\n    ),\n    'y',\n    'n'\n);\n",
+    );
     expect(result.fixed).toBe(2);
     expect(result.diagnostics).toEqual([]);
   });
