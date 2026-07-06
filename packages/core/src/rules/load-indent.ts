@@ -1,7 +1,7 @@
 import type { IToken } from 'chevrotain';
 import { commaToken, keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
-import type { IndentStyle } from './block-indent.js';
+import { groupByLine, previousLineClosesStatement, type IndentStyle } from './block-indent.js';
 
 export type { IndentStyle } from './block-indent.js';
 
@@ -237,6 +237,31 @@ function collectClauseStarters(tokens: IToken[], fieldsEnd: number): IToken[] {
   return out;
 }
 
+/*
+ * The line whose indent the field/clause list hangs off. Usually the line the
+ * `Load` keyword sits on, but when the `Load` is a continuation of a prefixed
+ * statement — `Left Join(...) IntervalMatch(...)`, a `Hierarchy (...)`, or a
+ * `NoConcatenate` broken onto its own line — the base is set by the line that
+ * opens the statement, not the continuation line the `Load` happens to land on.
+ * That continuation line is unmanaged by block-indent, so trusting its column
+ * (e.g. when it is space-indented) would derive a nonsensical base. Walk up
+ * while each line above is still part of the same statement.
+ */
+function findStatementStartLine(tokens: IToken[], loadLine: number): number {
+  const lines = groupByLine(tokens);
+  let idx = lines.findIndex((line) => line.line === loadLine);
+
+  if (idx === -1) {
+    return loadLine;
+  }
+
+  while (idx > 0 && !previousLineClosesStatement(lines[idx - 1].tokens)) {
+    idx--;
+  }
+
+  return lines[idx].line;
+}
+
 function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: string, unitLabel: string): Finding {
   const actualColumn = token.startColumn ?? 1;
   const actualWidth = actualColumn - 1;
@@ -291,7 +316,8 @@ export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
       }
 
       const loadLine = stmt[loadIdx].startLine ?? 1;
-      const headerFirst = firstByLine.get(loadLine);
+      const headerLine = findStatementStartLine(stmt, loadLine);
+      const headerFirst = firstByLine.get(headerLine);
       const base = headerFirst ? (headerFirst.startColumn ?? 1) - 1 : 0;
 
       const { start, end } = findFieldListBoundaries(stmt, loadIdx);

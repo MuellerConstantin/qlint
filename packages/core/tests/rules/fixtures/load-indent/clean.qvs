@@ -96,8 +96,9 @@ Load
 From [lib://x.qvd] (qvd)
 ;
 
-// 12. Header torn across lines. base is the indent of the line containing
-//     the `Load` keyword (the line with the Load token).
+// 12. Header torn across lines. base is the indent of the line that opens the
+//     statement (here the `NoConcatenate` line), which the `Load` continuation
+//     line shares.
 [Torn]:
 NoConcatenate
 Load
@@ -105,3 +106,14 @@ Distinct
 	A,
 	B
 From [lib://x.qvd] (qvd);
+
+// 13. LOAD continues a prefixed statement (Left Join + IntervalMatch). base is
+//     the Join line's indent, so fields land one step deeper and the clause
+//     aligns with the Join line — even though the `Load` sits on its own line.
+Sub mapIt
+	Left Join([M]) IntervalMatch (Stichtag, PERNR)
+	Load
+		BEGDA,
+		PERNR
+	Resident [Src];
+End Sub

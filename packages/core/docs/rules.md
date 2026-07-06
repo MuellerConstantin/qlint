@@ -878,10 +878,15 @@ two structural levels of the LOAD body:
 - Every line that **starts a clause** (`From`, `Resident`, `Where`,
   `Group`, `Order`, ...) sits at `base`.
 
-`base` is the indent of the line containing the `Load` keyword, so a LOAD
+`base` is the indent of the line that **opens the LOAD statement**, so a LOAD
 that lives inside a `Sub` (or any other [block-indent](#block-indent)-managed
 construct) inherits the surrounding indent automatically — fields land at
-"Sub body + one step", clauses land at "Sub body".
+"Sub body + one step", clauses land at "Sub body". When the `Load` keyword is a
+continuation of a prefixed statement (`Left Join(...) IntervalMatch(...)`, a
+`Hierarchy (...)`, or a `NoConcatenate` broken onto its own line), the base is
+taken from the opening line, not the continuation line the `Load` happens to sit
+on — that line's own indent is left to [block-indent](#block-indent) and never
+becomes the reference for the field list.
 
 The rule is deliberately narrow:
 

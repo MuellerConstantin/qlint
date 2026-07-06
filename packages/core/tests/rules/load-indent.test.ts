@@ -72,6 +72,43 @@ describe('load-indent', () => {
     expect(diagnostics).toEqual([]);
   });
 
+  it('bases indent on the statement-start line, not a continuation line the LOAD lands on', () => {
+    const source = [
+      '\tLeft Join([M]) IntervalMatch (Stichtag, PERNR)',
+      '    Load',
+      '\t\t\t\t\tBEGDA,',
+      '\t\t\t\t\tPERNR',
+      '\t\t\t\tResident [Src];',
+    ].join('\n');
+
+    const result = formatRule(source, loadIndent);
+
+    expect(result.output).toBe(
+      [
+        '\tLeft Join([M]) IntervalMatch (Stichtag, PERNR)',
+        '    Load',
+        '\t\tBEGDA,',
+        '\t\tPERNR',
+        '\tResident [Src];',
+      ].join('\n'),
+    );
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('treats a correctly-indented continuation LOAD as clean', () => {
+    const source = [
+      '\tLeft Join([M]) IntervalMatch (K)',
+      '\tLoad',
+      '\t\tA,',
+      '\t\tB',
+      '\tResident [Src];',
+    ].join('\n');
+
+    const diagnostics = lintRule(source, loadIndent);
+
+    expect(diagnostics).toEqual([]);
+  });
+
   it('does not flag statements that contain no LOAD keyword', () => {
     const source = 'SQL Select Id, Name From dbo.X;';
 

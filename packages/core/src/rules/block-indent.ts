@@ -45,7 +45,7 @@ const BLOCK_CLOSE = new Set(['end', 'endsub', 'endif', 'endswitch', 'next', 'loo
 
 type LineKind = 'open' | 'close' | 'mid-flat' | 'mid-case' | 'regular';
 
-function groupByLine(tokens: IToken[]): { line: number; tokens: IToken[] }[] {
+export function groupByLine(tokens: IToken[]): { line: number; tokens: IToken[] }[] {
   const out: { line: number; tokens: IToken[] }[] = [];
   let currentLine = -1;
 
@@ -63,7 +63,7 @@ function groupByLine(tokens: IToken[]): { line: number; tokens: IToken[] }[] {
   return out;
 }
 
-function previousLineClosesStatement(prevTokens: IToken[]): boolean {
+export function previousLineClosesStatement(prevTokens: IToken[]): boolean {
   const first = prevTokens[0];
   const last = prevTokens[prevTokens.length - 1];
 
