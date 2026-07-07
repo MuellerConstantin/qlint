@@ -262,6 +262,19 @@ function findStatementStartLine(tokens: IToken[], loadLine: number): number {
   return lines[idx].line;
 }
 
+/*
+ * True when the token's leading whitespace is exactly `expectedWidth` copies
+ * of `indentChar`. Compares the actual characters, not just the column count,
+ * so a run of the wrong whitespace (tabs where spaces are expected, or a
+ * tab/space mix) that happens to match the expected width is still rejected.
+ */
+function hasExpectedIndent(source: string, token: IToken, expectedWidth: number, indentChar: string): boolean {
+  const actualWidth = (token.startColumn ?? 1) - 1;
+  const lineStart = token.startOffset - actualWidth;
+
+  return source.slice(lineStart, token.startOffset) === indentChar.repeat(expectedWidth);
+}
+
 function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: string, unitLabel: string): Finding {
   const actualColumn = token.startColumn ?? 1;
   const actualWidth = actualColumn - 1;
@@ -276,12 +289,22 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
    */
   const endColumn = Math.max(actualColumn, 2);
 
+  /*
+   * When the width already matches, the offending line has the right number
+   * of the wrong character (e.g. tabs under a space style); point at the
+   * character rather than a width that is technically correct.
+   */
+  const message =
+    actualWidth === expectedWidth
+      ? `Expected indentation to use ${unitLabel}s.`
+      : `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`;
+
   return {
     range: {
       start: { line, column: 1 },
       end: { line, column: endColumn },
     },
-    message: `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`,
+    message,
     fix: {
       range: { start: lineStart, end: token.startOffset },
       replacement: indentChar.repeat(expectedWidth),
@@ -293,7 +316,7 @@ export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
   id: 'load-indent',
   defaultSeverity: 'warning',
   defaultOptions: { size: 4, style: 'space' },
-  check: ({ tokens, firstOnLine }: RuleContext, { size, style }): Finding[] => {
+  check: ({ source, tokens, firstOnLine }: RuleContext, { size, style }): Finding[] => {
     const indentChar = style === 'tab' ? '\t' : ' ';
     const step = style === 'tab' ? 1 : size;
     const unitLabel = style === 'tab' ? 'tab' : 'space';
@@ -329,10 +352,9 @@ export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
           continue;
         }
 
-        const actualWidth = (t.startColumn ?? 1) - 1;
         const expectedWidth = base + step;
 
-        if (actualWidth !== expectedWidth) {
+        if (!hasExpectedIndent(source, t, expectedWidth, indentChar)) {
           out.push(makeIndentFinding(t, expectedWidth, indentChar, unitLabel));
         }
       }
@@ -342,9 +364,7 @@ export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
           continue;
         }
 
-        const actualWidth = (t.startColumn ?? 1) - 1;
-
-        if (actualWidth !== base) {
+        if (!hasExpectedIndent(source, t, base, indentChar)) {
           out.push(makeIndentFinding(t, base, indentChar, unitLabel));
         }
       }

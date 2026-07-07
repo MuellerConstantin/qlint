@@ -151,6 +151,26 @@ describe('load-indent', () => {
     }
   });
 
+  it('flags a field whose indent width is right but uses tabs under the space style', () => {
+    const source = ['[A]:', 'Load', '\t\t\t\tId', 'From X;'].join('\n');
+
+    const diagnostics = lintRule(source, loadIndent);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.line).toBe(3);
+    expect(diagnostics[0].message).toMatch(/use spaces/);
+  });
+
+  it('autofixes right-width tab indentation on a field to the configured spaces', () => {
+    const source = ['[A]:', 'Load', '\t\t\t\tId', 'From X;'].join('\n');
+
+    const result = formatRule(source, loadIndent);
+
+    expect(result.output).toBe(['[A]:', 'Load', '    Id', 'From X;'].join('\n'));
+    expect(result.diagnostics).toEqual([]);
+    expect(result.fixed).toBe(1);
+  });
+
   it('composes with load-field-per-line and load-clause-newline to break down a fully jammed LOAD', () => {
     const source = '[A]: Load Id, Name From X Where Active = 1 Order By Id;';
 

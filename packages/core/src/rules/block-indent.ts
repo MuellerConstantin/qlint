@@ -130,7 +130,7 @@ export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
   id: 'block-indent',
   defaultSeverity: 'warning',
   defaultOptions: { size: 4, style: 'space' },
-  check: ({ tokens }, { size, style }) => {
+  check: ({ source, tokens }, { size, style }) => {
     const out: Finding[] = [];
     const lines = groupByLine(tokens);
 
@@ -188,25 +188,38 @@ export const blockIndent: Rule<BlockIndentOptions, 'block-indent'> = {
       const expectedWidth = expectedDepth * step;
       const actualColumn = first.startColumn ?? 1;
       const actualWidth = actualColumn - 1;
+      const lineStart = first.startOffset - actualWidth;
+      const actualIndent = source.slice(lineStart, first.startOffset);
+      const expectedIndent = indentChar.repeat(expectedWidth);
 
-      if (actualWidth !== expectedWidth) {
-        const lineStart = first.startOffset - actualWidth;
+      /*
+       * Compare the actual leading whitespace against the expected indent
+       * string, not just its column count: a run whose length matches but
+       * whose character does not — four tabs where four spaces are expected,
+       * or a tab/space mix — is still wrong for the configured `style`. A
+       * width-only check would wave it through.
+       */
+      if (actualIndent !== expectedIndent) {
         /*
          * Guarantee a non-empty range so range-based consumers (CodeMirror
          * marker, editor decorations) have something to draw even when the
          * line has no leading whitespace at all.
          */
         const endColumn = Math.max(actualColumn, 2);
+        const message =
+          actualWidth === expectedWidth
+            ? `Expected indentation to use ${unitLabel}s.`
+            : `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`;
 
         out.push({
           range: {
             start: { line, column: 1 },
             end: { line, column: endColumn },
           },
-          message: `Expected ${expectedWidth} ${unitLabel}${expectedWidth === 1 ? '' : 's'} of indentation but got ${actualWidth}.`,
+          message,
           fix: {
             range: { start: lineStart, end: first.startOffset },
-            replacement: indentChar.repeat(expectedWidth),
+            replacement: expectedIndent,
           },
         });
       }

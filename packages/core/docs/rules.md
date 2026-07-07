@@ -135,6 +135,12 @@ Indentation rules for the supported constructs:
 - `Case` / `Default` are indented one level **inside** the surrounding `Switch`;
   their bodies are indented one level deeper again.
 
+A line is checked against the *exact* expected indent string, not just its
+width: a line indented with four tabs where four spaces are expected (or a
+tab/space mix that happens to add up to the right column) is flagged, so the
+configured `style` is enforced on its own — the rule does not rely on any
+other rule to catch the wrong indent character.
+
 The autofix replaces the leading whitespace of each offending line with the
 expected indent. Lines whose first token is part of a function call named `If(…)`
 are not treated as block openers — the lexer distinguishes the keyword from the
@@ -901,6 +907,11 @@ The rule is deliberately narrow:
 - The wildcard placeholder exception from
   [load-field-per-line](#load-field-per-line) carries over: a lone `*` is
   never treated as a field, even when it sits on its own line.
+
+Like [block-indent](#block-indent), a field- or clause-start line is compared
+against the exact expected indent string, not just its width: a right-width run
+of the wrong character (tabs under the space style, or a tab/space mix) is still
+flagged, so `style` is enforced independently of any other rule.
 
 The autofix replaces the leading whitespace of each offending line with the
 expected indent string (`step` repeated to the expected width). The indent

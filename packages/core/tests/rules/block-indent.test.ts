@@ -181,4 +181,34 @@ describe('block-indent', () => {
     expect(d.range.start.line).toBe(d.range.end.line);
     expect(d.range.end.column).toBeGreaterThan(d.range.start.column);
   });
+
+  it('flags a line whose indent width is right but uses tabs under the space style', () => {
+    const source = ['Sub greet', '\t\t\t\tTrace hello;', 'End Sub'].join('\n');
+
+    const diagnostics = lintRule(source, blockIndent);
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.line).toBe(2);
+    expect(diagnostics[0].message).toMatch(/use spaces/);
+  });
+
+  it('autofixes right-width tab indentation to the configured spaces', () => {
+    const source = ['Sub greet', '\t\t\t\tTrace hello;', 'End Sub'].join('\n');
+
+    const result = formatRule(source, blockIndent);
+
+    expect(result.output).toBe(['Sub greet', '    Trace hello;', 'End Sub'].join('\n'));
+    expect(result.diagnostics).toEqual([]);
+    expect(result.fixed).toBe(1);
+  });
+
+  it('flags a space-indented line under the tab/size-1 style', () => {
+    const source = ['Sub greet', ' Trace hello;', 'End Sub'].join('\n');
+
+    const diagnostics = lintRule(source, blockIndent, { style: 'tab', size: 1 });
+
+    expect(diagnostics).toHaveLength(1);
+    expect(diagnostics[0].range.start.line).toBe(2);
+    expect(diagnostics[0].message).toMatch(/use tabs/);
+  });
 });
