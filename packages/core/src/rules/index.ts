@@ -7,6 +7,7 @@ import { builtinKeywordCase } from './builtin-keyword-case.js';
 import { commaSpace } from './comma-space.js';
 import { commentSpace } from './comment-space.js';
 import { eolLast } from './eol-last.js';
+import { indentChar } from './indent-char.js';
 import { inlineCommentSpace } from './inline-comment-space.js';
 import { loadClauseNewline } from './load-clause-newline.js';
 import { loadFieldPerLine } from './load-field-per-line.js';
@@ -23,6 +24,7 @@ import { trailingWhitespace } from './trailing-whitespace.js';
 import { variableCase } from './variable-case.js';
 import { variableCharset } from './variable-charset.js';
 export type { BlockIndentOptions, IndentStyle } from './block-indent.js';
+export type { IndentCharOptions } from './indent-char.js';
 export type { LoadIndentOptions } from './load-indent.js';
 export type { MaxLineLengthOptions } from './max-line-length.js';
 export type { MultilineCallOptions } from './multiline-call.js';
@@ -45,6 +47,7 @@ export const allRules = [
   commaSpace,
   commentSpace,
   eolLast,
+  indentChar,
   inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,
@@ -98,6 +101,7 @@ export {
   commaSpace,
   commentSpace,
   eolLast,
+  indentChar,
   inlineCommentSpace,
   loadClauseNewline,
   loadFieldPerLine,

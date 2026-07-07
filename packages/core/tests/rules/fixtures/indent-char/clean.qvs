@@ -1,0 +1,18 @@
+// All structural and continuation lines use spaces.
+[A]:
+Load
+    Id,
+    'Prefix: '
+        & Region as Label
+From X;
+
+Sub greet
+    Trace hello;
+End Sub
+
+// Inline data-block interior is a single token; its indentation is not checked.
+[Inline1]:
+Load * Inline [
+	a, b
+	1, 2
+];

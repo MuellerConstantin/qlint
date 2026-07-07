@@ -1,0 +1,13 @@
+// A continuation line indented with a tab under the default space style.
+// load-indent leaves continuation lines alone; indent-char still flags the tab.
+[A]:
+Load
+    Id,
+    'Prefix: '
+	& Region as Label
+From X;
+
+// A Sub body indented with a tab.
+Sub greet
+	Trace hello;
+End Sub
