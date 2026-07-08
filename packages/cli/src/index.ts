@@ -4,11 +4,16 @@ import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import { lint, format, type Diagnostic, type LintConfig } from '@qlint/core';
-import { loadConfig } from './config.js';
+import { initConfig, loadConfig } from './config.js';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
 
 Usage: qlint --config <path> [options] <files|dirs...>
+       qlint init
+
+Commands:
+  init                      Create a qlint.json (presets: recommended) in the
+                            current directory; fails if one already exists
 
 Options:
   --fix                     Auto-fix violations and write files in place
@@ -65,6 +70,17 @@ function main(): void {
   if (values.help || positionals.length === 0) {
     console.log(HELP_TEXT);
     process.exit(values.help ? 0 : 2);
+  }
+
+  if (positionals[0] === 'init') {
+    try {
+      const path = initConfig(process.cwd());
+      console.log(`Created ${relative(process.cwd(), path)}`);
+      process.exit(0);
+    } catch (err) {
+      console.error(err instanceof Error ? err.message : String(err));
+      process.exit(1);
+    }
   }
 
   // The CLI assumes nothing implicitly: a config must be supplied and is used

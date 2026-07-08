@@ -1,8 +1,8 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { loadConfig } from '../src/config.js';
+import { initConfig, loadConfig } from '../src/config.js';
 
 describe('loadConfig', () => {
   let dir: string;
@@ -48,5 +48,36 @@ describe('loadConfig', () => {
   it('forwards the file path as the source label in validation errors', () => {
     const path = write('qlint.json', '[]');
     expect(() => loadConfig(path)).toThrow(new RegExp(`Config in .*qlint\\.json must be a JSON object`));
+  });
+});
+
+describe('initConfig', () => {
+  let dir: string;
+
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'qlint-cli-init-'));
+  });
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('writes a qlint.json naming the recommended preset', () => {
+    const path = initConfig(dir);
+
+    expect(path).toBe(join(dir, 'qlint.json'));
+    expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ presets: 'recommended', rules: {} });
+  });
+
+  it('produces a file that loadConfig accepts', () => {
+    const path = initConfig(dir);
+
+    expect(loadConfig(path)).toEqual({ presets: 'recommended', rules: {} });
+  });
+
+  it('refuses to overwrite an existing config file', () => {
+    writeFileSync(join(dir, 'qlint.json'), '{ "rules": {} }', 'utf8');
+
+    expect(() => initConfig(dir)).toThrow(/already exists/);
   });
 });

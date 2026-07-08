@@ -82,6 +82,11 @@ The CLI applies **no implicit defaults** — it runs exactly the config you poin
 it at via `--config <path>`, used verbatim. Running without `--config` exits with
 an error. There is no auto-discovery; the path must be supplied explicitly.
 
+Run `qlint init` to scaffold a starter `qlint.json` in the current directory: it
+names the `recommended` preset and leaves an empty `rules` map for your
+overrides. It refuses to overwrite an existing `qlint.json`, so an established
+config is never clobbered.
+
 The file has the same shape as Core's `LintConfig`: a `presets` field naming the
 built-in preset(s) to start from and a `rules` object keyed by rule ID. To run
 the opinionated default set, name it explicitly:
@@ -108,6 +113,9 @@ linting starts.
 ### Examples
 
 ```bash
+# Scaffold a qlint.json in the current directory
+qlint init
+
 # Lint a single script
 qlint --config qlint.json scripts/load.qvs
 
