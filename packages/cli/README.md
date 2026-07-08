@@ -49,19 +49,19 @@ Core's string-in, diagnostics-out API.
   `json`, so diagnostics can feed straight into CI reporters or other tooling.
 - **Severity-aware exit codes** — `0` when clean, non-zero on errors. Drop-in ready for
   CI gates, pre-commit hooks, and pipeline steps.
-- **Opinionated default ruleset** — ships with the same `recommended` style guide as the
-  rest of the qlint ecosystem, so the CLI, the Chrome extension, and any future binding
-  enforce the exact same conventions.
+- **Explicit configuration** — the CLI applies no implicit defaults; it runs exactly the
+  config you supply via `--config`. Name Core's `recommended` preset to get the same
+  opinionated style guide the Chrome and VS Code extensions ship with, or tailor it per rule.
 
 ## Usage
 
 ### Synopsis
 
 ```
-qlint [options] <files|dirs...>
+qlint --config <path> [options] <files|dirs...>
 ```
 
-The CLI takes one or more positional arguments — each a path to a `.qvs` file or a
+`--config` is required. The CLI also takes one or more positional arguments — each a path to a `.qvs` file or a
 directory. Directories are walked recursively and every `.qvs` script inside is linted.
 Shell globs (e.g. `src/**/*.qvs`) work via shell expansion; the CLI itself does not
 interpret glob patterns.
@@ -73,20 +73,18 @@ interpret glob patterns.
 | `--fix`                     | Auto-fix violations and write the formatted output back to disk.     |
 | `--format <stylish\|json>`  | Output format. `stylish` (default) is human-readable; `json` emits one JSON object per diagnostic for machine consumption. |
 | `--quiet`                   | Only print `error`-level diagnostics; suppress `warning` and `info`. |
-| `-c`, `--config <path>`     | Path to a JSON config file overriding the recommended defaults per rule. |
+| `-c`, `--config <path>`     | **Required.** Path to a JSON config file, used verbatim (no implicit defaults). |
 | `-h`, `--help`              | Print the help text and exit.                                        |
 
 ### Configuration
 
-By default the CLI runs Core's `recommended` rule set as-is. To turn individual
-rules off, change their severity, or pass options, point the CLI at a JSON file
-via `--config <path>`. There is no auto-discovery — the path must be supplied
-explicitly.
+The CLI applies **no implicit defaults** — it runs exactly the config you point
+it at via `--config <path>`, used verbatim. Running without `--config` exits with
+an error. There is no auto-discovery; the path must be supplied explicitly.
 
-The file has the same shape as Core's `LintConfig`: an optional `presets` field
-and a `rules` object keyed by rule ID. Each `rules` entry is either a severity
-string (`"error"`, `"warning"`, `"info"`, `"off"`) or a `[severity, options]`
-tuple:
+The file has the same shape as Core's `LintConfig`: a `presets` field naming the
+built-in preset(s) to start from and a `rules` object keyed by rule ID. To run
+the opinionated default set, name it explicitly:
 
 ```json
 {
@@ -98,11 +96,10 @@ tuple:
 }
 ```
 
-`presets` names the built-in preset(s) to start from — currently only
-`"recommended"` — and `rules` overrides them per rule. The CLI already applies
-`"recommended"` as the default base, so you only need `presets` to change it:
-set `"presets": []` to opt out of every preset and evaluate **only** your own
-`rules`.
+`rules` overrides the preset per rule — each entry is a severity string
+(`"error"`, `"warning"`, `"info"`, `"off"`) or a `[severity, options]` tuple.
+Omit `presets` (or set `"presets": []`) to run **only** the rules you list, with
+no preset base.
 
 Unknown rule IDs, unknown preset names, invalid JSON, unknown severities, and
 malformed rule entries all fail with a clear error and exit code `2` before any
@@ -112,22 +109,19 @@ linting starts.
 
 ```bash
 # Lint a single script
-qlint scripts/load.qvs
+qlint --config qlint.json scripts/load.qvs
 
 # Lint everything under a directory tree
-qlint src/
-
-# Lint multiple targets at once
-qlint src/load.qvs src/transform.qvs lib/
-
-# Auto-fix and write changes back in place
-qlint --fix src/
-
-# Lint with a project-specific config
 qlint --config qlint.json src/
 
+# Lint multiple targets at once
+qlint --config qlint.json src/load.qvs src/transform.qvs lib/
+
+# Auto-fix and write changes back in place
+qlint --config qlint.json --fix src/
+
 # Errors only, machine-readable output (e.g. for CI reporters)
-qlint --quiet --format json src/
+qlint --config qlint.json --quiet --format json src/
 ```
 
 ### Exit codes

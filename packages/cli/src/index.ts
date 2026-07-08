@@ -8,14 +8,17 @@ import { loadConfig } from './config.js';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
 
-Usage: qlint [options] <files|dirs...>
+Usage: qlint --config <path> [options] <files|dirs...>
 
 Options:
   --fix                     Auto-fix violations and write files in place
   --format <stylish|json>   Format (default: stylish)
   --quiet                   Show 'error' only, 'warning'/'info' is supressed
-  -c, --config <path>       Path to a JSON config file
-  -h, --help                This help`;
+  -c, --config <path>       Path to a JSON config file (required)
+  -h, --help                This help
+
+The config is used verbatim — there is no implicit default. To run the
+opinionated default rule set, name it in the config: { "presets": "recommended" }.`;
 
 function collectScriptFiles(target: string): string[] {
   let stats;
@@ -64,6 +67,14 @@ function main(): void {
     process.exit(values.help ? 0 : 2);
   }
 
+  // The CLI assumes nothing implicitly: a config must be supplied and is used
+  // verbatim. To get the opinionated defaults, the config names them via
+  // `"presets": "recommended"`.
+  if (!values.config) {
+    console.error('No config file provided. Pass one with --config <path>, e.g. { "presets": "recommended" }.');
+    process.exit(2);
+  }
+
   const files = positionals.flatMap(collectScriptFiles);
 
   if (files.length === 0) {
@@ -71,18 +82,14 @@ function main(): void {
     process.exit(2);
   }
 
-  let userConfig: LintConfig;
+  let config: LintConfig;
 
   try {
-    userConfig = values.config ? loadConfig(values.config) : {};
+    config = loadConfig(values.config);
   } catch (err) {
     console.error(err instanceof Error ? err.message : String(err));
     process.exit(2);
   }
-
-  // Default to the recommended preset; a user config overrides it — including its
-  // own `presets` (e.g. `[]` to opt out of every base and run only its `rules`).
-  const config: LintConfig = { presets: 'recommended', ...userConfig };
 
   let errors = 0;
   let warnings = 0;
