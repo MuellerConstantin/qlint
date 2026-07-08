@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
-import { lint, format, recommended, type Diagnostic, type LintConfig } from '@qlint/core';
+import { lint, format, type Diagnostic, type LintConfig } from '@qlint/core';
 import { loadConfig } from './config.js';
 
 const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
@@ -80,8 +80,9 @@ function main(): void {
     process.exit(2);
   }
 
-  // Start from the recommended preset; the user config overrides it per rule.
-  const config: LintConfig = { rules: { ...recommended.rules, ...userConfig.rules } };
+  // Default to the recommended preset; a user config overrides it — including its
+  // own `presets` (e.g. `[]` to opt out of every base and run only its `rules`).
+  const config: LintConfig = { presets: 'recommended', ...userConfig };
 
   let errors = 0;
   let warnings = 0;

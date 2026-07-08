@@ -70,7 +70,7 @@ npm install @qlint/core
 
 ### Linting
 
-`lint(source, rules, config?)` returns an array of diagnostics, sorted by position:
+`lint(source, config)` returns an array of diagnostics, sorted by position:
 
 ```ts
 import { lint, recommended } from '@qlint/core';
@@ -92,7 +92,7 @@ range) when the rule can auto-correct the violation.
 
 ### Formatting
 
-`format(source, rules, config?)` runs `lint` in a fixpoint loop — applying every
+`format(source, config)` runs `lint` in a fixpoint loop — applying every
 available autofix, re-linting, and repeating until no further fixes are produced (or a
 safety cap of 10 passes is hit):
 
@@ -111,45 +111,52 @@ auto-correct (rules without a fix, or fixes that conflict).
 
 ### Configuring rules
 
-The optional third argument lets callers override severity and per-rule options without
-forking the rule code. Each entry under `rules` is either a severity string or a
-`[severity, options]` tuple:
+Pass a `LintConfig` as the second argument to select a preset base and override
+severity and per-rule options without forking the rule code. `presets` names the
+built-in preset(s) to start from (currently only `'recommended'`), and each entry
+under `rules` — a severity string or a `[severity, options]` tuple — overrides
+them per rule:
 
 ```ts
-import { lint, recommended } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-const diagnostics = lint(source, recommended, {
+const diagnostics = lint(source, {
+  presets: 'recommended',
   rules: {
-    'variable-case': ['warning', { style: 'camelCase' }],
-    'max-line-length': ['error', { limit: 120 }],
+    'variable-case': ['warning', { style: 'camel' }],
+    'max-line-length': ['error', { max: 120 }],
     'no-multiple-empty-lines': 'off',
   },
 });
 ```
 
-Use `'off'` to disable a rule entirely. Omitted rules keep their built-in severity and
+Use `'off'` to disable a rule entirely. There is no implicit base: without
+`presets`, only the rules you list run, and `presets: []` explicitly opts out of
+every preset. Omitted rules that a preset enables keep their built-in severity and
 default options.
 
 ### Picking your own rule set
 
-`recommended` is just a re-exported array of rules. If you only want a subset (or want to
-add your own), pass any array of `Rule` objects:
+There is no implicit base, so running a subset is just a matter of skipping the
+preset and listing the rules you want. Set `presets: []` (or omit `presets`
+entirely) and name only those rules; per-rule options go inline in the
+`[severity, options]` tuple:
 
 ```ts
-import { lint, builtinKeywordCase, trailingWhitespace, configure, variableCase } from '@qlint/core';
+import { lint } from '@qlint/core';
 
-const myRules = [
-  builtinKeywordCase,
-  trailingWhitespace,
-  configure(variableCase, { style: 'PascalCase' }),
-] as const;
-
-const diagnostics = lint(source, myRules);
+const diagnostics = lint(source, {
+  presets: [],
+  rules: {
+    'builtin-keyword-case': 'warning',
+    'trailing-whitespace': 'warning',
+    'variable-case': ['warning', { style: 'pascal' }],
+  },
+});
 ```
 
-`configure(rule, options)` returns a new rule with the given options merged into its
-defaults — useful when you want a tweaked rule baked into the rule set itself rather
-than passed in via `LintConfig` every time.
+Use the `allRules` export to enumerate every available rule id — handy when
+building a configuration UI.
 
 ### Disable directives
 

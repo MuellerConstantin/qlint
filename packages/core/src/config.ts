@@ -1,7 +1,9 @@
-import { registry } from './rules/index.js';
+import { registry, presetNames } from './rules/index.js';
 import type { LintConfig } from './rules/index.js';
 
 const VALID_SEVERITIES = new Set(['error', 'warning', 'info', 'off']);
+const VALID_PRESETS = new Set<string>(presetNames);
+const ALLOWED_KEYS = new Set(['presets', 'rules']);
 
 /**
  * Validates an untrusted, JSON-parsed value against the {@link LintConfig} shape
@@ -27,13 +29,17 @@ export function validateConfig(value: unknown, sourceLabel?: string): LintConfig
   }
 
   for (const key of Object.keys(value)) {
-    if (key !== 'rules') {
-      throw new Error(`Config${where} has unknown key "${key}". Only "rules" is supported.`);
+    if (!ALLOWED_KEYS.has(key)) {
+      throw new Error(`Config${where} has unknown key "${key}". Only "presets" and "rules" are supported.`);
     }
   }
 
+  if (value.presets !== undefined) {
+    validatePresets(value.presets, where);
+  }
+
   if (value.rules === undefined) {
-    return {};
+    return value as LintConfig;
   }
 
   if (!isPlainObject(value.rules)) {
@@ -48,6 +54,20 @@ export function validateConfig(value: unknown, sourceLabel?: string): LintConfig
   }
 
   return value as LintConfig;
+}
+
+function validatePresets(value: unknown, where: string): void {
+  const names = Array.isArray(value) ? value : [value];
+
+  for (const name of names) {
+    if (typeof name !== 'string') {
+      throw new Error(`Config field "presets"${where} must be a preset name or an array of preset names.`);
+    }
+
+    if (!VALID_PRESETS.has(name)) {
+      throw new Error(`Config${where} references unknown preset "${name}". Known presets: ${presetNames.join(', ')}.`);
+    }
+  }
 }
 
 function validateRuleEntry(ruleId: string, entry: unknown, where: string): void {

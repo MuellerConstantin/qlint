@@ -13,8 +13,8 @@ describe('validateConfig', () => {
   });
 
   it('parses a [severity, options] rule entry', () => {
-    expect(validateConfig({ rules: { 'max-line-length': ['warning', { limit: 120 }] } })).toEqual({
-      rules: { 'max-line-length': ['warning', { limit: 120 }] },
+    expect(validateConfig({ rules: { 'max-line-length': ['warning', { max: 120 }] } })).toEqual({
+      rules: { 'max-line-length': ['warning', { max: 120 }] },
     });
   });
 
@@ -28,8 +28,31 @@ describe('validateConfig', () => {
 
   it('throws on unknown top-level keys instead of silently dropping them', () => {
     expect(() => validateConfig({ 'trailing-whitespace': 'off' })).toThrow(
-      /unknown key "trailing-whitespace".*Only "rules" is supported/,
+      /unknown key "trailing-whitespace".*Only "presets" and "rules" are supported/,
     );
+  });
+
+  it('accepts a single preset name', () => {
+    expect(validateConfig({ presets: 'recommended' })).toEqual({ presets: 'recommended' });
+  });
+
+  it('accepts an array of preset names', () => {
+    expect(validateConfig({ presets: ['recommended'] })).toEqual({ presets: ['recommended'] });
+  });
+
+  it('accepts an empty preset list (explicit opt-out of every base)', () => {
+    expect(validateConfig({ presets: [], rules: { 'trailing-whitespace': 'off' } })).toEqual({
+      presets: [],
+      rules: { 'trailing-whitespace': 'off' },
+    });
+  });
+
+  it('throws on an unknown preset name', () => {
+    expect(() => validateConfig({ presets: 'strict' })).toThrow(/unknown preset "strict"/);
+  });
+
+  it('throws when a preset entry is not a string', () => {
+    expect(() => validateConfig({ presets: [42] })).toThrow(/"presets".*must be a preset name or an array/);
   });
 
   it('throws on an unknown rule id', () => {

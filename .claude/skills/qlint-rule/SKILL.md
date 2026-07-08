@@ -39,9 +39,10 @@ A new or modified rule must **never** edit these files:
 - `packages/core/src/disableDirectives.ts` — disable wiring is automatic; rules need no participation.
 
 `packages/core/src/rules/index.ts` holds the rule **registry**, the `LintConfig` /
-`RulesConfig` / `RuleId` types, and the derived `recommended` config. You edit this file
-to register a rule (see below), but touch only the import, `allRules`, options re-export,
-and named-export lines — never the registry or config machinery.
+`RulesConfig` / `RuleId` types, and the preset machinery (`recommended`, `PresetName`,
+`resolveConfig`). You edit this file to register a rule (see below), but touch only the
+import, `allRules`, options re-export, and named-export lines — never the registry,
+presets, or config machinery.
 
 If a rule appears to need a change in one of these files, **stop and confirm with
 the user first**. State which downstream consumer (CLI, Chrome extension) is

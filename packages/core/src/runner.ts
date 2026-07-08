@@ -1,7 +1,7 @@
 import type { IToken } from 'chevrotain';
 import { collectDisabledLines, isDisabled } from './disableDirectives.js';
 import { COMMENT_GROUP, lexer } from './lexer.js';
-import { registry } from './rules/index.js';
+import { registry, resolveConfig } from './rules/index.js';
 import type { LintConfig } from './rules/index.js';
 import type { Rule, Fix, Diagnostic, RuleContext, RuleConfigEntry, SeverityOrOff, FormatResult } from './types.js';
 
@@ -74,7 +74,8 @@ export function lint(source: string, config: LintConfig): Diagnostic[] {
 
   const disabled = collectDisabledLines(source);
   const out: Diagnostic[] = [];
-  const rulesConfig = config.rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
+  const { rules } = resolveConfig(config);
+  const rulesConfig = rules as Record<string, RuleConfigEntry<unknown> | undefined> | undefined;
 
   if (!rulesConfig) {
     return out;

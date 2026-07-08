@@ -1,6 +1,6 @@
 import { debounce } from './util/debounce';
 import { getEditor } from './util/editor';
-import { format, lint, recommended } from '@qlint/core';
+import { format, lint } from '@qlint/core';
 import { createHighlighter, injectStyles } from './util/highlight';
 import type { BridgeMessage, DiagnosticCounts, DiagnosticsBridgeMessage, GetConfigBridgeMessage } from './types.js';
 import type { Diagnostic, LintConfig } from '@qlint/core';
@@ -12,9 +12,10 @@ let currentConfig: LintConfig = {};
 let triggerLint: (() => void) | undefined;
 let editorRef: Editor | undefined;
 
-// Start from the recommended preset; the loaded user config overrides it per rule.
+// Default to the recommended preset; the loaded user config overrides it —
+// including its own `presets` (an empty list opts out of every base).
 function effectiveConfig(): LintConfig {
-  return { rules: { ...recommended.rules, ...currentConfig.rules } };
+  return { presets: 'recommended', ...currentConfig };
 }
 
 function countBySeverity(diagnostics: Diagnostic[]): DiagnosticCounts {

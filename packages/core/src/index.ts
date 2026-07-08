@@ -1,5 +1,6 @@
 export { lint, format } from './runner.js';
 export { validateConfig } from './config.js';
+export { resolveConfig } from './rules/index.js';
 export type {
   Diagnostic,
   Rule,
@@ -10,7 +11,7 @@ export type {
   SeverityOrOff,
   FormatResult,
 } from './types.js';
-export type { LintConfig, RulesConfig, RuleId } from './rules/index.js';
+export type { LintConfig, RulesConfig, RuleId, PresetName } from './rules/index.js';
 export {
   allRules,
   recommended,

@@ -58,6 +58,15 @@ describe('format', () => {
       expect(second.output).toBe(first.output);
       expect(second.fixed).toBe(0);
     });
+
+    it('formats identically whether the preset is named or passed as the object', () => {
+      const violation = readFixture('table-label-brackets', 'violation');
+
+      const byName = format(violation, { presets: 'recommended' });
+      const byObject = format(violation, recommended);
+
+      expect(byName.output).toBe(byObject.output);
+    });
   });
 
   describe('overlapping fixes', () => {

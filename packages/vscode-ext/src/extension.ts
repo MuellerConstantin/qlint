@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lint, recommended, type Diagnostic, type Fix, type Severity } from '@qlint/core';
+import { lint, type Diagnostic, type Fix, type LintConfig, type Severity } from '@qlint/core';
 
 /**
  * Language identifier contributed for Qlik load scripts. Kept in sync with the
@@ -9,6 +9,12 @@ const QLIK_LANGUAGE_ID = 'qlik';
 
 /** Identifies qlint diagnostics in the editor UI and the Problems panel. */
 const DIAGNOSTIC_SOURCE = 'qlint';
+
+/**
+ * The lint configuration. The extension has no user-config surface yet, so it
+ * explicitly runs the built-in `recommended` preset.
+ */
+const CONFIG: LintConfig = { presets: 'recommended' };
 
 const SEVERITY_MAP: Record<Severity, vscode.DiagnosticSeverity> = {
   error: vscode.DiagnosticSeverity.Error,
@@ -55,7 +61,7 @@ function refreshDiagnostics(document: vscode.TextDocument, collection: vscode.Di
     return;
   }
 
-  const diagnostics = lint(document.getText(), recommended).map(toVscodeDiagnostic);
+  const diagnostics = lint(document.getText(), CONFIG).map(toVscodeDiagnostic);
   collection.set(document.uri, diagnostics);
 }
 
@@ -94,7 +100,7 @@ const fixProvider: vscode.CodeActionProvider = {
       return [];
     }
 
-    const coreDiagnostics = lint(document.getText(), recommended);
+    const coreDiagnostics = lint(document.getText(), CONFIG);
     const actions: vscode.CodeAction[] = [];
 
     for (const diagnostic of qlintDiagnostics) {

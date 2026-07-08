@@ -83,22 +83,30 @@ rules off, change their severity, or pass options, point the CLI at a JSON file
 via `--config <path>`. There is no auto-discovery — the path must be supplied
 explicitly.
 
-The file has the same shape as Core's `LintConfig`: a top-level `rules` object
-keyed by rule ID. Each entry is either a severity string (`"error"`,
-`"warning"`, `"info"`, `"off"`) or a `[severity, options]` tuple:
+The file has the same shape as Core's `LintConfig`: an optional `presets` field
+and a `rules` object keyed by rule ID. Each `rules` entry is either a severity
+string (`"error"`, `"warning"`, `"info"`, `"off"`) or a `[severity, options]`
+tuple:
 
 ```json
 {
+  "presets": "recommended",
   "rules": {
     "trailing-whitespace": "off",
-    "max-line-length": ["warning", { "limit": 120 }]
+    "max-line-length": ["warning", { "max": 120 }]
   }
 }
 ```
 
-Unknown rule IDs are silently ignored — only the rules from Core's recommended
-set are evaluated. Invalid JSON, unknown severities, or malformed rule entries
-fail with a clear error and exit code `2` before any linting starts.
+`presets` names the built-in preset(s) to start from — currently only
+`"recommended"` — and `rules` overrides them per rule. The CLI already applies
+`"recommended"` as the default base, so you only need `presets` to change it:
+set `"presets": []` to opt out of every preset and evaluate **only** your own
+`rules`.
+
+Unknown rule IDs, unknown preset names, invalid JSON, unknown severities, and
+malformed rule entries all fail with a clear error and exit code `2` before any
+linting starts.
 
 ### Examples
 

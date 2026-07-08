@@ -26,6 +26,16 @@ describe('loadConfig', () => {
     expect(loadConfig(path)).toEqual({ rules: { 'trailing-whitespace': 'off' } });
   });
 
+  it('accepts a config that opts out of every preset and keeps only its rules', () => {
+    const path = write('qlint.json', JSON.stringify({ presets: [], rules: { 'trailing-whitespace': 'off' } }));
+    expect(loadConfig(path)).toEqual({ presets: [], rules: { 'trailing-whitespace': 'off' } });
+  });
+
+  it('throws when the config names an unknown preset', () => {
+    const path = write('qlint.json', JSON.stringify({ presets: 'strict' }));
+    expect(() => loadConfig(path)).toThrow(/unknown preset "strict"/);
+  });
+
   it('throws a clear error when the file does not exist', () => {
     expect(() => loadConfig(join(dir, 'missing.json'))).toThrow(/Config file not found/);
   });

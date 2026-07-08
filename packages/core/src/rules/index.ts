@@ -78,10 +78,14 @@ export type RuleId = (typeof allRules)[number]['id'];
 export type RulesConfig = RulesConfigOf<typeof allRules>;
 
 /**
- * A lint/format configuration. `rules` both selects which rules run (a rule not
- * listed is not checked) and configures their severity and options.
+ * A lint/format configuration. `presets` names one or more built-in presets to
+ * use as a base (see {@link PresetName}); `rules` both selects which additional
+ * rules run (a rule not listed is not checked) and overrides the severity and
+ * options of any rule — including those pulled in by a preset. A config with no
+ * `presets` gets no preset base: the runner applies nothing implicitly.
  */
 export interface LintConfig {
+  presets?: PresetName | PresetName[];
   rules?: RulesConfig;
 }
 
@@ -92,6 +96,46 @@ export interface LintConfig {
 export const recommended: LintConfig = {
   rules: Object.fromEntries(allRules.map((rule) => [rule.id, rule.defaultSeverity])) as RulesConfig,
 };
+
+/** The built-in named presets, keyed by the name {@link LintConfig.presets} references. */
+const presetRegistry = { recommended } as const;
+
+/** Names of the built-in presets that {@link LintConfig.presets} may reference. */
+export type PresetName = keyof typeof presetRegistry;
+
+/** Every built-in preset name, for validation and enumeration. */
+export const presetNames = Object.keys(presetRegistry) as PresetName[];
+
+/**
+ * Expands a config's {@link LintConfig.presets} into a flat `{ rules }` object.
+ *
+ * The named presets are merged left-to-right (a later preset's rule wins over an
+ * earlier one's), then the config's own `rules` overlay them per rule id. There
+ * is no implicit default: a config without `presets` resolves to just its own
+ * `rules`. `lint` calls this internally, so `presets` works transparently for
+ * both `lint` and `format`.
+ *
+ * @throws If `presets` names a preset that is not built in.
+ */
+export function resolveConfig(config: LintConfig): LintConfig {
+  const names =
+    config.presets === undefined ? [] : Array.isArray(config.presets) ? config.presets : [config.presets];
+  const rules: Record<string, unknown> = {};
+
+  for (const name of names) {
+    const preset = presetRegistry[name];
+
+    if (!preset) {
+      throw new Error(`Unknown preset "${name}".`);
+    }
+
+    Object.assign(rules, preset.rules);
+  }
+
+  Object.assign(rules, config.rules);
+
+  return { rules: rules as RulesConfig };
+}
 
 export {
   blockCommentStars,

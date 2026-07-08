@@ -25,15 +25,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   entries. The optional `sourceLabel` is interpolated into error messages so host
   integrations (CLI, browser, IDE) can point users at the offending source.
 - Initial rule set covering layout (`block-indent`, `load-indent`,
-  `load-clause-newline`, `load-field-per-line`, `multiline-call`,
+  `indent-char`, `load-clause-newline`, `load-field-per-line`, `multiline-call`,
   `one-statement-per-line`, `max-line-length`, `no-multiple-empty-lines`,
-  `trailing-whitespace`), casing (`builtin-function-case`,
+  `trailing-whitespace`, `eol-last`), casing (`builtin-function-case`,
   `builtin-keyword-case`, `variable-case`), spacing (`comma-space`,
-  `comment-space`, `inline-comment-space`, `block-comment-stars`), and
-  correctness (`no-legacy-path-variables`, `table-label-brackets`,
-  `variable-charset`).
+  `comment-space`, `inline-comment-space`, `block-comment-stars`,
+  `operator-spacing`, `paren-spacing`), and correctness
+  (`no-legacy-path-variables`, `table-label-brackets`, `variable-charset`).
 - `recommended` preset, a ready-to-use `LintConfig` that enables every rule at
   its declared `defaultSeverity`. Pass it straight to `lint()` / `format()`.
+- Named presets via the `presets` field on `LintConfig`, which selects one or
+  more built-in presets (currently only `recommended`) as a base. The exported
+  `resolveConfig()` expands them — presets merge left-to-right, then `rules`
+  overlay them per rule id. There is no implicit base: a config without
+  `presets` runs only its listed `rules`, and `presets: []` explicitly opts out
+  of every preset.
 - `allRules` export listing every rule shipped with Core. Host integrations (CLI,
   browser, IDE) can enumerate the full rule catalog.
 - `Rule.defaultSeverity` field declaring each rule's out-of-the-box severity.
@@ -45,5 +51,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `// qlint-disable-line`) for opting individual lines or blocks out of
   linting.
 - Public TypeScript types: `Diagnostic`, `Rule`, `Severity`, `Fix`,
-  `LintConfig`, `RulesConfig`, `RuleId`, `RulesConfigOf`, `RuleConfigEntry`,
-  `SeverityOrOff`, `FormatResult`, and per-rule option types.
+  `LintConfig`, `RulesConfig`, `RuleId`, `PresetName`, `RulesConfigOf`,
+  `RuleConfigEntry`, `SeverityOrOff`, `FormatResult`, and per-rule option types.
