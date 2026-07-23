@@ -40,19 +40,51 @@
           "dark": "./images/file-icon.svg"
         }
       }
-    ]
+    ],
+    "commands": [
+      {
+        "command": "qlint.showConfig",
+        "title": "qlint: Show active configuration"
+      }
+    ],
+    "configuration": {
+      "title": "qlint",
+      "properties": {
+        "qlint.presets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "recommended"
+            ]
+          },
+          "uniqueItems": true,
+          "default": [],
+          "markdownDescription": "Preset(s) to use as a base when no `qlint.json` is found in the workspace. Empty means no rules run. A workspace `qlint.json` always takes precedence over this setting."
+        },
+        "qlint.rules": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Per-rule overrides (a severity string, or a `[severity, options]` pair) used when no `qlint.json` is found in the workspace. See the [rule reference](https://github.com/MuellerConstantin/qlint/blob/main/packages/core/docs/rules.md). A workspace `qlint.json` always takes precedence over this setting."
+        }
+      }
+    }
   },
   "scripts": {
     "build": "tsdown",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "package": "npm run build && vsce package --no-dependencies"
   },
   "dependencies": {
     "@qlint/core": "^0.1.0"
   },
   "devDependencies": {
+    "@types/node": "^25.9.1",
     "@types/vscode": "^1.90.0",
     "@vscode/vsce": "^3.2.0",
     "tsdown": "*",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
   }
 }
