@@ -1,4 +1,11 @@
-import { allRules, validateConfig, type LintConfig, type SeverityOrOff } from '@qlint/core';
+import {
+  allRules,
+  presetNames,
+  validateConfig,
+  type LintConfig,
+  type PresetName,
+  type SeverityOrOff,
+} from '@qlint/core';
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/addon/edit/matchbrackets.js';
@@ -15,6 +22,11 @@ const SYNC_DEBOUNCE_MS = 150;
 
 const title = document.getElementById('options-title') as HTMLHeadingElement;
 const subtitle = document.getElementById('options-subtitle') as HTMLParagraphElement;
+const presetsLabel = document.getElementById('options-presets-label') as HTMLSpanElement;
+const presetsHelp = document.getElementById('options-presets-help') as HTMLParagraphElement;
+const presetList = document.getElementById('options-preset-list') as HTMLUListElement;
+const presetSelect = document.getElementById('options-preset-select') as HTMLSelectElement;
+const presetAddButton = document.getElementById('options-preset-add') as HTMLButtonElement;
 const rulesLabel = document.getElementById('options-rules-label') as HTMLSpanElement;
 const rulesHelp = document.getElementById('options-rules-help') as HTMLParagraphElement;
 const ruleList = document.getElementById('options-rule-list') as HTMLUListElement;
@@ -34,6 +46,9 @@ document.documentElement.lang = chrome.i18n.getUILanguage();
 
 title.textContent = localizedTitle;
 subtitle.textContent = chrome.i18n.getMessage('optionsSubtitle');
+presetsLabel.textContent = chrome.i18n.getMessage('optionsPresetsLabel');
+presetsHelp.textContent = chrome.i18n.getMessage('optionsPresetsHelp');
+presetAddButton.textContent = chrome.i18n.getMessage('optionsPresetAddButton');
 rulesLabel.textContent = chrome.i18n.getMessage('optionsRulesLabel');
 rulesHelp.textContent = chrome.i18n.getMessage('optionsRulesHelp');
 configLabel.textContent = chrome.i18n.getMessage('optionsConfigLabel');
@@ -81,11 +96,43 @@ function withSeverity(ruleId: string, severity: SeverityChoice): LintConfig {
     }
   }
 
+  const next: LintConfig = { ...state };
+
   if (Object.keys(rules).length === 0) {
-    return {};
+    delete next.rules;
+  } else {
+    next.rules = rules as LintConfig['rules'];
   }
 
-  return { rules: rules as LintConfig['rules'] };
+  return next;
+}
+
+/** The currently selected presets, normalized to an array. */
+function presetsOf(config: LintConfig): PresetName[] {
+  const presets = config.presets;
+
+  if (presets === undefined) {
+    return [];
+  }
+
+  return Array.isArray(presets) ? [...presets] : [presets];
+}
+
+/**
+ * Returns `state` with its preset list replaced. An empty list drops the
+ * `presets` key entirely (nothing is applied implicitly); a single entry is
+ * stored as a plain string to keep the JSON idiomatic, more as an array.
+ */
+function withPresets(next: readonly PresetName[]): LintConfig {
+  const config: LintConfig = { ...state };
+
+  if (next.length === 0) {
+    delete config.presets;
+  } else {
+    config.presets = next.length === 1 ? next[0] : [...next];
+  }
+
+  return config;
 }
 
 function showFeedback(text: string, kind: 'error' | 'success'): void {
@@ -174,6 +221,79 @@ function writeStateToList(): void {
   }
 }
 
+/** Wires the "add preset" control once. Options are (re)populated on render. */
+function buildPresetControls(): void {
+  presetAddButton.addEventListener('click', () => {
+    const value = presetSelect.value as PresetName | '';
+
+    if (value === '') {
+      return;
+    }
+
+    const selected = presetsOf(state);
+
+    if (selected.includes(value)) {
+      return;
+    }
+
+    state = withPresets([...selected, value]);
+    writeStateToEditor();
+    writeStateToPresetList();
+    clearFeedback();
+  });
+}
+
+/**
+ * Renders the selected presets as a removable list and refills the add-dropdown
+ * with the presets that are not yet selected. Built as a list from the start so
+ * that supporting multiple presets is only a matter of `presetNames` growing.
+ */
+function writeStateToPresetList(): void {
+  const selected = presetsOf(state);
+
+  presetList.replaceChildren();
+
+  for (const preset of selected) {
+    const row = document.createElement('li');
+    row.className = 'preset-row';
+
+    const name = document.createElement('span');
+    name.className = 'preset-name';
+    name.textContent = preset;
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'preset-remove';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', chrome.i18n.getMessage('optionsPresetRemove', [preset]));
+    remove.addEventListener('click', () => {
+      state = withPresets(selected.filter((entry) => entry !== preset));
+      writeStateToEditor();
+      writeStateToPresetList();
+      clearFeedback();
+    });
+
+    row.append(name, remove);
+    presetList.appendChild(row);
+  }
+
+  presetList.hidden = selected.length === 0;
+
+  const available = presetNames.filter((preset) => !selected.includes(preset));
+
+  presetSelect.replaceChildren();
+
+  for (const preset of available) {
+    const option = document.createElement('option');
+    option.value = preset;
+    option.textContent = preset;
+    presetSelect.appendChild(option);
+  }
+
+  presetSelect.disabled = available.length === 0;
+  presetAddButton.disabled = available.length === 0;
+}
+
 let suppressEditorChange = false;
 
 function writeStateToEditor(): void {
@@ -206,6 +326,7 @@ editor.on('change', () => {
       const parsed = JSON.parse(editor.getValue()) as unknown;
       state = validateConfig(parsed);
       writeStateToList();
+      writeStateToPresetList();
     } catch {
       // Invalid JSON or schema: leave state and rule list on last good value.
     }
@@ -218,6 +339,7 @@ async function persist(next: LintConfig): Promise<void> {
     state = next;
     writeStateToEditor();
     writeStateToList();
+    writeStateToPresetList();
     showFeedback(chrome.i18n.getMessage('optionsConfigSaved'), 'success');
   } catch (err) {
     showFeedback(errorMessage(err), 'error');
@@ -260,9 +382,11 @@ resetButton.addEventListener('click', async () => {
 
 async function init(): Promise<void> {
   buildRuleList();
+  buildPresetControls();
   state = await loadConfig();
   writeStateToEditor();
   writeStateToList();
+  writeStateToPresetList();
 }
 
 void init();

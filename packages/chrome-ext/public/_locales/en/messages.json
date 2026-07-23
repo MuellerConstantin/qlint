@@ -51,12 +51,34 @@
     "message": "Configure how qlint lints and formats Qlik scripts in this browser.",
     "description": "Subtitle below the options page heading."
   },
+  "optionsPresetsLabel": {
+    "message": "Presets",
+    "description": "Label of the preset list section on the options page."
+  },
+  "optionsPresetsHelp": {
+    "message": "Add one or more presets as a base. The rules below override them. With no preset, only the rules you set run.",
+    "description": "Help text shown above the preset list on the options page."
+  },
+  "optionsPresetAddButton": {
+    "message": "Add",
+    "description": "Label of the button that adds the selected preset to the list."
+  },
+  "optionsPresetRemove": {
+    "message": "Remove preset $preset$",
+    "description": "Accessible label of the button that removes a preset from the list.",
+    "placeholders": {
+      "preset": {
+        "content": "$1",
+        "example": "recommended"
+      }
+    }
+  },
   "optionsRulesLabel": {
     "message": "Rules",
     "description": "Label of the per-rule severity section on the options page."
   },
   "optionsRulesHelp": {
-    "message": "Set the severity for each rule. \"default\" follows the recommended preset.",
+    "message": "Set the severity for each rule. \"default\" follows the selected presets, or turns the rule off when no preset is selected.",
     "description": "Help text shown above the per-rule severity list on the options page."
   },
   "optionsConfigLabel": {
@@ -72,15 +94,15 @@
     "description": "Label of the save button on the options page."
   },
   "optionsResetButton": {
-    "message": "Reset to defaults",
-    "description": "Label of the reset button on the options page that restores recommended defaults."
+    "message": "Reset",
+    "description": "Label of the reset button on the options page that clears all presets and rule overrides."
   },
   "optionsConfigSaved": {
     "message": "Settings saved.",
     "description": "Confirmation shown after a successful save on the options page."
   },
   "optionsResetConfirm": {
-    "message": "Reset all settings to the recommended defaults?",
+    "message": "Reset all settings? This removes every preset and rule override.",
     "description": "Confirmation prompt shown before resetting the configuration on the options page."
   }
 }

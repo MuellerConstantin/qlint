@@ -51,12 +51,34 @@
     "message": "Konfiguriere, wie qlint Qlik-Skripte in diesem Browser lintet und formatiert.",
     "description": "Subtitle below the options page heading."
   },
+  "optionsPresetsLabel": {
+    "message": "Presets",
+    "description": "Label of the preset list section on the options page."
+  },
+  "optionsPresetsHelp": {
+    "message": "Füge ein oder mehrere Presets als Basis hinzu. Die Regeln unten überschreiben sie. Ohne Preset laufen nur die Regeln, die du selbst setzt.",
+    "description": "Help text shown above the preset list on the options page."
+  },
+  "optionsPresetAddButton": {
+    "message": "Hinzufügen",
+    "description": "Label of the button that adds the selected preset to the list."
+  },
+  "optionsPresetRemove": {
+    "message": "Preset $preset$ entfernen",
+    "description": "Accessible label of the button that removes a preset from the list.",
+    "placeholders": {
+      "preset": {
+        "content": "$1",
+        "example": "recommended"
+      }
+    }
+  },
   "optionsRulesLabel": {
     "message": "Regeln",
     "description": "Label of the per-rule severity section on the options page."
   },
   "optionsRulesHelp": {
-    "message": "Lege pro Regel den Schweregrad fest. „default“ folgt dem empfohlenen Preset.",
+    "message": "Lege pro Regel den Schweregrad fest. „default“ folgt den gewählten Presets – ohne Preset ist die Regel aus.",
     "description": "Help text shown above the per-rule severity list on the options page."
   },
   "optionsConfigLabel": {
@@ -73,14 +95,14 @@
   },
   "optionsResetButton": {
     "message": "Zurücksetzen",
-    "description": "Label of the reset button on the options page that restores recommended defaults."
+    "description": "Label of the reset button on the options page that clears all presets and rule overrides."
   },
   "optionsConfigSaved": {
     "message": "Einstellungen gespeichert.",
     "description": "Confirmation shown after a successful save on the options page."
   },
   "optionsResetConfirm": {
-    "message": "Alle Einstellungen auf die empfohlenen Vorgaben zurücksetzen?",
+    "message": "Alle Einstellungen zurücksetzen? Das entfernt alle Presets und Regel-Overrides.",
     "description": "Confirmation prompt shown before resetting the configuration on the options page."
   }
 }

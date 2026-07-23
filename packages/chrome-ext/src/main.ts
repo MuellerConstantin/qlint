@@ -8,15 +8,12 @@ import type { Editor } from 'codemirror';
 
 const MOUNT_TIMEOUT_MS = 10_000;
 
+// The loaded user config is used verbatim — nothing runs until it names a
+// preset or rules. This matches the CLI and the VS Code extension: no preset is
+// applied implicitly. Users opt into the opinionated set on the options page.
 let currentConfig: LintConfig = {};
 let triggerLint: (() => void) | undefined;
 let editorRef: Editor | undefined;
-
-// Default to the recommended preset; the loaded user config overrides it —
-// including its own `presets` (an empty list opts out of every base).
-function effectiveConfig(): LintConfig {
-  return { presets: 'recommended', ...currentConfig };
-}
 
 function countBySeverity(diagnostics: Diagnostic[]): DiagnosticCounts {
   const counts: DiagnosticCounts = { error: 0, warning: 0, info: 0 };
@@ -32,7 +29,7 @@ function fixAll(editor: Editor): void {
   const source = editor.getValue();
 
   try {
-    const { output, fixed } = format(source, effectiveConfig());
+    const { output, fixed } = format(source, currentConfig);
 
     if (fixed === 0 || output === source) {
       return;
@@ -54,7 +51,7 @@ function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
   const highlighter = createHighlighter(editor);
 
   const onScriptChange = debounce((): void => {
-    const diagnostics = lint(editor.getValue(), effectiveConfig());
+    const diagnostics = lint(editor.getValue(), currentConfig);
     highlighter.apply(diagnostics);
 
     const fixable = diagnostics.reduce((count, diagnostic) => (diagnostic.fix ? count + 1 : count), 0);

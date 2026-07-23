@@ -26,8 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   browser; scripts never leave the page.
 - Settings page that persists a JSON lint configuration in
   `chrome.storage.sync` and applies it live to the editor lint pipeline
-  without a tab reload. The configuration is edited inline via an embedded
-  CodeMirror editor with JSON syntax highlighting, bracket matching, and
-  auto-indent. A "Reset to defaults" button restores the recommended ruleset.
-  The same JSON shape is accepted by the CLI's `--config` flag, so configs
-  carry over between the two.
+  without a tab reload. Presets are chosen explicitly from an add/remove list —
+  nothing is applied implicitly, matching the CLI and VS Code extension — while
+  individual rule severities are set via a per-rule list, and the raw
+  configuration is editable inline via an embedded CodeMirror editor with JSON
+  syntax highlighting, bracket matching, and auto-indent. A "Reset" button
+  clears all presets and rule overrides. The same JSON shape is accepted by the
+  CLI's `--config` flag, so configs carry over between the two.

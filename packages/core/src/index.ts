@@ -15,6 +15,7 @@ export type { LintConfig, RulesConfig, RuleId, PresetName } from './rules/index.
 export {
   allRules,
   recommended,
+  presetNames,
   tableLabelBrackets,
   blockIndent,
   builtinFunctionCase,
