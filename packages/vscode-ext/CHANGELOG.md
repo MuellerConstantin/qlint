@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   offending ranges, refreshed live as the document changes and cleared when it
   closes.
 - Core autofixes surfaced as Quick Fix code actions on each fixable diagnostic.
+- Whole-document formatting via a document formatting provider, so "Format
+  Document" and `editor.formatOnSave` reformat Qlik scripts through Core's
+  `format()`.
+- A `source.fixAll` code action that applies every autofix in one pass, wired for
+  the "Fix All" command and `editor.codeActionsOnSave`.
 - Per-document configuration resolution with strict precedence: a `qlint.json`
   at the workspace folder root wins, otherwise the `qlint.presets` and
   `qlint.rules` settings apply. Loose `.qvs` files with no workspace folder fall

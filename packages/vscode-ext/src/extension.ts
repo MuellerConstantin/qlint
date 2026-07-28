@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { lint, type Diagnostic, type Fix, type LintConfig, type Severity } from '@qlint/core';
+import { format, lint, type Diagnostic, type Fix, type LintConfig, type Severity } from '@qlint/core';
 import { resolveConfig, type ResolvedConfig, type SettingsInput } from './config.js';
 
 /**
@@ -13,6 +13,14 @@ const DIAGNOSTIC_SOURCE = 'qlint';
 
 /** Command wired to the status bar item; reveals the active config source. */
 const SHOW_CONFIG_COMMAND = 'qlint.showConfig';
+
+/**
+ * Kind for the whole-document autofix action. Nested under `source.fixAll` so it
+ * runs when the editor requests `source.fixAll` on save (via
+ * `editor.codeActionsOnSave`) or from the "Fix All" command, while staying out of
+ * the ordinary quick-fix lightbulb.
+ */
+const FIX_ALL_KIND = vscode.CodeActionKind.SourceFixAll.append('qlint');
 
 /** Cache key standing in for documents that belong to no workspace folder. */
 const LOOSE_FILE_KEY = '\0loose';
@@ -75,6 +83,11 @@ function createFixAction(document: vscode.TextDocument, diagnostic: vscode.Diagn
   );
 
   return action;
+}
+
+/** A range spanning the entire document, used to replace it wholesale. */
+function fullRange(document: vscode.TextDocument): vscode.Range {
+  return new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length));
 }
 
 /** Whether a resolved config would run no rules at all. */
@@ -190,13 +203,95 @@ export function activate(context: vscode.ExtensionContext): void {
     updateStatusBar(vscode.window.activeTextEditor);
   }
 
-  const fixProvider: vscode.CodeActionProvider = {
-    provideCodeActions(document, _range, actionContext): vscode.CodeAction[] {
-      const qlintDiagnostics = actionContext.diagnostics.filter(
-        (diagnostic) => diagnostic.source === DIAGNOSTIC_SOURCE,
+  /**
+   * Runs Core's whole-document formatter and returns the formatted text, or
+   * `undefined` when the document is already formatted or formatting fails. A
+   * failure (e.g. autofixes that do not converge) is surfaced rather than
+   * swallowed, but never throws out of a provider — that would leave "Format
+   * Document" or a save silently broken.
+   */
+  function formatDocument(document: vscode.TextDocument): string | undefined {
+    const result = getConfig(document);
+
+    if (!result.ok) {
+      return undefined;
+    }
+
+    const source = document.getText();
+
+    try {
+      const { output: formatted } = format(source, result.resolved.config);
+      return formatted === source ? undefined : formatted;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      output.appendLine(message);
+      void vscode.window.showErrorMessage(`qlint: ${message}`);
+      return undefined;
+    }
+  }
+
+  const formattingProvider: vscode.DocumentFormattingEditProvider = {
+    provideDocumentFormattingEdits(document): vscode.TextEdit[] {
+      const formatted = formatDocument(document);
+      return formatted === undefined ? [] : [vscode.TextEdit.replace(fullRange(document), formatted)];
+    },
+  };
+
+  /** Builds per-diagnostic quick fixes for the qlint diagnostics in `context`. */
+  function quickFixes(
+    document: vscode.TextDocument,
+    config: LintConfig,
+    context: vscode.CodeActionContext,
+  ): vscode.CodeAction[] {
+    const qlintDiagnostics = context.diagnostics.filter((diagnostic) => diagnostic.source === DIAGNOSTIC_SOURCE);
+
+    if (qlintDiagnostics.length === 0) {
+      return [];
+    }
+
+    const coreDiagnostics = lint(document.getText(), config);
+    const actions: vscode.CodeAction[] = [];
+
+    for (const diagnostic of qlintDiagnostics) {
+      const match = coreDiagnostics.find(
+        (core) =>
+          core.fix !== undefined &&
+          core.ruleId === diagnostic.code &&
+          toVscodeRange(core.range).isEqual(diagnostic.range),
       );
 
-      if (qlintDiagnostics.length === 0) {
+      if (match?.fix) {
+        actions.push(createFixAction(document, diagnostic, match.fix));
+      }
+    }
+
+    return actions;
+  }
+
+  /** Builds the whole-document "fix all" action, or `undefined` if nothing changes. */
+  function fixAllAction(document: vscode.TextDocument): vscode.CodeAction | undefined {
+    const formatted = formatDocument(document);
+
+    if (formatted === undefined) {
+      return undefined;
+    }
+
+    const action = new vscode.CodeAction('qlint: Fix all auto-fixable problems', FIX_ALL_KIND);
+    action.edit = new vscode.WorkspaceEdit();
+    action.edit.replace(document.uri, fullRange(document), formatted);
+
+    return action;
+  }
+
+  const fixProvider: vscode.CodeActionProvider = {
+    provideCodeActions(document, _range, actionContext): vscode.CodeAction[] {
+      const only = actionContext.only;
+      const wantsQuickFix = only === undefined || vscode.CodeActionKind.QuickFix.intersects(only);
+      // `source.fixAll` is a source action: offer it only when explicitly
+      // requested (on save or "Fix All"), never in the ordinary lightbulb.
+      const wantsFixAll = only !== undefined && FIX_ALL_KIND.intersects(only);
+
+      if (!wantsQuickFix && !wantsFixAll) {
         return [];
       }
 
@@ -206,19 +301,17 @@ export function activate(context: vscode.ExtensionContext): void {
         return [];
       }
 
-      const coreDiagnostics = lint(document.getText(), result.resolved.config);
       const actions: vscode.CodeAction[] = [];
 
-      for (const diagnostic of qlintDiagnostics) {
-        const match = coreDiagnostics.find(
-          (core) =>
-            core.fix !== undefined &&
-            core.ruleId === diagnostic.code &&
-            toVscodeRange(core.range).isEqual(diagnostic.range),
-        );
+      if (wantsQuickFix) {
+        actions.push(...quickFixes(document, result.resolved.config, actionContext));
+      }
 
-        if (match?.fix) {
-          actions.push(createFixAction(document, diagnostic, match.fix));
+      if (wantsFixAll) {
+        const fixAll = fixAllAction(document);
+
+        if (fixAll) {
+          actions.push(fixAll);
         }
       }
 
@@ -264,8 +357,9 @@ export function activate(context: vscode.ExtensionContext): void {
     configWatcher.onDidChange(() => refreshAll()),
     configWatcher.onDidDelete(() => refreshAll()),
     vscode.languages.registerCodeActionsProvider(QLIK_LANGUAGE_ID, fixProvider, {
-      providedCodeActionKinds: [vscode.CodeActionKind.QuickFix],
+      providedCodeActionKinds: [vscode.CodeActionKind.QuickFix, FIX_ALL_KIND],
     }),
+    vscode.languages.registerDocumentFormattingEditProvider(QLIK_LANGUAGE_ID, formattingProvider),
   );
 }
 

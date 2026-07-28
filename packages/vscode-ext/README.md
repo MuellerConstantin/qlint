@@ -16,6 +16,7 @@
 ## Table of contents
 
 - [Introduction](#introduction)
+- [Formatting](#formatting)
 - [Configuration](#configuration)
 
 ## Introduction
@@ -29,6 +30,25 @@ A editor binding around [`@qlint/core`](https://github.com/MuellerConstantin/qli
 the extension owns the platform concerns — activating in the editor, surfacing diagnostics, and
 wiring up editor commands — and delegates every linting and formatting decision to Core. No style
 logic lives here; the binding only translates between VS Code and Core's string-in, diagnostics-out API.
+
+## Formatting
+
+Diagnostics come with fixes at three levels:
+
+- **Quick Fix** — the lightbulb on a single fixable problem applies just that fix.
+- **Format Document** (`Shift+Alt+F`) — reformats the whole script through Core's formatter.
+  Enable `"editor.formatOnSave": true` (optionally scoped to the `qlik` language) to run it on
+  every save.
+- **Fix All** — applies every autofix in one pass. Wire it into save with:
+
+  ```jsonc
+  "[qlik]": {
+    "editor.codeActionsOnSave": { "source.fixAll": "explicit" }
+  }
+  ```
+
+All three run entirely locally through the bundled Core engine, using the same resolved config
+as the diagnostics.
 
 ## Configuration
 
