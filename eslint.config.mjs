@@ -11,5 +11,12 @@ export default defineConfig(
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     extends: [js.configs.recommended, tseslint.configs.recommended],
   },
+  {
+    // Build scripts run in Node, outside any package's TypeScript setup.
+    files: ['**/scripts/**/*.mjs'],
+    languageOptions: {
+      globals: { console: 'readonly', process: 'readonly' },
+    },
+  },
   prettier,
 );

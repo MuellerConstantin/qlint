@@ -5,7 +5,7 @@ import { recommended, resolveConfig } from '../src/rules/index.js';
 const SOURCE = 'SET vX=1;\n';
 
 describe('resolveConfig', () => {
-  it('expands a preset name to that preset\'s rules', () => {
+  it("expands a preset name to that preset's rules", () => {
     expect(resolveConfig({ presets: 'recommended' })).toEqual({ rules: recommended.rules });
   });
 

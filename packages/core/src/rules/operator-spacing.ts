@@ -131,8 +131,7 @@ function checkBefore(source: string, opStart: number, label: string): Side | und
   }
 
   return {
-    message:
-      gap.length === 0 ? `Expected a space before '${label}'.` : `Expected exactly one space before '${label}'.`,
+    message: gap.length === 0 ? `Expected a space before '${label}'.` : `Expected exactly one space before '${label}'.`,
     fix: { range: { start: cursor, end: opStart }, replacement: ' ' },
   };
 }

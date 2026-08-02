@@ -320,3 +320,6 @@ dist
 # Copied from the repository root by the vscode-ext `package` script so the
 # VSIX carries a license; the root LICENSE.md stays the single source.
 packages/vscode-ext/LICENSE.md
+
+# Upload artifact built by the chrome-ext `package` script.
+packages/chrome-ext/*.zip

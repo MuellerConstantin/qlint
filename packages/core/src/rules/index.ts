@@ -118,8 +118,7 @@ export const presetNames = Object.keys(presetRegistry) as PresetName[];
  * @throws If `presets` names a preset that is not built in.
  */
 export function resolveConfig(config: LintConfig): LintConfig {
-  const names =
-    config.presets === undefined ? [] : Array.isArray(config.presets) ? config.presets : [config.presets];
+  const names = config.presets === undefined ? [] : Array.isArray(config.presets) ? config.presets : [config.presets];
   const rules: Record<string, unknown> = {};
 
   for (const name of names) {

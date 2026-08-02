@@ -136,7 +136,7 @@ Indentation rules for the supported constructs:
 - `Case` / `Default` are indented one level **inside** the surrounding `Switch`;
   their bodies are indented one level deeper again.
 
-A line is checked against the *exact* expected indent string, not just its
+A line is checked against the _exact_ expected indent string, not just its
 width: a line indented with four tabs where four spaces are expected (or a
 tab/space mix that happens to add up to the right column) is flagged, so the
 configured `style` is enforced on its own — the rule does not rely on any
@@ -605,8 +605,8 @@ indent character.
 
 ### Rule Details
 
-Indentation has two independent axes: *how much* (the width) and *which
-character* (space or tab). [block-indent](#block-indent) and
+Indentation has two independent axes: _how much_ (the width) and _which
+character_ (space or tab). [block-indent](#block-indent) and
 [load-indent](#load-indent) own the width — but only on the lines they check:
 statement, field, and clause starts. Continuation lines inside a wrapped
 expression, a multi-line condition, or a `&`-concatenation chain keep whatever
@@ -621,7 +621,7 @@ entirely of the configured indent character, **whatever its length**. It says
 nothing about the amount of indentation, so it composes with the indent rules
 instead of competing with them: width is theirs, character is this rule's.
 
-The check keys off the first *code* token of each line, so lines that carry no
+The check keys off the first _code_ token of each line, so lines that carry no
 token of their own are left untouched:
 
 - the interior and rail lines of a multi-line block comment (whose ` *` prefix

@@ -52,10 +52,7 @@ describe('paren-spacing', () => {
     const diagnostics = lintRule('LOAD * Resident [t] Where ( Amount > 0 );\n', parenSpacing);
 
     expect(diagnostics).toHaveLength(2);
-    expect(diagnostics.map((d) => d.message)).toEqual([
-      "Unexpected space after '('.",
-      "Unexpected space before ')'.",
-    ]);
+    expect(diagnostics.map((d) => d.message)).toEqual(["Unexpected space after '('.", "Unexpected space before ')'."]);
   });
 
   it('does not glue a keyword to a grouping paren', () => {

@@ -19,6 +19,7 @@
     "build:cli": "npm run build -w @qlint/cli",
     "build:chrome-ext": "npm run build -w @qlint/chrome-ext",
     "build:vscode-ext": "npm run build -w qlint-vscode-ext",
+    "package:chrome-ext": "npm run package -w @qlint/chrome-ext",
     "package:vscode-ext": "npm run package -w qlint-vscode-ext",
     "test": "npm test -w @qlint/core && npm test -w @qlint/cli && npm test -w qlint-vscode-ext",
     "test:core": "npm test -w @qlint/core",
