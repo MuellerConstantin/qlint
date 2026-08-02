@@ -2,6 +2,7 @@
   "name": "@qlint/cli",
   "version": "0.1.0",
   "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlint/core.",
+  "license": "MIT",
   "type": "module",
   "homepage": "https://github.com/MuellerConstantin/qlint",
   "repository": {

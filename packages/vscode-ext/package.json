@@ -3,6 +3,7 @@
   "displayName": "qlint",
   "version": "0.1.0",
   "description": "VS Code extension that lints and formats Qlik load scripts, powered by @qlint/core.",
+  "license": "MIT",
   "private": true,
   "publisher": "MuellerConstantin",
   "homepage": "https://github.com/MuellerConstantin/qlint",
@@ -11,6 +12,9 @@
     "url": "https://github.com/MuellerConstantin/qlint.git",
     "directory": "packages/vscode-ext"
   },
+  "bugs": {
+    "url": "https://github.com/MuellerConstantin/qlint/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
@@ -18,7 +22,18 @@
     "Linters",
     "Formatters"
   ],
+  "keywords": [
+    "qlik",
+    "qvs",
+    "qlik sense",
+    "load script",
+    "formatter"
+  ],
   "icon": "images/qlint-128.png",
+  "galleryBanner": {
+    "color": "#1a1a1a",
+    "theme": "dark"
+  },
   "main": "./dist/extension.js",
   "activationEvents": [
     "onLanguage:qlik"
@@ -74,7 +89,7 @@
     "build": "tsdown",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "npm run build && vsce package --no-dependencies"
+    "package": "npm run build && node -e \"require('node:fs').copyFileSync('../../LICENSE.md', 'LICENSE.md')\" && vsce package --no-dependencies"
   },
   "dependencies": {
     "@qlint/core": "^0.1.0"

@@ -2,6 +2,7 @@
   "name": "qlint",
   "version": "0.1.0",
   "description": "Opinionated linting/formatting utilities for Qlik Script (QVS)",
+  "license": "MIT",
   "private": true,
   "type": "module",
   "homepage": "https://github.com/MuellerConstantin/qlint",
