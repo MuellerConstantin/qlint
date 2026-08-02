@@ -25,6 +25,7 @@
     "test:core": "npm test -w @qlint/core",
     "test:cli": "npm test -w @qlint/cli",
     "test:vscode-ext": "npm test -w qlint-vscode-ext",
+    "typecheck": "npm run typecheck -w @qlint/core && npm run typecheck -w @qlint/cli && npm run typecheck -w @qlint/chrome-ext && npm run typecheck -w qlint-vscode-ext",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prettier": "prettier --check .",

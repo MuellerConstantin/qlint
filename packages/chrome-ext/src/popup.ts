@@ -164,7 +164,10 @@ async function refresh(): Promise<void> {
   }
 }
 
-chrome.runtime.onMessage.addListener((message: Message) => {
+// Returns `undefined` rather than `void`: Chrome reads the return value to
+// decide whether `sendResponse` will be called asynchronously, and this
+// listener never responds.
+chrome.runtime.onMessage.addListener((message: Message): undefined => {
   if (message?.type === 'qlint:status') {
     renderStatus(message.status);
 

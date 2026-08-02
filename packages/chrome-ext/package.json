@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsdown && node -e \"require('node:fs').cpSync('public', 'dist', { recursive: true })\"",
-    "package": "npm run build && node scripts/zip.mjs"
+    "package": "npm run build && node scripts/zip.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@qlint/core": "^0.1.0",
