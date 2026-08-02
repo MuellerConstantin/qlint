@@ -21,6 +21,7 @@
 
 - [Introduction](#introduction)
   - [Features](#features)
+- [Privacy & permissions](#privacy--permissions)
 
 ## Introduction
 
@@ -51,3 +52,19 @@ script ever leaves the browser, and no backend is involved.
   their own conventions instead of fighting the defaults.
 - **Fully client-side** — the bundled Core engine runs entirely in the browser; your
   script never leaves the page and no backend is involved.
+
+## Privacy & permissions
+
+qlint collects nothing, transmits nothing, and contacts no server — there is not a single network
+call in the extension. Your scripts are linted in the page and never leave the browser. The only
+thing persisted is your own rule configuration.
+
+The extension holds **no site access at install**: `<all_urls>` is declared as an *optional* host
+permission and grants nothing until you enable a specific Qlik server through the popup, one origin
+at a time. That indirection exists because Qlik Sense Enterprise is self-hosted — every installation
+lives on its own private hostname, so no fixed URL pattern could ever match them.
+
+- [**Permission rationale**](./docs/permissions.md) — every permission, why it's needed, and the
+  code that uses it.
+- [**Privacy policy**](../../docs/PRIVACY.md) — what is read, what is stored, and what leaves your
+  machine.

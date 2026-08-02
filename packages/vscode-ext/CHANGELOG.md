@@ -37,4 +37,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   qlint output channel, rather than being silently ignored; no diagnostics are
   shown for the affected file until it is fixed.
 - Fully local processing: the bundled Core engine runs entirely in the editor
-  host; scripts never leave the machine.
+  host; scripts never leave the machine. No telemetry is emitted and no network
+  request is made; see the [privacy policy](../../docs/PRIVACY.md).

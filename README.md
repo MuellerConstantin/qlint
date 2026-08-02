@@ -21,6 +21,7 @@
 - [Introduction](#introduction)
   - [Packages](#packages)
   - [How it's organized](#how-its-organized)
+- [Privacy](#privacy)
 - [License](#license)
   - [Forbidden](#forbidden)
 
@@ -64,6 +65,16 @@ tune rules.
 
 For the full list of built-in rules and their options, see
 [`packages/core/docs/rules.md`](./packages/core/docs/rules.md).
+
+## Privacy
+
+qlint collects nothing, transmits nothing, and contacts no server — in any of its flavors. The engine
+performs no I/O by design, and no binding contains a single network call, so scripts are analysed
+where you write them and never leave your machine.
+
+See the [privacy policy](./docs/PRIVACY.md) for the per-binding detail, and the Chrome extension's
+[permission rationale](./packages/chrome-ext/docs/permissions.md) for why each browser permission is
+requested.
 
 ## License
 

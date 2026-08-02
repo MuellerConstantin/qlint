@@ -18,6 +18,7 @@
 - [Introduction](#introduction)
 - [Formatting](#formatting)
 - [Configuration](#configuration)
+- [Privacy](#privacy)
 
 ## Introduction
 
@@ -70,3 +71,13 @@ it to open the config or the settings.
 
 A broken `qlint.json` is surfaced as an error notification rather than silently ignored, and no
 diagnostics are shown for that file until it is fixed.
+
+## Privacy
+
+Nothing is collected, nothing is transmitted, and no telemetry is emitted — the extension contains no
+network calls at all. Your scripts are analysed by the bundled engine inside the editor host and never
+leave your machine. The extension stores nothing of its own: it reads the open document, your
+`qlint.json` or `qlint.*` settings, and keeps the resolved config in memory for the session.
+
+Full details are in the
+[privacy policy](https://github.com/MuellerConstantin/qlint/blob/main/docs/PRIVACY.md).

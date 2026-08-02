@@ -33,3 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   syntax highlighting, bracket matching, and auto-indent. A "Reset" button
   clears all presets and rule overrides. The same JSON shape is accepted by the
   CLI's `--config` flag, so configs carry over between the two.
+- Permission rationale in `docs/permissions.md` documenting every requested
+  permission, the code that uses it, and what breaks without it — alongside the
+  project [privacy policy](../../docs/PRIVACY.md).
