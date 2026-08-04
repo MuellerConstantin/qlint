@@ -1232,11 +1232,13 @@ broken, so each level is handled in turn without overlapping fixes.
 User-defined function calls (`MyFunc(a, b)`) and `Call myFunc(...)` syntax
 are intentionally out of scope — only built-in functions are considered.
 
-The autofix replaces the parenthesised body with one argument per line at
-one indent step deeper than the call's own line, and places the closing `)`
-on its own line aligned to the call's leading indent. Anything after the
-closing paren on the original line (e.g. `As Field`, an operator, a
-semicolon) is preserved verbatim.
+The autofix replaces the parenthesised body with one argument per line and
+places the closing `)` on its own line. It writes no indentation of its own:
+the lines it creates are continuation lines, and
+[continuation-indent](#continuation-indent) indents them on the next format
+pass — one step deeper for the arguments, back under the call for the closing
+paren. Anything after the closing paren on the original line (e.g. `As Field`,
+an operator, a semicolon) is preserved verbatim.
 
 Examples of **incorrect** code for this rule (with `maxLineLength: 80`):
 
@@ -1260,21 +1262,27 @@ LET vTotal = Sum(vRevenue);
 
 ### Options
 
-| Option          | Type               | Default   | Description                                                |
-| :-------------- | :----------------- | :-------- | :--------------------------------------------------------- |
-| `maxLineLength` | `number`           | `120`     | Threshold above which a single-line call must be broken.   |
-| `indentStyle`   | `'space' \| 'tab'` | `'space'` | Character used for one indent unit in the broken-out body. |
-| `indentSize`    | `number`           | `4`       | Number of indent units per level (only used with spaces).  |
+| Option          | Type     | Default | Description                                              |
+| :-------------- | :------- | :------ | :------------------------------------------------------- |
+| `maxLineLength` | `number` | `120`   | Threshold above which a single-line call must be broken. |
 
-Pair this rule with [block-indent](#block-indent) and set its `style` / `size`
-to the same values so autofixes from both rules agree on indentation.
+The rule has no indentation options. It decides _where_ the call is broken and
+emits bare newlines; [continuation-indent](#continuation-indent) owns the
+indentation of the lines that appear, exactly as
+[load-clause-newline](#load-clause-newline) and
+[load-field-per-line](#load-field-per-line) leave theirs to
+[load-indent](#load-indent). Configure the indent width and character once, on
+the indent rules, and this rule follows automatically.
+
+Run without `continuation-indent` and the broken-out arguments are left flush
+left — the break is still correct, just not indented by anyone.
 
 ```ts
 import { lint } from '@qlint/core';
 
 lint(source, {
   rules: {
-    'multiline-call': ['warning', { maxLineLength: 100, indentStyle: 'tab', indentSize: 1 }],
+    'multiline-call': ['warning', { maxLineLength: 100 }],
   },
 });
 ```

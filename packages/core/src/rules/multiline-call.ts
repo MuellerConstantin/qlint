@@ -1,21 +1,11 @@
 import type { IToken } from 'chevrotain';
-import { builtinFunctionToken, commaToken, punctuationToken } from '../lexer.js';
+import { builtinFunctionToken, commaToken } from '../lexer.js';
 import type { Rule, Finding } from '../types.js';
 import { tokenRange } from '../token.js';
-import type { IndentStyle } from './block-indent.js';
+import { isCloseParen, isOpenParen } from './shared.js';
 
 export interface MultilineCallOptions {
   maxLineLength: number;
-  indentStyle: IndentStyle;
-  indentSize: number;
-}
-
-function isOpenParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === '(';
-}
-
-function isCloseParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === ')';
 }
 
 function findMatchingClose(tokens: IToken[], openIdx: number): number {
@@ -55,34 +45,26 @@ function topLevelCommas(tokens: IToken[], openIdx: number, closeIdx: number): IT
   return out;
 }
 
-function baseIndentOf(source: string, offset: number): string {
-  let lineStart = offset;
-
-  while (lineStart > 0 && source[lineStart - 1] !== '\n') {
-    lineStart--;
-  }
-
-  let i = lineStart;
-
-  while (i < offset && (source[i] === ' ' || source[i] === '\t')) {
-    i++;
-  }
-
-  return source.slice(lineStart, i);
-}
-
 function lineLengthAt(source: string, line: number): number {
   const lines = source.split(/\r?\n/);
   return lines[line - 1]?.length ?? 0;
 }
 
+/*
+ * Decides *where* an over-long call is broken, not how far the resulting lines
+ * are indented. The fix emits bare newlines and leaves the indentation to
+ * `continuation-indent`, which owns every line inside a wrapped expression —
+ * the same division of labour `load-clause-newline` and `load-field-per-line`
+ * have with `load-indent`. Emitting an indent here would mean two rules with
+ * two independent width settings writing the same leading whitespace, and the
+ * one running later would silently win.
+ */
 export const multilineCall: Rule<MultilineCallOptions, 'multiline-call'> = {
   id: 'multiline-call',
   defaultSeverity: 'warning',
-  defaultOptions: { maxLineLength: 120, indentStyle: 'space', indentSize: 4 },
-  check: ({ source, tokens }, { maxLineLength, indentStyle, indentSize }) => {
+  defaultOptions: { maxLineLength: 120 },
+  check: ({ source, tokens }, { maxLineLength }) => {
     const out: Finding[] = [];
-    const indentUnit = indentStyle === 'tab' ? '\t' : ' '.repeat(indentSize);
     let i = 0;
 
     while (i < tokens.length) {
@@ -141,9 +123,7 @@ export const multilineCall: Rule<MultilineCallOptions, 'multiline-call'> = {
 
       args.push(source.slice(cursor, innerEnd).trim());
 
-      const baseIndent = baseIndentOf(source, funcToken.startOffset);
-      const deepIndent = baseIndent + indentUnit;
-      const replacement = '\n' + args.map((a) => deepIndent + a).join(',\n') + '\n' + baseIndent;
+      const replacement = '\n' + args.join(',\n') + '\n';
 
       out.push({
         range: tokenRange(funcToken),

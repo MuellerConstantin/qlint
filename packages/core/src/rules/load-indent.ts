@@ -1,7 +1,8 @@
 import type { IToken } from 'chevrotain';
-import { commaToken, keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
+import { keywordToken, punctuationToken, commaToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
 import { groupByLine, previousLineClosesStatement, type IndentStyle } from './block-indent.js';
+import { isClauseStarter, isCloseParen, isOpenParen } from './shared.js';
 
 export type { IndentStyle } from './block-indent.js';
 
@@ -10,34 +11,8 @@ export interface LoadIndentOptions {
   style: IndentStyle;
 }
 
-/*
- * Field-list / clause-list boundary. Must stay in sync with
- * load-clause-newline and load-field-per-line — all three need to agree on
- * what closes the LOAD field list.
- */
-const CLAUSE_STARTERS = new Set([
-  'from',
-  'from_field',
-  'resident',
-  'inline',
-  'autogenerate',
-  'extension',
-  'where',
-  'while',
-  'group',
-  'order',
-]);
-
 function isKeyword(token: IToken, image: string): boolean {
   return token.tokenType === keywordToken && token.image.toLowerCase() === image;
-}
-
-export function isOpenParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === '(';
-}
-
-export function isCloseParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === ')';
 }
 
 function isWildcard(token: IToken): boolean {
@@ -127,7 +102,7 @@ function findFieldListBoundaries(tokens: IToken[], loadIdx: number): { start: nu
       break;
     }
 
-    if (t.tokenType === keywordToken && CLAUSE_STARTERS.has(t.image.toLowerCase())) {
+    if (isClauseStarter(t)) {
       end = i;
       break;
     }
@@ -229,7 +204,7 @@ function collectClauseStarters(tokens: IToken[], fieldsEnd: number): IToken[] {
       continue;
     }
 
-    if (t.tokenType === keywordToken && CLAUSE_STARTERS.has(t.image.toLowerCase())) {
+    if (isClauseStarter(t)) {
       out.push(t);
     }
   }

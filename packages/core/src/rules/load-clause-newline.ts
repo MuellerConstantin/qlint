@@ -1,42 +1,11 @@
 import type { IToken } from 'chevrotain';
-import { keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
+import { keywordToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
 import { tokenRange } from '../token.js';
-
-/*
- * Keywords that start a top-level clause inside a LOAD statement. Each one
- * must appear as the first non-whitespace token of its line. Anything else
- * (Distinct, NoConcatenate, Concatenate, Add, Replace, Mapping, Buffer,
- * First, Join/Keep prefixes, `as`, ...) is intentionally not in this set —
- * they are modifiers of the LOAD itself, not clauses, and their line
- * placement is governed by a different (future) rule.
- *
- * `Group` and `Order` are listed as the clause start; the trailing `By` is
- * not a separate clause and stays on the same line as its head.
- */
-const CLAUSE_STARTERS = new Set([
-  'from',
-  'from_field',
-  'resident',
-  'inline',
-  'autogenerate',
-  'extension',
-  'where',
-  'while',
-  'group',
-  'order',
-]);
+import { isClauseStarter, isCloseParen, isOpenParen } from './shared.js';
 
 function isKeyword(token: IToken, image: string): boolean {
   return token.tokenType === keywordToken && token.image.toLowerCase() === image;
-}
-
-function isOpenParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === '(';
-}
-
-function isCloseParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === ')';
 }
 
 /*
@@ -139,23 +108,19 @@ function checkStatement(tokens: IToken[], comments: IToken[]): Finding[] {
       depth--;
     }
 
-    if (depth === 0 && t.tokenType === keywordToken) {
-      const lower = t.image.toLowerCase();
+    if (depth === 0 && isClauseStarter(t)) {
+      const prevLine = prev.startLine ?? 1;
+      const tLine = t.startLine ?? 1;
 
-      if (CLAUSE_STARTERS.has(lower)) {
-        const prevLine = prev.startLine ?? 1;
-        const tLine = t.startLine ?? 1;
-
-        if (prevLine === tLine) {
-          out.push({
-            range: tokenRange(t),
-            message: `LOAD clause '${t.image}' should start on its own line.`,
-            fix: {
-              range: { start: fixStartOffset(prev, t, comments), end: t.startOffset },
-              replacement: '\n',
-            },
-          });
-        }
+      if (prevLine === tLine) {
+        out.push({
+          range: tokenRange(t),
+          message: `LOAD clause '${t.image}' should start on its own line.`,
+          fix: {
+            range: { start: fixStartOffset(prev, t, comments), end: t.startOffset },
+            replacement: '\n',
+          },
+        });
       }
     }
 

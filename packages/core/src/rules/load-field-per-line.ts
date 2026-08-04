@@ -2,35 +2,10 @@ import type { IToken } from 'chevrotain';
 import { commaToken, keywordToken, punctuationToken, semicolonToken } from '../lexer.js';
 import type { Rule, Finding, RuleContext } from '../types.js';
 import { tokenRange } from '../token.js';
-
-/*
- * Keywords that close the LOAD field list. The set must stay in sync with
- * load-clause-newline — both rules need the same boundary definition to
- * agree on where the field list ends and where the clauses begin.
- */
-const CLAUSE_STARTERS = new Set([
-  'from',
-  'from_field',
-  'resident',
-  'inline',
-  'autogenerate',
-  'extension',
-  'where',
-  'while',
-  'group',
-  'order',
-]);
+import { isClauseStarter, isCloseParen, isOpenParen } from './shared.js';
 
 function isKeyword(token: IToken, image: string): boolean {
   return token.tokenType === keywordToken && token.image.toLowerCase() === image;
-}
-
-function isOpenParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === '(';
-}
-
-function isCloseParen(token: IToken): boolean {
-  return token.tokenType === punctuationToken && token.image === ')';
 }
 
 function isWildcard(token: IToken): boolean {
@@ -125,7 +100,7 @@ function findFieldListBoundaries(tokens: IToken[], loadIdx: number): { start: nu
       break;
     }
 
-    if (t.tokenType === keywordToken && CLAUSE_STARTERS.has(t.image.toLowerCase())) {
+    if (isClauseStarter(t)) {
       end = i;
       break;
     }

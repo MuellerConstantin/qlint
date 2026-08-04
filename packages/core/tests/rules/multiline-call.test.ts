@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { format } from '../../src/index.js';
 import { multilineCall } from '../../src/rules/index.js';
 import { lintFixture } from './helpers.js';
 import { formatRule, lintRule } from '../support.js';
@@ -46,34 +47,42 @@ describe('multiline-call', () => {
     expect(diagnostics).toEqual([]);
   });
 
+  /*
+   * This rule decides where the call is broken and emits bare newlines;
+   * continuation-indent owns the indentation of the lines that appear. The
+   * tests below therefore assert the unindented shape for the rule on its own,
+   * and the finished shape only where both rules run.
+   */
   it('autofixes by breaking each top-level argument onto its own line', () => {
     const result = formatRule("LET x = If(a, 'b', 'c');\n", multilineCall, { maxLineLength: 20 });
 
-    expect(result.output).toBe("LET x = If(\n    a,\n    'b',\n    'c'\n);\n");
+    expect(result.output).toBe("LET x = If(\na,\n'b',\n'c'\n);\n");
     expect(result.fixed).toBe(1);
     expect(result.diagnostics).toEqual([]);
   });
 
-  it('preserves the leading indent when breaking a nested call (tab style)', () => {
-    const result = formatRule("Sub greet\n\tLET x = If(a, 'b', 'c');\nEnd Sub\n", multilineCall, {
-      maxLineLength: 20,
-      indentStyle: 'tab',
-      indentSize: 1,
-    });
-
-    expect(result.output).toBe("Sub greet\n\tLET x = If(\n\t\ta,\n\t\t'b',\n\t\t'c'\n\t);\nEnd Sub\n");
-    expect(result.fixed).toBe(1);
-  });
-
-  it('honors the indentStyle and indentSize options', () => {
-    const result = formatRule("LET x = If(a, 'b', 'c');\n", multilineCall, {
-      maxLineLength: 20,
-      indentStyle: 'space',
-      indentSize: 4,
+  it('leaves the indentation of the lines it creates to continuation-indent', () => {
+    const result = format("LET x = If(a, 'b', 'c');\n", {
+      rules: {
+        'multiline-call': ['warning', { maxLineLength: 20 }],
+        'continuation-indent': 'warning',
+      },
     });
 
     expect(result.output).toBe("LET x = If(\n    a,\n    'b',\n    'c'\n);\n");
-    expect(result.fixed).toBe(1);
+    expect(result.diagnostics.filter((d) => d.fix)).toEqual([]);
+  });
+
+  it('produces a tab-indented break when the indent rules are configured for tabs', () => {
+    const result = format("Sub greet\nLET x = If(a, 'b', 'c');\nEnd Sub\n", {
+      rules: {
+        'multiline-call': ['warning', { maxLineLength: 20 }],
+        'block-indent': ['warning', { style: 'tab' }],
+        'continuation-indent': ['warning', { style: 'tab' }],
+      },
+    });
+
+    expect(result.output).toBe("Sub greet\n\tLET x = If(\n\t\ta,\n\t\t'b',\n\t\t'c'\n\t);\nEnd Sub\n");
   });
 
   it('keeps a trailing tail like `As Field` intact after the broken call', () => {
@@ -81,18 +90,30 @@ describe('multiline-call', () => {
       maxLineLength: 20,
     });
 
-    expect(result.output).toBe("LOAD If(\n    a,\n    'b',\n    'c'\n) As Category\nFROM [lib://x/y.qvd];\n");
+    expect(result.output).toBe("LOAD If(\na,\n'b',\n'c'\n) As Category\nFROM [lib://x/y.qvd];\n");
     expect(result.fixed).toBe(1);
   });
 
   it('breaks nested calls iteratively across format passes', () => {
     const result = formatRule("LET x = If(Pick(aaa, bbb, ccc), 'y', 'n');\n", multilineCall, { maxLineLength: 15 });
 
+    expect(result.output).toBe("LET x = If(\nPick(\naaa,\nbbb,\nccc\n),\n'y',\n'n'\n);\n");
+    expect(result.fixed).toBe(2);
+    expect(result.diagnostics).toEqual([]);
+  });
+
+  it('nests correctly once continuation-indent indents the broken calls', () => {
+    const result = format("LET x = If(Pick(aaa, bbb, ccc), 'y', 'n');\n", {
+      rules: {
+        'multiline-call': ['warning', { maxLineLength: 15 }],
+        'continuation-indent': 'warning',
+      },
+    });
+
     expect(result.output).toBe(
       "LET x = If(\n    Pick(\n        aaa,\n        bbb,\n        ccc\n    ),\n    'y',\n    'n'\n);\n",
     );
-    expect(result.fixed).toBe(2);
-    expect(result.diagnostics).toEqual([]);
+    expect(result.diagnostics.filter((d) => d.fix)).toEqual([]);
   });
 
   it('flags only the outermost qualifying call per pass', () => {
