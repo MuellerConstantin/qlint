@@ -9,8 +9,8 @@
 | [builtin-keyword-case](#builtin-keyword-case)         | Enforce canonical casing for Qlik keywords.                      |
 | [comma-space](#comma-space)                           | Require exactly one space after a comma when followed by code.   |
 | [comment-space](#comment-space)                       | Require a space after `//` and inside `/* */`.                   |
+| [continuation-indent](#continuation-indent)           | Indent continuation lines one level per open parenthesis.        |
 | [eol-last](#eol-last)                                 | Require the file to end with exactly one newline.                |
-| [indent-char](#indent-char)                           | Require leading whitespace to use only the configured character. |
 | [inline-comment-space](#inline-comment-space)         | Require exactly one space between code and a trailing comment.   |
 | [load-clause-newline](#load-clause-newline)           | Require each LOAD clause keyword to start its own line.          |
 | [load-field-per-line](#load-field-per-line)           | Require each LOAD field to start on its own line.                |
@@ -537,6 +537,130 @@ comment", which defeats the point of an opinionated linter.
 
 ---
 
+## continuation-indent
+
+Indent continuation lines one level per open parenthesis, relative to the line
+they continue.
+
+### Rule Details
+
+[block-indent](#block-indent) owns statement starts and [load-indent](#load-indent)
+owns the fields and clauses of a `Load`. What is left over are _continuation
+lines_: the lines inside a wrapped expression — a broken `&`-concatenation
+chain, a multi-line `Where` condition, the arguments of a call spread over
+several lines. This rule owns those.
+
+The expected indent hangs off the nearest preceding **anchor** — the statement
+start or field/clause line the continuation belongs to — plus one level for
+every parenthesis still open at the start of the line. Counting parentheses is
+what keeps nesting readable instead of flattening every continuation to the same
+column:
+
+```qlik
+Let vFlag = If(Status = 'A',   // anchor, base 0
+    If(Region = 'North',       // depth 1
+        1,                     // depth 2
+        2),
+    0);
+```
+
+A continuation that is not inside parentheses at all still gets one level, which
+is what makes a broken condition or `&`-chain hang below its clause. A line that
+_starts_ with a closing parenthesis is dedented by one level so the closer lands
+back under its anchor — the same shape [multiline-call](#multiline-call) emits
+when it breaks an over-long call apart, so the two rules never rewrite each
+other.
+
+Because the rule derives the full indent rather than adjusting what is there, it
+fixes the indent _character_ as a side effect: a tab-indented continuation line
+in a space-configured file is rewritten along with everything else. This is why
+there is no separate character-level rule.
+
+The anchor's **actual** indent is used, not its expected one — the same choice
+[load-indent](#load-indent) makes for its base. When the anchor is itself
+misindented, its owning rule corrects it and the autofix loop re-derives the
+continuations on the next pass.
+
+The check keys off the first _code_ token of each line, so lines that carry no
+token of their own are never inspected:
+
+- the interior and rail lines of a multi-line block comment (governed by
+  [block-comment-stars](#block-comment-stars)),
+- the interior of a multi-line string literal,
+- the rows of an `Inline [...]` data block — a single bracket token, exactly as
+  [load-indent](#load-indent) already treats it.
+
+A line where a token started earlier and ends here (the `];` closing an `Inline`
+block, for instance) is skipped too: its leading characters belong to the
+previous token, and rewriting them would corrupt it.
+
+Examples of **incorrect** code for this rule (default `size: 4`, `style: 'space'`):
+
+```qlik
+[Labelled]:
+Load
+    'Prefix: '
+& Region as Label
+From [lib://x.qvd] (qvd);
+
+// Nesting flattened instead of following the parenthesis depth.
+Let vFlag = If(Status = 'A',
+    If(Region = 'North',
+    1,
+    2),
+    0);
+```
+
+Examples of **correct** code for this rule:
+
+```qlik
+[Labelled]:
+Load
+    'Prefix: '
+        & Region as Label
+From [lib://x.qvd] (qvd)
+Where Id > 0
+    And Region <> 'n/a';
+
+Let vFlag = If(Status = 'A',
+    If(Region = 'North',
+        1,
+        2),
+    0);
+
+// A leading closing parenthesis dedents back under its anchor.
+Let vName = ApplyMap('MapX',
+    Region,
+    'unknown'
+);
+```
+
+### Options
+
+| Option  | Type               | Default   | Description                               |
+| :------ | :----------------- | :-------- | :---------------------------------------- |
+| `size`  | `number`           | `4`       | Spaces per level (ignored under `'tab'`). |
+| `style` | `'space' \| 'tab'` | `'space'` | Character each indent level is made of.   |
+
+Keep `size` and `style` in sync with [block-indent](#block-indent) and
+[load-indent](#load-indent) — a file whose statement lines are indented with
+spaces while continuation lines demand tabs reads worse than either convention
+on its own.
+
+Example configuration:
+
+```ts
+import { lint } from '@qlint/core';
+
+lint(source, {
+  rules: {
+    'continuation-indent': ['warning', { size: 2, style: 'space' }],
+  },
+});
+```
+
+---
+
 ## eol-last
 
 Require the file to end with exactly one newline.
@@ -595,106 +719,6 @@ LET vMonth = 6;
 This rule has no options. "Exactly one newline at end of file" is the universal
 convention; making it configurable would defeat the point of an opinionated
 linter.
-
----
-
-## indent-char
-
-Require the leading whitespace of every line to consist solely of the configured
-indent character.
-
-### Rule Details
-
-Indentation has two independent axes: _how much_ (the width) and _which
-character_ (space or tab). [block-indent](#block-indent) and
-[load-indent](#load-indent) own the width — but only on the lines they check:
-statement, field, and clause starts. Continuation lines inside a wrapped
-expression, a multi-line condition, or a `&`-concatenation chain keep whatever
-amount the author chose and are deliberately never inspected. Their leading
-whitespace can still drift to the wrong character — a stray tab in an otherwise
-space-indented file, or a tab/space mix that no editor renders the same way —
-and no width-based rule will notice.
-
-This rule covers the character axis on its own. It walks the first token of
-every line and requires the run of leading whitespace before it to be made up
-entirely of the configured indent character, **whatever its length**. It says
-nothing about the amount of indentation, so it composes with the indent rules
-instead of competing with them: width is theirs, character is this rule's.
-
-The check keys off the first _code_ token of each line, so lines that carry no
-token of their own are left untouched:
-
-- the interior and rail lines of a multi-line block comment (whose ` *` prefix
-  is governed by [block-comment-stars](#block-comment-stars)),
-- the interior of a multi-line string literal,
-- the rows of an `Inline [...]` data block — a single bracket token, exactly as
-  [load-indent](#load-indent) already treats it.
-
-There is no autofix. The correct replacement width is precisely the quantity
-this rule refuses to have an opinion on: swapping a tab for _n_ spaces (or the
-reverse) would guess a level width, risk fighting the indent rules, or mangle
-deliberate alignment on a continuation line. On statement, field, and clause
-lines, [block-indent](#block-indent) and [load-indent](#load-indent) already
-rewrite the indentation to the right character and width; elsewhere the line is
-reported for the author to resolve.
-
-Examples of **incorrect** code for this rule (default `style: 'space'`, `→` marks a tab):
-
-```qlik
-Sub greet
-→Trace hello;
-End Sub
-
-[Labelled]:
-Load
-    'Prefix: '
-→→& Region as Label
-From [lib://x.qvd] (qvd);
-```
-
-Examples of **correct** code for this rule (default `style: 'space'`):
-
-```qlik
-Sub greet
-    Trace hello;
-End Sub
-
-// Continuation-line amount is free; only its character is enforced.
-[Labelled]:
-Load
-    'Prefix: '
-            & Region as Label
-From [lib://x.qvd] (qvd);
-
-// Inline data-block rows are one bracket token — never checked.
-[Seed]:
-Load * Inline [
-	n
-	1
-];
-```
-
-### Options
-
-| Option  | Type               | Default   | Description                             |
-| :------ | :----------------- | :-------- | :-------------------------------------- |
-| `style` | `'space' \| 'tab'` | `'space'` | Character every indent must consist of. |
-
-Keep `style` in sync with [block-indent](#block-indent) and
-[load-indent](#load-indent); a file whose indent rules insert spaces while this
-rule demands tabs would never converge.
-
-Example configuration:
-
-```ts
-import { lint } from '@qlint/core';
-
-lint(source, {
-  rules: {
-    'indent-char': ['warning', { style: 'tab' }],
-  },
-});
-```
 
 ---
 

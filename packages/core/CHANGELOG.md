@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   entries. The optional `sourceLabel` is interpolated into error messages so host
   integrations (CLI, browser, IDE) can point users at the offending source.
 - Initial rule set covering layout (`block-indent`, `load-indent`,
-  `indent-char`, `load-clause-newline`, `load-field-per-line`, `multiline-call`,
+  `continuation-indent`, `load-clause-newline`, `load-field-per-line`, `multiline-call`,
   `one-statement-per-line`, `max-line-length`, `no-multiple-empty-lines`,
   `trailing-whitespace`, `eol-last`), casing (`builtin-function-case`,
   `builtin-keyword-case`, `variable-case`), spacing (`comma-space`,

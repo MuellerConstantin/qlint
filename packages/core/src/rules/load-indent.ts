@@ -32,11 +32,11 @@ function isKeyword(token: IToken, image: string): boolean {
   return token.tokenType === keywordToken && token.image.toLowerCase() === image;
 }
 
-function isOpenParen(token: IToken): boolean {
+export function isOpenParen(token: IToken): boolean {
   return token.tokenType === punctuationToken && token.image === '(';
 }
 
-function isCloseParen(token: IToken): boolean {
+export function isCloseParen(token: IToken): boolean {
   return token.tokenType === punctuationToken && token.image === ')';
 }
 
@@ -268,14 +268,19 @@ function findStatementStartLine(tokens: IToken[], loadLine: number): number {
  * so a run of the wrong whitespace (tabs where spaces are expected, or a
  * tab/space mix) that happens to match the expected width is still rejected.
  */
-function hasExpectedIndent(source: string, token: IToken, expectedWidth: number, indentChar: string): boolean {
+export function hasExpectedIndent(source: string, token: IToken, expectedWidth: number, indentChar: string): boolean {
   const actualWidth = (token.startColumn ?? 1) - 1;
   const lineStart = token.startOffset - actualWidth;
 
   return source.slice(lineStart, token.startOffset) === indentChar.repeat(expectedWidth);
 }
 
-function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: string, unitLabel: string): Finding {
+export function makeIndentFinding(
+  token: IToken,
+  expectedWidth: number,
+  indentChar: string,
+  unitLabel: string,
+): Finding {
   const actualColumn = token.startColumn ?? 1;
   const actualWidth = actualColumn - 1;
   const line = token.startLine ?? 1;
@@ -312,6 +317,57 @@ function makeIndentFinding(token: IToken, expectedWidth: number, indentChar: str
   };
 }
 
+/** The field/clause anchors of one `Load` statement, plus the indent they hang off. */
+export interface LoadAnchors {
+  base: number;
+  fieldStarts: IToken[];
+  clauseStarters: IToken[];
+}
+
+/** Indexes the first token of every line by line number. */
+export function firstTokenByLine(firstOnLine: IToken[]): Map<number, IToken> {
+  const out = new Map<number, IToken>();
+
+  for (const t of firstOnLine) {
+    out.set(t.startLine ?? 1, t);
+  }
+
+  return out;
+}
+
+/*
+ * The lines `load-indent` owns, one entry per `Load` statement. Shared with
+ * `continuation-indent`, which needs the complement: every line that is neither
+ * a statement start nor one of these anchors is a continuation line. Both rules
+ * must agree on the split, so it is derived here once.
+ */
+export function collectLoadAnchors(tokens: IToken[], firstByLine: Map<number, IToken>): LoadAnchors[] {
+  const out: LoadAnchors[] = [];
+
+  for (const stmt of splitStatements(tokens)) {
+    const loadIdx = findLoadIndex(stmt);
+
+    if (loadIdx === -1) {
+      continue;
+    }
+
+    const loadLine = stmt[loadIdx].startLine ?? 1;
+    const headerLine = findStatementStartLine(stmt, loadLine);
+    const headerFirst = firstByLine.get(headerLine);
+    const base = headerFirst ? (headerFirst.startColumn ?? 1) - 1 : 0;
+
+    const { start, end } = findFieldListBoundaries(stmt, loadIdx);
+
+    out.push({
+      base,
+      fieldStarts: collectFieldStarts(stmt, start, end),
+      clauseStarters: collectClauseStarters(stmt, end),
+    });
+  }
+
+  return out;
+}
+
 export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
   id: 'load-indent',
   defaultSeverity: 'warning',
@@ -322,31 +378,9 @@ export const loadIndent: Rule<LoadIndentOptions, 'load-indent'> = {
     const unitLabel = style === 'tab' ? 'tab' : 'space';
 
     const firstOnLineSet = new Set(firstOnLine);
-    const firstByLine = new Map<number, IToken>();
-
-    for (const t of firstOnLine) {
-      firstByLine.set(t.startLine ?? 1, t);
-    }
-
-    const stmts = splitStatements(tokens);
     const out: Finding[] = [];
 
-    for (const stmt of stmts) {
-      const loadIdx = findLoadIndex(stmt);
-
-      if (loadIdx === -1) {
-        continue;
-      }
-
-      const loadLine = stmt[loadIdx].startLine ?? 1;
-      const headerLine = findStatementStartLine(stmt, loadLine);
-      const headerFirst = firstByLine.get(headerLine);
-      const base = headerFirst ? (headerFirst.startColumn ?? 1) - 1 : 0;
-
-      const { start, end } = findFieldListBoundaries(stmt, loadIdx);
-      const fieldStarts = collectFieldStarts(stmt, start, end);
-      const clauseStarters = collectClauseStarters(stmt, end);
-
+    for (const { base, fieldStarts, clauseStarters } of collectLoadAnchors(tokens, firstTokenByLine(firstOnLine))) {
       for (const t of fieldStarts) {
         if (!firstOnLineSet.has(t)) {
           continue;

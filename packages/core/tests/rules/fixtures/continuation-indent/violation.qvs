@@ -1,0 +1,14 @@
+// A continuation line that does not hang one level off its anchor.
+[A]:
+Load
+    Id,
+    'Prefix: '
+& Region as Label
+From X;
+
+// Nesting flattened instead of following the parenthesis depth.
+Let vFlag = If(Status = 'A',
+    If(Region = 'North',
+    1,
+    2),
+    0);

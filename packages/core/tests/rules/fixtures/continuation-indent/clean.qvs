@@ -1,0 +1,29 @@
+// Continuation lines hang one level off their anchor.
+[A]:
+Load
+    Id,
+    'Prefix: '
+        & Region as Label
+From X
+Where Id > 0
+    And Region <> 'n/a';
+
+// Nesting adds one level per open parenthesis.
+Let vFlag = If(Status = 'A',
+    If(Region = 'North',
+        1,
+        2),
+    0);
+
+// A line starting with a closing parenthesis dedents back under its anchor.
+Let vName = ApplyMap('MapX',
+    Region,
+    'unknown'
+);
+
+// Inline data-block interior is a single token; its indentation is not checked.
+[Inline1]:
+Load * Inline [
+	a, b
+	1, 2
+];
