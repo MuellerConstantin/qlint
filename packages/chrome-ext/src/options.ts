@@ -12,7 +12,7 @@ import 'codemirror/addon/edit/matchbrackets.js';
 import 'codemirror/addon/edit/closebrackets.js';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material-darker.css';
-import { loadConfig, saveConfig } from './util/config.js';
+import { DEFAULT_CONFIG, loadConfig, saveConfig } from './util/config.js';
 
 type SeverityChoice = SeverityOrOff | 'default';
 
@@ -370,6 +370,14 @@ form.addEventListener('submit', async (event) => {
   await persist(next);
 });
 
+/*
+ * Restores the same config a fresh install is seeded with, rather than
+ * clearing to `{}`. An empty config lints nothing, which looks like a broken
+ * extension and is rarely what someone reaching for "restore defaults" wants —
+ * and it is still reachable by removing every preset from the list. This is
+ * also the only in-UI way back to the default once a config has been stored,
+ * since seeding never overwrites an existing one.
+ */
 resetButton.addEventListener('click', async () => {
   const confirmed = window.confirm(chrome.i18n.getMessage('optionsResetConfirm'));
 
@@ -377,7 +385,7 @@ resetButton.addEventListener('click', async () => {
     return;
   }
 
-  await persist({});
+  await persist({ ...DEFAULT_CONFIG });
 });
 
 async function init(): Promise<void> {

@@ -30,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   nothing is applied implicitly, matching the CLI and VS Code extension — while
   individual rule severities are set via a per-rule list, and the raw
   configuration is editable inline via an embedded CodeMirror editor with JSON
-  syntax highlighting, bracket matching, and auto-indent. A "Reset" button
-  clears all presets and rule overrides. The same JSON shape is accepted by the
+  syntax highlighting, bracket matching, and auto-indent. A "Restore defaults"
+  button writes back the same configuration a fresh install is seeded with —
+  the only in-UI way back to it, since seeding never overwrites an existing
+  config. The same JSON shape is accepted by the
   CLI's `--config` flag, so configs carry over between the two.
 - A fresh install is seeded with the `recommended` preset, written to
   `chrome.storage.sync` as a real, explicit `presets` entry rather than applied

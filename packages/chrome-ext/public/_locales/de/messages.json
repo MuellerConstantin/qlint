@@ -94,15 +94,15 @@
     "description": "Label of the save button on the options page."
   },
   "optionsResetButton": {
-    "message": "Zurücksetzen",
-    "description": "Label of the reset button on the options page that clears all presets and rule overrides."
+    "message": "Standard wiederherstellen",
+    "description": "Label of the button on the options page that restores the default configuration."
   },
   "optionsConfigSaved": {
     "message": "Einstellungen gespeichert.",
     "description": "Confirmation shown after a successful save on the options page."
   },
   "optionsResetConfirm": {
-    "message": "Alle Einstellungen zurücksetzen? Das entfernt alle Presets und Regel-Overrides.",
-    "description": "Confirmation prompt shown before resetting the configuration on the options page."
+    "message": "Standardeinstellungen wiederherstellen? Das ersetzt alle Presets und Regel-Overrides durch das Preset „recommended“.",
+    "description": "Confirmation prompt shown before restoring the default configuration on the options page."
   }
 }

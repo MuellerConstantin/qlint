@@ -94,15 +94,15 @@
     "description": "Label of the save button on the options page."
   },
   "optionsResetButton": {
-    "message": "Reset",
-    "description": "Label of the reset button on the options page that clears all presets and rule overrides."
+    "message": "Restore defaults",
+    "description": "Label of the button on the options page that restores the default configuration."
   },
   "optionsConfigSaved": {
     "message": "Settings saved.",
     "description": "Confirmation shown after a successful save on the options page."
   },
   "optionsResetConfirm": {
-    "message": "Reset all settings? This removes every preset and rule override.",
-    "description": "Confirmation prompt shown before resetting the configuration on the options page."
+    "message": "Restore the default settings? This replaces every preset and rule override with the recommended preset.",
+    "description": "Confirmation prompt shown before restoring the default configuration on the options page."
   }
 }
