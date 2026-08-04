@@ -38,8 +38,8 @@ qlint ships in multiple flavors depending on how you work:
 - a **Chrome extension** that hooks straight into the Qlik Sense Data Load Editor — no
   install, no terminal, just click and lint;
 - a **CLI** for local checks, pre-commit hooks, and CI gates;
-- a **VS Code extension** that brings linting and formatting into the editor _(early
-  scaffold — integration in progress)_.
+- a **VS Code extension** that brings linting and formatting into the editor, with quick
+  fixes and format-on-save.
 
 They are all powered by the same engine, so the rules you see in the browser are the exact
 same rules that fail your pipeline.
@@ -50,7 +50,7 @@ same rules that fail your pipeline.
 | ---------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | [**`@qlint/chrome-ext`**](./packages/chrome-ext)                 | Qlik developers, analysts, BI teams     | Chrome extension that injects inline lint feedback and one-click formatting directly into the Qlik Sense Data Load Editor.              |
 | [**`@qlint/cli`**](./packages/cli)                               | Developers, CI/CD pipelines             | Command-line interface that lints and auto-fixes `.qvs` files from the terminal or as a CI step. Drop-in for pre-commit hooks and gates. |
-| [**`qlint-vscode-ext`**](./packages/vscode-ext)                  | Developers editing `.qvs` in VS Code    | VS Code extension bringing linting and formatting into the editor. _Early scaffold — Core integration not wired up yet._                 |
+| [**`qlint-vscode-ext`**](./packages/vscode-ext)                  | Developers editing `.qvs` in VS Code    | VS Code extension bringing inline diagnostics, quick fixes, and document formatting for `.qvs` files into the editor.                    |
 | [**`@qlint/core`**](./packages/core)                             | Tool authors, IDE plugin developers     | The engine behind every binding — string-in, diagnostics-out. Embed it in your own editor integration, custom check runner, or service. |
 
 ### How it's organized
@@ -58,8 +58,8 @@ same rules that fail your pipeline.
 qlint is a monorepo with one dependency-free engine (`@qlint/core`) and a set of thin
 bindings around it. The core owns the tokenizer, the complete ruleset, and the
 formatting logic; it has no I/O and no platform assumptions, so it runs equally well in
-Node, the browser, or a Web Worker. Every binding — CLI, Chrome extension, future IDE
-plugins — handles only its platform concerns and delegates every linting and formatting
+Node, the browser, or a Web Worker. Every binding — CLI, Chrome extension, VS Code
+extension — handles only its platform concerns and delegates every linting and formatting
 decision to core. That means a single source of truth for style and one place to add or
 tune rules.
 
@@ -98,7 +98,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-[MIT License](https://opensource.org/licenses/MIT) or [LICENSE](LICENSE) for
+[MIT License](https://opensource.org/licenses/MIT) or [LICENSE](./LICENSE.md) for
 more details.
 
 ### Forbidden
