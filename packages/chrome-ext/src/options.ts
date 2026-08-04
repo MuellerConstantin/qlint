@@ -27,6 +27,7 @@ const presetsHelp = document.getElementById('options-presets-help') as HTMLParag
 const presetList = document.getElementById('options-preset-list') as HTMLUListElement;
 const presetSelect = document.getElementById('options-preset-select') as HTMLSelectElement;
 const presetAddButton = document.getElementById('options-preset-add') as HTMLButtonElement;
+const presetAddRow = document.getElementById('options-preset-add-row') as HTMLDivElement;
 const rulesLabel = document.getElementById('options-rules-label') as HTMLSpanElement;
 const rulesHelp = document.getElementById('options-rules-help') as HTMLParagraphElement;
 const ruleList = document.getElementById('options-rule-list') as HTMLUListElement;
@@ -290,8 +291,13 @@ function writeStateToPresetList(): void {
     presetSelect.appendChild(option);
   }
 
-  presetSelect.disabled = available.length === 0;
-  presetAddButton.disabled = available.length === 0;
+  /*
+   * Hide the whole add row rather than leaving an empty, disabled dropdown
+   * behind: with only one preset in existence, "everything already added" is
+   * the normal steady state, and a permanently dead control is worse than no
+   * control. Removing a preset brings the row straight back.
+   */
+  presetAddRow.hidden = available.length === 0;
 }
 
 let suppressEditorChange = false;
