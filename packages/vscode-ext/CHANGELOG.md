@@ -24,10 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Per-document configuration resolution with strict precedence: a `qlint.json`
   at the workspace folder root wins, otherwise the `qlint.presets` and
   `qlint.rules` settings apply. Loose `.qvs` files with no workspace folder fall
-  through to settings. Both default to empty, so — matching the CLI and Chrome
-  extension — nothing runs until a preset or rules are named.
+  through to settings.
 - `qlint.presets` and `qlint.rules` settings contributed to VS Code's native
   settings UI, with the preset picker offering the built-in presets.
+  `qlint.presets` declares `["recommended"]` as its manifest default, so a fresh
+  install lints out of the box while the value stays an explicit, user-visible
+  setting — VS Code shows it in the Settings UI and it can be set to `[]` to run
+  no rules. The extension never writes to the user's `settings.json`.
 - Status bar item showing the active configuration source (`qlint.json`,
   `settings`, or `no rules`); clicking it opens the `qlint.json` or the settings.
 - Resolved configs cached per workspace folder and invalidated on settings

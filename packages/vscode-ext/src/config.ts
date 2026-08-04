@@ -51,9 +51,13 @@ export function loadConfigFile(path: string): LintConfig {
 }
 
 /**
- * Builds a {@link LintConfig} from VS Code setting values. Empty defaults
- * (`presets: []`, `rules: {}`) collapse to an empty config so that, matching the
- * CLI and Chrome bindings, nothing runs implicitly until the user opts in.
+ * Builds a {@link LintConfig} from VS Code setting values. Empty values
+ * (`presets: []`, `rules: {}`) collapse to an empty config, which runs no rules.
+ *
+ * Core still applies nothing implicitly: `qlint.presets` simply *declares*
+ * `["recommended"]` as its default in the manifest, so the value arriving here
+ * is an explicit user-visible setting that the Settings UI shows and that can
+ * be set back to `[]`. The extension never writes to the user's settings.
  *
  * @throws If the settings do not form a valid config (e.g. an unknown preset).
  */

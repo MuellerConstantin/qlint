@@ -61,13 +61,16 @@ merged:
    right home for a shared, checked-in team style.
 2. **VS Code settings**, used when no `qlint.json` is found. Qlik scripts often open as a lone
    `.qvs` file with no project — settings cover exactly that case:
-   - `qlint.presets` — preset(s) to use as a base (e.g. `["recommended"]`).
+   - `qlint.presets` — preset(s) to use as a base. Defaults to `["recommended"]`.
    - `qlint.rules` — per-rule overrides (a severity string, or a `[severity, options]` pair).
+     Defaults to `{}`.
 
-Both default to empty, so — matching the CLI and Chrome bindings — **nothing runs implicitly**:
-a fresh install with no `qlint.json` and no preset selected reports no diagnostics until you opt
-in. The status bar item shows the active source (`qlint.json`, `settings`, or `no rules`); click
-it to open the config or the settings.
+A fresh install therefore lints with the `recommended` preset out of the box. The default is
+declared in the extension manifest, so VS Code shows it in the Settings UI like any other
+setting and you can change it — set `qlint.presets` to `[]` to run no rules at all. The
+extension never writes to your `settings.json`, and Core still applies nothing implicitly: the
+value it receives is always an explicit setting. The status bar item shows the active source
+(`qlint.json`, `settings`, or `no rules`); click it to open the config or the settings.
 
 A broken `qlint.json` is surfaced as an error notification rather than silently ignored, and no
 diagnostics are shown for that file until it is fixed.

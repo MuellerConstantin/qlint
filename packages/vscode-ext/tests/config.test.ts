@@ -2,7 +2,9 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { presetNames } from '@qlint/core';
 import { configFromSettings, loadConfigFile, resolveConfig } from '../src/config.js';
+import manifest from '../package.json' with { type: 'json' };
 
 describe('loadConfigFile', () => {
   let dir: string;
@@ -42,7 +44,7 @@ describe('loadConfigFile', () => {
 });
 
 describe('configFromSettings', () => {
-  it('collapses empty defaults to an empty config so nothing runs implicitly', () => {
+  it('collapses empty values to an empty config, which runs no rules', () => {
     expect(configFromSettings({ presets: [], rules: {} })).toEqual({});
   });
 
@@ -58,6 +60,32 @@ describe('configFromSettings', () => {
 
   it('throws when settings name an unknown preset', () => {
     expect(() => configFromSettings({ presets: ['strict'], rules: {} })).toThrow(/unknown preset "strict"/);
+  });
+});
+
+/*
+ * `settingsScope.get('presets')` is called without a fallback, so the manifest
+ * default *is* the out-of-the-box behaviour. A silent change here would leave
+ * every fresh install linting nothing, with no other test noticing.
+ */
+describe('manifest defaults', () => {
+  const properties = manifest.contributes.configuration.properties;
+
+  it('declares the recommended preset as the default', () => {
+    expect(properties['qlint.presets'].default).toEqual(['recommended']);
+  });
+
+  it('offers every default it declares as a selectable preset', () => {
+    expect(properties['qlint.presets'].items.enum).toEqual(expect.arrayContaining(presetNames));
+  });
+
+  it('declares a default that resolves to an explicit, valid config', () => {
+    const config = configFromSettings({
+      presets: properties['qlint.presets'].default,
+      rules: properties['qlint.rules'].default,
+    });
+
+    expect(config).toEqual({ presets: ['recommended'] });
   });
 });
 
