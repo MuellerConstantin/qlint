@@ -26,10 +26,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {
-    "@qlint/core": "^0.1.0"
-  },
   "devDependencies": {
+    "@qlint/core": "^0.1.0",
     "tsdown": "*",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",
