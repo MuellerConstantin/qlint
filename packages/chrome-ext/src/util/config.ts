@@ -1,13 +1,13 @@
 import { validateConfig, type LintConfig } from '@qlint/core';
+import { STORAGE_AREA, STORAGE_KEY, readStoredConfig } from './storage.js';
 
-const STORAGE_KEY = 'config';
-const STORAGE_AREA = 'sync';
+export { DEFAULT_CONFIG, saveConfig, seedDefaultConfig } from './storage.js';
+
 const SOURCE_LABEL = 'chrome.storage.sync';
 
 export async function loadConfig(): Promise<LintConfig> {
   try {
-    const stored = await chrome.storage.sync.get(STORAGE_KEY);
-    const raw = stored[STORAGE_KEY];
+    const raw = await readStoredConfig();
 
     if (raw === undefined) {
       return {};
@@ -18,10 +18,6 @@ export async function loadConfig(): Promise<LintConfig> {
     console.warn('[qlint:config] failed to load stored config, falling back to defaults', err);
     return {};
   }
-}
-
-export async function saveConfig(config: LintConfig): Promise<void> {
-  await chrome.storage.sync.set({ [STORAGE_KEY]: config });
 }
 
 export function onConfigChange(callback: (config: LintConfig) => void): () => void {

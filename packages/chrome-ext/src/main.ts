@@ -10,7 +10,9 @@ const MOUNT_TIMEOUT_MS = 10_000;
 
 // The loaded user config is used verbatim — nothing runs until it names a
 // preset or rules. This matches the CLI and the VS Code extension: no preset is
-// applied implicitly. Users opt into the opinionated set on the options page.
+// applied implicitly. A fresh install is seeded with the `recommended` preset as
+// a real stored entry (see util/config.ts), which the user can remove again on
+// the options page; until that config arrives, this empty default lints nothing.
 let currentConfig: LintConfig = {};
 let triggerLint: (() => void) | undefined;
 let editorRef: Editor | undefined;

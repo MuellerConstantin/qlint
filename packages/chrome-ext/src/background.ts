@@ -1,3 +1,4 @@
+import { seedDefaultConfig } from './util/storage.js';
 import type { LocationChangeMessage } from './types.js';
 
 const CONTENT_SCRIPT_ID = 'qlint-content';
@@ -83,12 +84,19 @@ chrome.permissions.onRemoved.addListener(() => {
   void syncContentScripts();
 });
 
+/*
+ * Seeding runs on startup as well as on install so a profile that missed the
+ * install event still ends up with a usable default. It is a no-op once any
+ * config has been stored, so repeating it costs a single storage read.
+ */
 chrome.runtime.onInstalled.addListener(() => {
   void syncContentScripts();
+  void seedDefaultConfig();
 });
 
 chrome.runtime.onStartup.addListener(() => {
   void syncContentScripts();
+  void seedDefaultConfig();
 });
 
 chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {

@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   syntax highlighting, bracket matching, and auto-indent. A "Reset" button
   clears all presets and rule overrides. The same JSON shape is accepted by the
   CLI's `--config` flag, so configs carry over between the two.
+- A fresh install is seeded with the `recommended` preset, written to
+  `chrome.storage.sync` as a real, explicit `presets` entry rather than applied
+  as a hidden fallback — so the options page shows it selected and it can be
+  removed like any other. Seeding keys off the absence of a stored config, so a
+  configuration the user emptied (including via "Reset") is never overwritten
+  on a later startup.
 - Permission rationale in `docs/permissions.md` documenting every requested
   permission, the code that uses it, and what breaks without it — alongside the
   project [privacy policy](../../docs/PRIVACY.md).
