@@ -321,5 +321,9 @@ dist
 # VSIX carries a license; the root LICENSE.md stays the single source.
 packages/vscode-ext/LICENSE.md
 
+# Same for the npm tarballs, copied by the `prepack` script of each package.
+packages/core/LICENSE.md
+packages/cli/LICENSE.md
+
 # Upload artifact built by the chrome-ext `package` script.
 packages/chrome-ext/*.zip
