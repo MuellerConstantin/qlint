@@ -8,7 +8,7 @@
   "homepage": "https://github.com/MuellerConstantin/qlint",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuellerConstantin/qlint.git",
+    "url": "git+https://github.com/MuellerConstantin/qlint.git",
     "directory": "packages/chrome-ext"
   },
   "scripts": {

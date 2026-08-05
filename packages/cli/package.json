@@ -2,12 +2,21 @@
   "name": "@qlint/cli",
   "version": "0.1.0",
   "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlint/core.",
+  "keywords": [
+    "qlik",
+    "qvs",
+    "qlik sense",
+    "load script",
+    "linter",
+    "formatter",
+    "cli"
+  ],
   "license": "MIT",
   "type": "module",
   "homepage": "https://github.com/MuellerConstantin/qlint",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MuellerConstantin/qlint.git",
+    "url": "git+https://github.com/MuellerConstantin/qlint.git",
     "directory": "packages/cli"
   },
   "bin": {
