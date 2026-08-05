@@ -76,7 +76,7 @@ describe('validateConfig', () => {
   });
 
   it('embeds the source label in error messages when provided', () => {
-    expect(() => validateConfig([], 'qlint.json')).toThrow(/Config in qlint\.json must be a JSON object/);
+    expect(() => validateConfig([], 'qlinter.json')).toThrow(/Config in qlinter\.json must be a JSON object/);
   });
 
   it('omits the "in <label>" fragment when no source label is provided', () => {

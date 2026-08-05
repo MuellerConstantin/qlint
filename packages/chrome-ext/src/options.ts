@@ -5,7 +5,7 @@ import {
   type LintConfig,
   type PresetName,
   type SeverityOrOff,
-} from '@qlint/core';
+} from '@qlinter/core';
 import CodeMirror from 'codemirror';
 import 'codemirror/mode/javascript/javascript.js';
 import 'codemirror/addon/edit/matchbrackets.js';
@@ -189,7 +189,7 @@ function buildRuleList(): void {
     const id = document.createElement('a');
     id.className = 'rule-id';
     id.textContent = rule.id;
-    id.href = `https://github.com/MuellerConstantin/qlint/blob/main/packages/core/docs/rules.md#${rule.id}`;
+    id.href = `https://github.com/MuellerConstantin/qlinter/blob/main/packages/core/docs/rules.md#${rule.id}`;
     id.target = '_blank';
     id.rel = 'noopener noreferrer';
 

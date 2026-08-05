@@ -6,7 +6,7 @@ your data, see the [privacy policy](../../../docs/PRIVACY.md).
 
 ## Single purpose
 
-qlint lints and formats Qlik load scripts. In the browser, that means one thing: detecting the Qlik Sense
+qlinter lints and formats Qlik load scripts. In the browser, that means one thing: detecting the Qlik Sense
 Data Load Editor on a page you have explicitly enabled, reading the script out of its editor, and rendering
 diagnostics — or a formatted version — back into it. Every permission below exists to serve that.
 
@@ -14,7 +14,7 @@ diagnostics — or a formatted version — back into it. Every permission below 
 
 The extension declares **no** host permissions in its manifest — `<all_urls>` appears only under
 `optional_host_permissions`, which grants nothing on its own. A fresh install can read no page anywhere.
-You grant a single origin at a time through the "Enable qlint for this page" button in the popup, and the
+You grant a single origin at a time through the "Enable qlinter for this page" button in the popup, and the
 extension registers its content scripts for exactly the origins you granted
 ([`src/background.ts`](../src/background.ts)). Revoking access unregisters them again on the spot.
 
@@ -48,7 +48,7 @@ Qlik Sense is a single-page application: moving from the Hub into the Data Load 
 without a page load, so a content script alone never learns that the editor now exists. The extension
 listens to `onHistoryStateUpdated` for the top-level frame only, and uses it purely as a signal to re-run
 detection in that tab. No navigation data is stored, aggregated, or read for any other purpose — the
-listener forwards a bare `qlint:location-change` message with no payload. Without it, qlint would appear
+listener forwards a bare `qlinter:location-change` message with no payload. Without it, qlinter would appear
 dead until you hard-reloaded the editor.
 
 ### `activeTab`
@@ -70,10 +70,10 @@ What that declaration does _not_ do is grant access. Concretely:
 
 - At install, the extension holds **zero** host permissions and can read no page.
 - Access is requested via `chrome.permissions.request()` for **one origin at a time**, derived from the tab
-  you are looking at (`https://host/*`), triggered by your click on "Enable qlint for this page". Chrome
+  you are looking at (`https://host/*`), triggered by your click on "Enable qlinter for this page". Chrome
   shows its own consent prompt for that specific site.
 - Content scripts are registered for granted origins only, and are unregistered the moment you revoke.
-- Revocation is available at any time under `chrome://extensions` → qlint → Site access.
+- Revocation is available at any time under `chrome://extensions` → qlinter → Site access.
 
-The result is the narrowest access the deployment model allows: you end up with qlint enabled on your own
+The result is the narrowest access the deployment model allows: you end up with qlinter enabled on your own
 Qlik server and nowhere else.

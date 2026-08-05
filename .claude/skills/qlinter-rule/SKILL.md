@@ -1,11 +1,11 @@
 ---
-name: qlint-rule
-description: Add, modify, rename, or remove a qlint lint rule in packages/core. Use whenever the user asks to "add a rule", "create a new lint rule", "modify the X rule", "rename a rule", "remove a rule", "add an autofix to X", or otherwise edits files under packages/core/src/rules/. Enforces the rule file shape, the test+fixture layout, the four-step registration in rules/index.ts, the docs entry in packages/core/docs/rules.md, and protects the public rule contract from accidental changes.
+name: qlinter-rule
+description: Add, modify, rename, or remove a qlinter lint rule in packages/core. Use whenever the user asks to "add a rule", "create a new lint rule", "modify the X rule", "rename a rule", "remove a rule", "add an autofix to X", or otherwise edits files under packages/core/src/rules/. Enforces the rule file shape, the test+fixture layout, the four-step registration in rules/index.ts, the docs entry in packages/core/docs/rules.md, and protects the public rule contract from accidental changes.
 ---
 
-# qlint-rule
+# qlinter-rule
 
-Scaffold and maintain qlint lint rules consistently across rule file, registration,
+Scaffold and maintain qlinter lint rules consistently across rule file, registration,
 tests, fixtures, and docs. The rule contract is a public API the CLI and the Chrome
 extension depend on — keep it stable.
 
@@ -151,7 +151,7 @@ export const myRule: Rule<MyRuleOptions, 'my-rule'> = {
 - `fix.range`: **byte offsets** into `source` (0-based), not line/column. Use
   `tokenFix()` for token-scoped replacements.
 - `fix` is optional. Omit it entirely if the rule cannot safely auto-fix.
-- Disable directives (`// qlint-disable-next-line my-rule`) are handled by the
+- Disable directives (`// qlinter-disable-next-line my-rule`) are handled by the
   runner — do not implement them in the rule.
 - Before adding a new rule, check whether it makes sense to extend or modify an existing rule.
 - Keep the rules as generic and configurable as possible, if feasible.

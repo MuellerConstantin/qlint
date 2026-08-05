@@ -1,14 +1,14 @@
 {
-  "name": "@qlint/chrome-ext",
+  "name": "@qlinter/chrome-ext",
   "version": "0.1.0",
-  "description": "Chrome extension that lints and formats Qlik load scripts inline in the Qlik Sense Data Load Editor, powered by @qlint/core.",
+  "description": "Chrome extension that lints and formats Qlik load scripts inline in the Qlik Sense Data Load Editor, powered by @qlinter/core.",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "homepage": "https://github.com/MuellerConstantin/qlinter",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MuellerConstantin/qlint.git",
+    "url": "git+https://github.com/MuellerConstantin/qlinter.git",
     "directory": "packages/chrome-ext"
   },
   "scripts": {
@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@qlint/core": "^0.1.0",
+    "@qlinter/core": "^0.1.0",
     "codemirror": "^5.65.18"
   },
   "devDependencies": {

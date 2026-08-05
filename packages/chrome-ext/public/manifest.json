@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
-  "homepage_url": "https://github.com/MuellerConstantin/qlint",
+  "homepage_url": "https://github.com/MuellerConstantin/qlinter",
   "minimum_chrome_version": "93",
   "permissions": ["scripting", "activeTab", "webNavigation", "storage"],
   "optional_host_permissions": ["<all_urls>"],
@@ -18,9 +18,9 @@
   },
   "options_page": "options.html",
   "icons": {
-    "16": "images/qlint-16.png",
-    "32": "images/qlint-32.png",
-    "48": "images/qlint-48.png",
-    "128": "images/qlint-128.png"
+    "16": "images/qlinter-16.png",
+    "32": "images/qlinter-32.png",
+    "48": "images/qlinter-48.png",
+    "128": "images/qlinter-128.png"
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "@qlint/cli",
+  "name": "@qlinter/cli",
   "version": "0.1.0",
-  "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlint/core.",
+  "description": "Command-line linter and formatter for Qlik load scripts, powered by @qlinter/core.",
   "keywords": [
     "qlik",
     "qvs",
@@ -13,14 +13,14 @@
   ],
   "license": "MIT",
   "type": "module",
-  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "homepage": "https://github.com/MuellerConstantin/qlinter",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MuellerConstantin/qlint.git",
+    "url": "git+https://github.com/MuellerConstantin/qlinter.git",
     "directory": "packages/cli"
   },
   "bin": {
-    "qlint": "./dist/index.js"
+    "qlinter": "./dist/index.js"
   },
   "files": [
     "dist"
@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@qlint/core": "^0.1.0",
+    "@qlinter/core": "^0.1.0",
     "tsdown": "*",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",

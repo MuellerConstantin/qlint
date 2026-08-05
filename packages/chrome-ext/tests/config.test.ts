@@ -1,4 +1,4 @@
-import type { LintConfig } from '@qlint/core';
+import type { LintConfig } from '@qlinter/core';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_CONFIG, loadConfig, onConfigChange, saveConfig, seedDefaultConfig } from '../src/util/config.js';
 

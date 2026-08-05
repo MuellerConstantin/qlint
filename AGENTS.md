@@ -2,7 +2,7 @@
 
 Opinionated linting and formatting utilities for Qlik script.
 
-qlint enforces a consistent, opinionated style for Qlik load scripts — so you spend
+qlinter enforces a consistent, opinionated style for Qlik load scripts — so you spend
 review time on logic, not on whitespace, casing, or keyword conventions. The linting and
 formatting logic lives in a single, dependency-free core; everything else (CLI, browser,
 IDE integrations) is a thin binding on top of it.

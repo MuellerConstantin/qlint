@@ -1,14 +1,14 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { validateConfig, type LintConfig } from '@qlint/core';
+import { validateConfig, type LintConfig } from '@qlinter/core';
 
 /** Conventional config filename, matching what the `--config` docs use. */
-export const CONFIG_FILENAME = 'qlint.json';
+export const CONFIG_FILENAME = 'qlinter.json';
 
 const DEFAULT_CONFIG = `${JSON.stringify({ presets: 'recommended', rules: {} }, null, 2)}\n`;
 
 /**
- * Scaffolds a `qlint.json` in `dir` that names the `recommended` preset and
+ * Scaffolds a `qlinter.json` in `dir` that names the `recommended` preset and
  * leaves an empty `rules` map to fill in. Refuses to overwrite an existing file
  * (opened with the `wx` flag), so an established config is never clobbered.
  *

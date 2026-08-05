@@ -1,14 +1,14 @@
 /**
  * Inline directive that suppresses lint diagnostics on the next source line.
  *
- *   // qlint-disable-next-line
- *   // qlint-disable-next-line rule-id
- *   // qlint-disable-next-line rule-a, rule-b
+ *   // qlinter-disable-next-line
+ *   // qlinter-disable-next-line rule-id
+ *   // qlinter-disable-next-line rule-a, rule-b
  *
  * Without rule IDs every diagnostic on the following line is suppressed; with
  * rule IDs only matching diagnostics are.
  */
-const DIRECTIVE_PATTERN = /^[ \t]*\/\/[ \t]*qlint-disable-next-line(?:[ \t]+(.+?))?[ \t]*$/;
+const DIRECTIVE_PATTERN = /^[ \t]*\/\/[ \t]*qlinter-disable-next-line(?:[ \t]+(.+?))?[ \t]*$/;
 
 export type DisabledLines = Map<number, Set<string> | 'all'>;
 

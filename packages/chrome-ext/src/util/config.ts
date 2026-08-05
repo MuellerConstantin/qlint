@@ -1,4 +1,4 @@
-import { validateConfig, type LintConfig } from '@qlint/core';
+import { validateConfig, type LintConfig } from '@qlinter/core';
 import { STORAGE_AREA, STORAGE_KEY, readStoredConfig } from './storage.js';
 
 export { DEFAULT_CONFIG, saveConfig, seedDefaultConfig } from './storage.js';
@@ -15,7 +15,7 @@ export async function loadConfig(): Promise<LintConfig> {
 
     return validateConfig(raw, SOURCE_LABEL);
   } catch (err) {
-    console.warn('[qlint:config] failed to load stored config, falling back to defaults', err);
+    console.warn('[qlinter:config] failed to load stored config, falling back to defaults', err);
     return {};
   }
 }
@@ -36,7 +36,7 @@ export function onConfigChange(callback: (config: LintConfig) => void): () => vo
     try {
       callback(validateConfig(raw, SOURCE_LABEL));
     } catch (err) {
-      console.warn('[qlint:config] ignoring invalid config received via storage change', err);
+      console.warn('[qlinter:config] ignoring invalid config received via storage change', err);
     }
   };
 

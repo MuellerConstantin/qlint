@@ -62,7 +62,7 @@ for (const file of files) {
 
 zip.end();
 
-const target = join(packageRoot, `qlint-chrome-ext-${version}.zip`);
+const target = join(packageRoot, `qlinter-chrome-ext-${version}.zip`);
 await pipeline(zip.outputStream, createWriteStream(target));
 
 console.log(`Packaged ${files.length} files into ${relative(packageRoot, target)}`);

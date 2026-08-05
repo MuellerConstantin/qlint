@@ -1,9 +1,9 @@
 <p align="center">
   <img width="200" alt="Logo" src="./docs/images/logo.svg">
-  <h1 align="center">@qlint/chrome-ext</h1>
+  <h1 align="center">@qlinter/chrome-ext</h1>
 </p>
 <p align="center">
-  Chrome extension for qlint — brings inline linting and one-click formatting directly into the Qlik Sense Data Load Editor.
+  Chrome extension for qlinter — brings inline linting and one-click formatting directly into the Qlik Sense Data Load Editor.
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/Browser-Chrome-4285F4?logo=chromewebstore" />
@@ -29,7 +29,7 @@ Everyone on your team writes Qlik script their own way? Nothing consistent, code
 read and a pain to maintain? This extension fixes that — it enforces an opinionated style
 guide, autoformats on demand, and flags violations inline, right where you write the script.
 
-A browser binding around [`@qlint/core`](https://github.com/MuellerConstantin/qlint/tree/main/packages/core):
+A browser binding around [`@qlinter/core`](https://github.com/MuellerConstantin/qlinter/tree/main/packages/core):
 the extension owns the platform concerns — injecting into the Data Load Editor, locating the script
 content, surfacing diagnostics as inline UI, and wiring up the format action — and delegates every
 linting and formatting decision to Core. The bundled Core engine runs entirely client-side; no
@@ -55,7 +55,7 @@ script ever leaves the browser, and no backend is involved.
 
 ## Privacy & permissions
 
-qlint collects nothing, transmits nothing, and contacts no server — there is not a single network
+qlinter collects nothing, transmits nothing, and contacts no server — there is not a single network
 call in the extension. Your scripts are linted in the page and never leave the browser. The only
 thing persisted is your own rule configuration.
 

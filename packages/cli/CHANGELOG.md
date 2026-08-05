@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `qlint --config <path> <files|dirs...>` command that lints `.qvs` files
+- `qlinter --config <path> <files|dirs...>` command that lints `.qvs` files
   against a required config file, applying no implicit defaults.
 - Recursive directory traversal: passing a directory walks it and picks up every
   `.qvs` file beneath it.
@@ -27,9 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   them, or reconfigures their options per project. A missing config, invalid
   JSON, unknown presets, unknown rule IDs, unknown severities, and malformed rule
   entries fail with a clear error before any linting starts.
-- `qlint init` command that scaffolds a `qlint.json` (naming the `recommended`
+- `qlinter init` command that scaffolds a `qlinter.json` (naming the `recommended`
   preset with an empty `rules` map) in the current directory. It fails rather
-  than overwrite an existing `qlint.json`.
+  than overwrite an existing `qlinter.json`.
 - `--help` / `-h` flag printing usage.
 - Exit codes suitable for CI: `0` when no errors, `1` when errors are present,
   `2` for invalid usage, a missing/invalid config, or missing input paths.

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { format, lint, type Diagnostic, type Fix, type LintConfig, type Severity } from '@qlint/core';
+import { format, lint, type Diagnostic, type Fix, type LintConfig, type Severity } from '@qlinter/core';
 import { resolveConfig, type ResolvedConfig, type SettingsInput } from './config.js';
 
 /**
@@ -8,11 +8,11 @@ import { resolveConfig, type ResolvedConfig, type SettingsInput } from './config
  */
 const QLIK_LANGUAGE_ID = 'qlik';
 
-/** Identifies qlint diagnostics in the editor UI and the Problems panel. */
-const DIAGNOSTIC_SOURCE = 'qlint';
+/** Identifies qlinter diagnostics in the editor UI and the Problems panel. */
+const DIAGNOSTIC_SOURCE = 'qlinter';
 
 /** Command wired to the status bar item; reveals the active config source. */
-const SHOW_CONFIG_COMMAND = 'qlint.showConfig';
+const SHOW_CONFIG_COMMAND = 'qlinter.showConfig';
 
 /**
  * Kind for the whole-document autofix action. Nested under `source.fixAll` so it
@@ -20,7 +20,7 @@ const SHOW_CONFIG_COMMAND = 'qlint.showConfig';
  * `editor.codeActionsOnSave`) or from the "Fix All" command, while staying out of
  * the ordinary quick-fix lightbulb.
  */
-const FIX_ALL_KIND = vscode.CodeActionKind.SourceFixAll.append('qlint');
+const FIX_ALL_KIND = vscode.CodeActionKind.SourceFixAll.append('qlinter');
 
 /** Cache key standing in for documents that belong to no workspace folder. */
 const LOOSE_FILE_KEY = '\0loose';
@@ -100,7 +100,7 @@ function isEmptyConfig(config: LintConfig): boolean {
 /**
  * Entry point invoked by the VS Code extension host once the extension is
  * activated. Wires up live linting for Qlik scripts, resolving the config per
- * document (a workspace `qlint.json` wins, otherwise the `qlint.*` settings),
+ * document (a workspace `qlinter.json` wins, otherwise the `qlinter.*` settings),
  * exposes Core's autofixes as quick fixes, and reflects the active config source
  * in the status bar. Disposables are tracked against the extension
  * {@link vscode.ExtensionContext context} so they are torn down on deactivation.
@@ -109,14 +109,14 @@ function isEmptyConfig(config: LintConfig): boolean {
  */
 export function activate(context: vscode.ExtensionContext): void {
   const collection = vscode.languages.createDiagnosticCollection(DIAGNOSTIC_SOURCE);
-  const output = vscode.window.createOutputChannel('qlint');
+  const output = vscode.window.createOutputChannel('qlinter');
   const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 0);
   statusBar.command = SHOW_CONFIG_COMMAND;
   context.subscriptions.push(collection, output, statusBar);
 
   // Resolved configs are cached per workspace folder (loose files share one
-  // entry) so a `qlint.json` is not re-read on every keystroke. The cache is
-  // cleared wholesale whenever settings or a `qlint.json` change.
+  // entry) so a `qlinter.json` is not re-read on every keystroke. The cache is
+  // cleared wholesale whenever settings or a `qlinter.json` change.
   const cache = new Map<string, ConfigResult>();
 
   function getConfig(document: vscode.TextDocument): ConfigResult {
@@ -128,7 +128,7 @@ export function activate(context: vscode.ExtensionContext): void {
       return cached;
     }
 
-    const settingsScope = vscode.workspace.getConfiguration('qlint', document.uri);
+    const settingsScope = vscode.workspace.getConfiguration('qlinter', document.uri);
     const settings: SettingsInput = {
       presets: settingsScope.get('presets'),
       rules: settingsScope.get('rules'),
@@ -142,7 +142,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const message = err instanceof Error ? err.message : String(err);
       result = { ok: false, message };
       output.appendLine(message);
-      void vscode.window.showErrorMessage(`qlint: ${message}`);
+      void vscode.window.showErrorMessage(`qlinter: ${message}`);
     }
 
     cache.set(key, result);
@@ -177,16 +177,16 @@ export function activate(context: vscode.ExtensionContext): void {
     const result = getConfig(document);
 
     if (!result.ok) {
-      statusBar.text = '$(error) qlint: config error';
+      statusBar.text = '$(error) qlinter: config error';
       statusBar.tooltip = result.message;
-    } else if (result.resolved.source === 'qlint.json') {
-      statusBar.text = '$(check) qlint: qlint.json';
+    } else if (result.resolved.source === 'qlinter.json') {
+      statusBar.text = '$(check) qlinter: qlinter.json';
       statusBar.tooltip = `Using ${result.resolved.path}`;
     } else if (isEmptyConfig(result.resolved.config)) {
-      statusBar.text = '$(warning) qlint: no rules';
-      statusBar.tooltip = 'No qlint.json found and no rules configured. Click to open settings.';
+      statusBar.text = '$(warning) qlinter: no rules';
+      statusBar.tooltip = 'No qlinter.json found and no rules configured. Click to open settings.';
     } else {
-      statusBar.text = '$(check) qlint: settings';
+      statusBar.text = '$(check) qlinter: settings';
       statusBar.tooltip = 'Configured via VS Code settings. Click to open settings.';
     }
 
@@ -225,7 +225,7 @@ export function activate(context: vscode.ExtensionContext): void {
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       output.appendLine(message);
-      void vscode.window.showErrorMessage(`qlint: ${message}`);
+      void vscode.window.showErrorMessage(`qlinter: ${message}`);
       return undefined;
     }
   }
@@ -237,22 +237,22 @@ export function activate(context: vscode.ExtensionContext): void {
     },
   };
 
-  /** Builds per-diagnostic quick fixes for the qlint diagnostics in `context`. */
+  /** Builds per-diagnostic quick fixes for the qlinter diagnostics in `context`. */
   function quickFixes(
     document: vscode.TextDocument,
     config: LintConfig,
     context: vscode.CodeActionContext,
   ): vscode.CodeAction[] {
-    const qlintDiagnostics = context.diagnostics.filter((diagnostic) => diagnostic.source === DIAGNOSTIC_SOURCE);
+    const qlinterDiagnostics = context.diagnostics.filter((diagnostic) => diagnostic.source === DIAGNOSTIC_SOURCE);
 
-    if (qlintDiagnostics.length === 0) {
+    if (qlinterDiagnostics.length === 0) {
       return [];
     }
 
     const coreDiagnostics = lint(document.getText(), config);
     const actions: vscode.CodeAction[] = [];
 
-    for (const diagnostic of qlintDiagnostics) {
+    for (const diagnostic of qlinterDiagnostics) {
       const match = coreDiagnostics.find(
         (core) =>
           core.fix !== undefined &&
@@ -276,7 +276,7 @@ export function activate(context: vscode.ExtensionContext): void {
       return undefined;
     }
 
-    const action = new vscode.CodeAction('qlint: Fix all auto-fixable problems', FIX_ALL_KIND);
+    const action = new vscode.CodeAction('qlinter: Fix all auto-fixable problems', FIX_ALL_KIND);
     action.edit = new vscode.WorkspaceEdit();
     action.edit.replace(document.uri, fullRange(document), formatted);
 
@@ -319,7 +319,7 @@ export function activate(context: vscode.ExtensionContext): void {
     },
   };
 
-  const configWatcher = vscode.workspace.createFileSystemWatcher('**/qlint.json');
+  const configWatcher = vscode.workspace.createFileSystemWatcher('**/qlinter.json');
 
   for (const document of vscode.workspace.textDocuments) {
     refreshDiagnostics(document);
@@ -335,21 +335,21 @@ export function activate(context: vscode.ExtensionContext): void {
       if (document !== undefined) {
         const result = getConfig(document);
 
-        if (result.ok && result.resolved.source === 'qlint.json' && result.resolved.path !== undefined) {
+        if (result.ok && result.resolved.source === 'qlinter.json' && result.resolved.path !== undefined) {
           const opened = await vscode.workspace.openTextDocument(result.resolved.path);
           await vscode.window.showTextDocument(opened);
           return;
         }
       }
 
-      await vscode.commands.executeCommand('workbench.action.openSettings', 'qlint');
+      await vscode.commands.executeCommand('workbench.action.openSettings', 'qlinter');
     }),
     vscode.workspace.onDidOpenTextDocument((document) => refreshDiagnostics(document)),
     vscode.workspace.onDidChangeTextDocument((event) => refreshDiagnostics(event.document)),
     vscode.workspace.onDidCloseTextDocument((document) => collection.delete(document.uri)),
     vscode.window.onDidChangeActiveTextEditor((editor) => updateStatusBar(editor)),
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('qlint')) {
+      if (event.affectsConfiguration('qlinter')) {
         refreshAll();
       }
     }),

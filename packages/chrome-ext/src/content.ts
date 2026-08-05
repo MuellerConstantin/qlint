@@ -1,6 +1,6 @@
 import { classifyPage, isQlikScriptEditor, urlLooksLikeScriptEditor } from './util/detection.js';
 import { loadConfig, onConfigChange } from './util/config.js';
-import type { LintConfig } from '@qlint/core';
+import type { LintConfig } from '@qlinter/core';
 import type {
   Message,
   Status,
@@ -21,8 +21,8 @@ let currentConfig: LintConfig = {};
 
 function postConfig(): void {
   const message: ConfigBridgeMessage = {
-    source: 'qlint-content',
-    type: 'qlint:config',
+    source: 'qlinter-content',
+    type: 'qlinter:config',
     config: currentConfig,
   };
   window.postMessage(message, window.location.origin);
@@ -39,7 +39,7 @@ onConfigChange((config) => {
 });
 
 function broadcastStatus(): void {
-  const message: StatusMessage = { type: 'qlint:status', status };
+  const message: StatusMessage = { type: 'qlinter:status', status };
   chrome.runtime.sendMessage(message).catch(() => {
     // Intentionally ignored
   });
@@ -53,7 +53,7 @@ async function activate(): Promise<void> {
   status = 'active';
   diagnosticCounts = null;
   fixableCount = 0;
-  console.log('[qlint] activated — qlik script editor detected on', location.href);
+  console.log('[qlinter] activated — qlik script editor detected on', location.href);
   broadcastStatus();
 }
 
@@ -65,12 +65,12 @@ async function deactivate(): Promise<void> {
   status = 'not-applicable';
   diagnosticCounts = null;
   fixableCount = 0;
-  console.log('[qlint] deactivated — left script editor');
+  console.log('[qlinter] deactivated — left script editor');
   broadcastStatus();
 }
 
 function evaluate(): void {
-  console.debug('[qlint] detection status:', classifyPage());
+  console.debug('[qlinter] detection status:', classifyPage());
 
   if (isQlikScriptEditor()) {
     activate();
@@ -97,7 +97,7 @@ function evaluateAndWatchForMount(): void {
     }
 
     if (performance.now() - start > DOM_POLL_TIMEOUT_MS) {
-      console.debug('[qlint] editor mount watch timed out');
+      console.debug('[qlinter] editor mount watch timed out');
       observer.disconnect();
     }
   });
@@ -105,30 +105,30 @@ function evaluateAndWatchForMount(): void {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
-console.log('[qlint] content script loaded on', location.href);
+console.log('[qlinter] content script loaded on', location.href);
 
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse) => {
-  if (message?.type === 'qlint:location-change') {
+  if (message?.type === 'qlinter:location-change') {
     evaluateAndWatchForMount();
     return false;
   }
 
-  if (message?.type === 'qlint:get-status') {
-    const response: StatusMessage = { type: 'qlint:status', status };
+  if (message?.type === 'qlinter:get-status') {
+    const response: StatusMessage = { type: 'qlinter:status', status };
     sendResponse(response);
     return false;
   }
 
-  if (message?.type === 'qlint:get-diagnostics') {
+  if (message?.type === 'qlinter:get-diagnostics') {
     const response: DiagnosticsMessage | null = diagnosticCounts
-      ? { type: 'qlint:diagnostics', counts: diagnosticCounts, fixable: fixableCount }
+      ? { type: 'qlinter:diagnostics', counts: diagnosticCounts, fixable: fixableCount }
       : null;
     sendResponse(response);
     return false;
   }
 
-  if (message?.type === 'qlint:fix-all') {
-    const bridge: FixAllBridgeMessage = { source: 'qlint-content', type: 'qlint:fix-all' };
+  if (message?.type === 'qlinter:fix-all') {
+    const bridge: FixAllBridgeMessage = { source: 'qlinter-content', type: 'qlinter:fix-all' };
     window.postMessage(bridge, window.location.origin);
     return false;
   }
@@ -143,20 +143,20 @@ window.addEventListener('message', (event: MessageEvent) => {
 
   const data = event.data as BridgeMessage | undefined;
 
-  if (data?.source !== 'qlint-main') {
+  if (data?.source !== 'qlinter-main') {
     return;
   }
 
-  if (data.type === 'qlint:get-config') {
+  if (data.type === 'qlinter:get-config') {
     postConfig();
     return;
   }
 
-  if (data.type === 'qlint:diagnostics') {
+  if (data.type === 'qlinter:diagnostics') {
     diagnosticCounts = data.counts;
     fixableCount = data.fixable;
     const message: DiagnosticsMessage = {
-      type: 'qlint:diagnostics',
+      type: 'qlinter:diagnostics',
       counts: diagnosticCounts,
       fixable: fixableCount,
     };

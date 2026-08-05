@@ -1,9 +1,9 @@
 <p align="center">
   <img width="200" alt="Logo" src="./docs/images/logo.svg">
-  <h1 align="center">@qlint/cli</h1>
+  <h1 align="center">@qlinter/cli</h1>
 </p>
 <p align="center">
-  Command-line interface for qlint — lints and formats Qlik load scripts from the terminal or in CI.
+  Command-line interface for qlinter — lints and formats Qlik load scripts from the terminal or in CI.
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/npm-CB3837?logo=npm" />
@@ -27,11 +27,11 @@
 ## Introduction
 
 Everyone on your team writes Qlik script their own way? Nothing consistent, code hard to
-read and a pain to maintain? The qlint CLI fixes that — run it locally against your
+read and a pain to maintain? The qlinter CLI fixes that — run it locally against your
 scripts or wire it into CI to enforce an opinionated style guide on every commit,
 autoformat in place, and fail the build when violations slip through.
 
-A thin wrapper around [`@qlint/core`](https://github.com/MuellerConstantin/qlint/tree/main/packages/core):
+A thin wrapper around [`@qlinter/core`](https://github.com/MuellerConstantin/qlinter/tree/main/packages/core):
 the CLI owns the platform concerns — file discovery (globs), reading/writing scripts,
 configuration resolution, and process exit codes — and delegates every linting and formatting
 decision to Core. No style logic lives here; the binding only translates between the filesystem and
@@ -58,7 +58,7 @@ Core's string-in, diagnostics-out API.
 ### Synopsis
 
 ```
-qlint --config <path> [options] <files|dirs...>
+qlinter --config <path> [options] <files|dirs...>
 ```
 
 `--config` is required. The CLI also takes one or more positional arguments — each a path to a `.qvs` file or a
@@ -82,9 +82,9 @@ The CLI applies **no implicit defaults** — it runs exactly the config you poin
 it at via `--config <path>`, used verbatim. Running without `--config` exits with
 an error. There is no auto-discovery; the path must be supplied explicitly.
 
-Run `qlint init` to scaffold a starter `qlint.json` in the current directory: it
+Run `qlinter init` to scaffold a starter `qlinter.json` in the current directory: it
 names the `recommended` preset and leaves an empty `rules` map for your
-overrides. It refuses to overwrite an existing `qlint.json`, so an established
+overrides. It refuses to overwrite an existing `qlinter.json`, so an established
 config is never clobbered.
 
 The file has the same shape as Core's `LintConfig`: a `presets` field naming the
@@ -113,23 +113,23 @@ linting starts.
 ### Examples
 
 ```bash
-# Scaffold a qlint.json in the current directory
-qlint init
+# Scaffold a qlinter.json in the current directory
+qlinter init
 
 # Lint a single script
-qlint --config qlint.json scripts/load.qvs
+qlinter --config qlinter.json scripts/load.qvs
 
 # Lint everything under a directory tree
-qlint --config qlint.json src/
+qlinter --config qlinter.json src/
 
 # Lint multiple targets at once
-qlint --config qlint.json src/load.qvs src/transform.qvs lib/
+qlinter --config qlinter.json src/load.qvs src/transform.qvs lib/
 
 # Auto-fix and write changes back in place
-qlint --config qlint.json --fix src/
+qlinter --config qlinter.json --fix src/
 
 # Errors only, machine-readable output (e.g. for CI reporters)
-qlint --config qlint.json --quiet --format json src/
+qlinter --config qlinter.json --quiet --format json src/
 ```
 
 ### Exit codes

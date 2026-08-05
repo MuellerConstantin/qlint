@@ -1,8 +1,8 @@
 import { seedDefaultConfig } from './util/storage.js';
 import type { LocationChangeMessage } from './types.js';
 
-const CONTENT_SCRIPT_ID = 'qlint-content';
-const MAIN_SCRIPT_ID = 'qlint-main';
+const CONTENT_SCRIPT_ID = 'qlinter-content';
+const MAIN_SCRIPT_ID = 'qlinter-main';
 const SCRIPT_IDS = [CONTENT_SCRIPT_ID, MAIN_SCRIPT_ID];
 
 async function syncContentScripts(): Promise<void> {
@@ -18,7 +18,7 @@ async function syncContentScripts(): Promise<void> {
   }
 
   if (origins.length === 0) {
-    console.log('[qlint] no granted origins — content scripts unregistered');
+    console.log('[qlinter] no granted origins — content scripts unregistered');
     return;
   }
 
@@ -38,7 +38,7 @@ async function syncContentScripts(): Promise<void> {
     },
   ]);
 
-  console.log('[qlint] content scripts registered for', origins);
+  console.log('[qlinter] content scripts registered for', origins);
 }
 
 chrome.permissions.onAdded.addListener((perms) => {
@@ -74,7 +74,7 @@ async function handlePermissionsAdded(perms: chrome.permissions.Permissions): Pr
           world: 'MAIN',
         });
       } catch (err) {
-        console.warn('[qlint] failed to inject content script into tab', tab.id, err);
+        console.warn('[qlinter] failed to inject content script into tab', tab.id, err);
       }
     }),
   );
@@ -104,8 +104,8 @@ chrome.webNavigation.onHistoryStateUpdated.addListener((details) => {
     return;
   }
 
-  const message: LocationChangeMessage = { type: 'qlint:location-change' };
+  const message: LocationChangeMessage = { type: 'qlinter:location-change' };
   chrome.tabs.sendMessage(details.tabId, message).catch(() => {});
 });
 
-console.log('[qlint] service worker booted');
+console.log('[qlinter] service worker booted');

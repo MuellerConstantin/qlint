@@ -34,7 +34,7 @@ function write(name: string, contents: string): string {
 
 /** A config enabling a single rule, so assertions do not depend on preset contents. */
 function config(severity: string): string {
-  return write('qlint.json', JSON.stringify({ rules: { 'trailing-whitespace': severity } }));
+  return write('qlinter.json', JSON.stringify({ rules: { 'trailing-whitespace': severity } }));
 }
 
 beforeAll(() => {
@@ -44,7 +44,7 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  dir = mkdtempSync(join(tmpdir(), 'qlint-cli-'));
+  dir = mkdtempSync(join(tmpdir(), 'qlinter-cli-'));
 });
 
 afterEach(() => {
@@ -56,14 +56,14 @@ describe('usage', () => {
     const { code, stdout } = run('--help');
 
     expect(code).toBe(0);
-    expect(stdout).toContain('Usage: qlint');
+    expect(stdout).toContain('Usage: qlinter');
   });
 
   it('prints help and fails when called without arguments', () => {
     const { code, stdout } = run();
 
     expect(code).toBe(2);
-    expect(stdout).toContain('Usage: qlint');
+    expect(stdout).toContain('Usage: qlinter');
   });
 
   it('refuses to run without a config, rather than assuming defaults', () => {
@@ -90,7 +90,7 @@ describe('file discovery', () => {
   it('reports a path that does not exist', () => {
     config('error');
 
-    const { code, stderr } = run('--config', 'qlint.json', 'nope.qvs');
+    const { code, stderr } = run('--config', 'qlinter.json', 'nope.qvs');
 
     expect(code).toBe(2);
     expect(stderr).toMatch(/Path not found/);
@@ -100,7 +100,7 @@ describe('file discovery', () => {
     config('error');
     mkdirSync(join(dir, 'empty'));
 
-    const { code, stderr } = run('--config', 'qlint.json', 'empty');
+    const { code, stderr } = run('--config', 'qlinter.json', 'empty');
 
     expect(code).toBe(2);
     expect(stderr).toMatch(/No Qlik Script \(QVS\) files found/);
@@ -111,7 +111,7 @@ describe('file discovery', () => {
     write('scripts/nested/deep.qvs', 'SET x = 1;   \n');
     write('scripts/notes.txt', 'ignore me   \n');
 
-    const { code, stdout } = run('--config', 'qlint.json', 'scripts');
+    const { code, stdout } = run('--config', 'qlinter.json', 'scripts');
 
     expect(code).toBe(1);
     expect(stdout).toContain('deep.qvs');
@@ -125,7 +125,7 @@ describe('exit codes', () => {
     config('error');
     write('script.qvs', 'SET x = 1;\n');
 
-    const { code, stdout } = run('--config', 'qlint.json', 'script.qvs');
+    const { code, stdout } = run('--config', 'qlinter.json', 'script.qvs');
 
     expect(code).toBe(0);
     expect(stdout).toMatch(/0 error\(s\), 0 warning\(s\)/);
@@ -135,7 +135,7 @@ describe('exit codes', () => {
     config('error');
     write('script.qvs', 'SET x = 1;   \n');
 
-    const { code, stdout } = run('--config', 'qlint.json', 'script.qvs');
+    const { code, stdout } = run('--config', 'qlinter.json', 'script.qvs');
 
     expect(code).toBe(1);
     expect(stdout).toContain('script.qvs:1:11  error  trailing-whitespace');
@@ -146,7 +146,7 @@ describe('exit codes', () => {
     config('warning');
     write('script.qvs', 'SET x = 1;   \n');
 
-    const { code, stdout } = run('--config', 'qlint.json', 'script.qvs');
+    const { code, stdout } = run('--config', 'qlinter.json', 'script.qvs');
 
     expect(code).toBe(0);
     expect(stdout).toContain('warning  trailing-whitespace');
@@ -159,7 +159,7 @@ describe('output formats', () => {
     config('warning');
     write('script.qvs', 'SET x = 1;   \n');
 
-    const { code, stdout } = run('--config', 'qlint.json', '--quiet', 'script.qvs');
+    const { code, stdout } = run('--config', 'qlinter.json', '--quiet', 'script.qvs');
 
     expect(code).toBe(0);
     expect(stdout).not.toContain('trailing-whitespace');
@@ -169,7 +169,7 @@ describe('output formats', () => {
     config('error');
     write('script.qvs', 'SET x = 1;   \n');
 
-    const { stdout } = run('--config', 'qlint.json', '--format', 'json', 'script.qvs');
+    const { stdout } = run('--config', 'qlinter.json', '--format', 'json', 'script.qvs');
     const lines = stdout.trim().split(/\r?\n/);
 
     expect(lines).toHaveLength(1);
@@ -185,7 +185,7 @@ describe('--fix', () => {
     config('error');
     const path = write('script.qvs', 'SET x = 1;   \n');
 
-    const { stdout } = run('--config', 'qlint.json', '--fix', 'script.qvs');
+    const { stdout } = run('--config', 'qlinter.json', '--fix', 'script.qvs');
 
     expect(readFileSync(path, 'utf8')).toBe('SET x = 1;\n');
     expect(stdout).toMatch(/fix\(es\) applied/);
@@ -195,7 +195,7 @@ describe('--fix', () => {
     config('error');
     const path = write('script.qvs', 'SET x = 1;\n');
 
-    const { code } = run('--config', 'qlint.json', '--fix', 'script.qvs');
+    const { code } = run('--config', 'qlinter.json', '--fix', 'script.qvs');
 
     expect(code).toBe(0);
     expect(readFileSync(path, 'utf8')).toBe('SET x = 1;\n');
@@ -207,8 +207,8 @@ describe('init', () => {
     const { code, stdout } = run('init');
 
     expect(code).toBe(0);
-    expect(stdout).toContain('qlint.json');
-    expect(JSON.parse(readFileSync(join(dir, 'qlint.json'), 'utf8'))).toEqual({
+    expect(stdout).toContain('qlinter.json');
+    expect(JSON.parse(readFileSync(join(dir, 'qlinter.json'), 'utf8'))).toEqual({
       presets: 'recommended',
       rules: {},
     });

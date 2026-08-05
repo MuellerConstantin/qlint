@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Manifest V3 Chrome extension that injects `@qlint/core` into the Qlik Sense
+- Manifest V3 Chrome extension that injects `@qlinter/core` into the Qlik Sense
   Data Load Editor on Qlik Sense Enterprise on Windows (QSEoW).
 - Inline lint feedback rendered directly against the editor, with underlines on
   the offending tokens and hover tooltips that explain the rule.

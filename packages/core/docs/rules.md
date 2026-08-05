@@ -197,7 +197,7 @@ End Switch
 | `style` | `'space' \| 'tab'` | `'space'` | Character used for one indent unit.     |
 
 - `size` — how many `style` units make up one indent level. With the default
-  `style: 'space'`, `size: 4` is the qlint default and matches how the Qlik
+  `style: 'space'`, `size: 4` is the qlinter default and matches how the Qlik
   Sense Data Load Editor renders a level (four columns wide).
 - `style: 'space'` — indent with ASCII spaces (the default). `size` counts
   spaces per level; the default is `4`.
@@ -209,7 +209,7 @@ End Switch
 Example configuration (override the default to tab-based indentation):
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -310,7 +310,7 @@ Resident [TableA];
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -373,7 +373,7 @@ Resident [TableA];
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -650,7 +650,7 @@ on its own.
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1115,7 +1115,7 @@ that no editor agrees on.
 Example configuration (override both indent rules to tab-based indentation):
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1189,7 +1189,7 @@ From [lib://Sales/orders.qvd] (qvd);
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1278,7 +1278,7 @@ Run without `continuation-indent` and the broken-out arguments are left flush
 left — the break is still correct, just not indented by anyone.
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1392,7 +1392,7 @@ SET vDay = 1;
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1484,7 +1484,7 @@ SET vDone = 1;
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {
@@ -1762,7 +1762,7 @@ Let DateFormat = 'YYYY-MM-DD';
 Example configuration:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 lint(source, {
   rules: {

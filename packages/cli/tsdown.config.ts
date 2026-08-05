@@ -9,7 +9,7 @@ export default defineConfig({
   entry: ['src/index.ts'],
   format: ['esm'],
   platform: 'node',
-  deps: { alwaysBundle: ['@qlint/core'] },
+  deps: { alwaysBundle: ['@qlinter/core'] },
   outExtensions: () => ({ js: '.js' }),
   dts: false,
   clean: true,

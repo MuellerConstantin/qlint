@@ -62,7 +62,7 @@ fixAllButton.onclick = () => {
   if (activeTabId === null) {
     return;
   }
-  const request: FixAllMessage = { type: 'qlint:fix-all' };
+  const request: FixAllMessage = { type: 'qlinter:fix-all' };
   chrome.tabs.sendMessage(activeTabId, request).catch(() => {});
 };
 
@@ -101,7 +101,7 @@ async function isOriginGranted(origin: string): Promise<boolean> {
 
 async function queryStatus(tabId: number): Promise<Status> {
   try {
-    const request: GetStatusMessage = { type: 'qlint:get-status' };
+    const request: GetStatusMessage = { type: 'qlinter:get-status' };
     const response = (await chrome.tabs.sendMessage(tabId, request)) as StatusMessage | undefined;
     return response?.status ?? 'errored';
   } catch {
@@ -111,7 +111,7 @@ async function queryStatus(tabId: number): Promise<Status> {
 
 async function queryDiagnostics(tabId: number): Promise<DiagnosticsMessage | null> {
   try {
-    const request: GetDiagnosticsMessage = { type: 'qlint:get-diagnostics' };
+    const request: GetDiagnosticsMessage = { type: 'qlinter:get-diagnostics' };
     const response = (await chrome.tabs.sendMessage(tabId, request)) as DiagnosticsMessage | undefined;
     return response ?? null;
   } catch {
@@ -147,7 +147,7 @@ async function refresh(): Promise<void> {
           }
         })
         .catch((err) => {
-          console.warn('[qlint:popup] permission request failed', err);
+          console.warn('[qlinter:popup] permission request failed', err);
         });
     };
     return;
@@ -168,7 +168,7 @@ async function refresh(): Promise<void> {
 // decide whether `sendResponse` will be called asynchronously, and this
 // listener never responds.
 chrome.runtime.onMessage.addListener((message: Message): undefined => {
-  if (message?.type === 'qlint:status') {
+  if (message?.type === 'qlinter:status') {
     renderStatus(message.status);
 
     if (message.status !== 'active') {
@@ -176,7 +176,7 @@ chrome.runtime.onMessage.addListener((message: Message): undefined => {
     }
   }
 
-  if (message?.type === 'qlint:diagnostics') {
+  if (message?.type === 'qlinter:diagnostics') {
     renderCounts(message.counts, message.fixable);
   }
 });

@@ -1,6 +1,6 @@
 <p align="center">
   <img width="200" alt="Logo" src="./docs/images/logo.svg">
-  <h1 align="center">qlint</h1>
+  <h1 align="center">qlinter</h1>
 </p>
 <p align="center">
   Opinionated linting and formatting utilities for Qlik script.
@@ -11,7 +11,7 @@
 
 <table align="center">
   <tr><td align="center"><img src="./packages/chrome-ext/docs/images/demo.gif" width="600" alt="Demo"></td></tr>
-  <tr><td align="center"><b>Demo:</b> qlint in the Qlik Sense Data Load Editor</td></tr>
+  <tr><td align="center"><b>Demo:</b> qlinter in the Qlik Sense Data Load Editor</td></tr>
 </table>
 
 <br />
@@ -28,12 +28,12 @@
 ## Introduction
 
 Everyone on your team writes Qlik script their own way? Nothing consistent, code hard to
-read and a pain to maintain? qlint fixes that — it enforces a consistent, opinionated
+read and a pain to maintain? qlinter fixes that — it enforces a consistent, opinionated
 style for Qlik load scripts, autoformats on demand, and flags violations where you write
 them, so review time goes into logic instead of whitespace, casing, and keyword
 conventions.
 
-qlint ships in multiple flavors depending on how you work:
+qlinter ships in multiple flavors depending on how you work:
 
 - a **Chrome extension** that hooks straight into the Qlik Sense Data Load Editor — no
   install, no terminal, just click and lint;
@@ -48,14 +48,14 @@ same rules that fail your pipeline.
 
 | Package                                                          | Audience                                | What it does                                                                                                                            |
 | ---------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| [**`@qlint/chrome-ext`**](./packages/chrome-ext)                 | Qlik developers, analysts, BI teams     | Chrome extension that injects inline lint feedback and one-click formatting directly into the Qlik Sense Data Load Editor.              |
-| [**`@qlint/cli`**](./packages/cli)                               | Developers, CI/CD pipelines             | Command-line interface that lints and auto-fixes `.qvs` files from the terminal or as a CI step. Drop-in for pre-commit hooks and gates. |
-| [**`qlint-vscode-ext`**](./packages/vscode-ext)                  | Developers editing `.qvs` in VS Code    | VS Code extension bringing inline diagnostics, quick fixes, and document formatting for `.qvs` files into the editor.                    |
-| [**`@qlint/core`**](./packages/core)                             | Tool authors, IDE plugin developers     | The engine behind every binding — string-in, diagnostics-out. Embed it in your own editor integration, custom check runner, or service. |
+| [**`@qlinter/chrome-ext`**](./packages/chrome-ext)                 | Qlik developers, analysts, BI teams     | Chrome extension that injects inline lint feedback and one-click formatting directly into the Qlik Sense Data Load Editor.              |
+| [**`@qlinter/cli`**](./packages/cli)                               | Developers, CI/CD pipelines             | Command-line interface that lints and auto-fixes `.qvs` files from the terminal or as a CI step. Drop-in for pre-commit hooks and gates. |
+| [**`qlinter-vscode-ext`**](./packages/vscode-ext)                  | Developers editing `.qvs` in VS Code    | VS Code extension bringing inline diagnostics, quick fixes, and document formatting for `.qvs` files into the editor.                    |
+| [**`@qlinter/core`**](./packages/core)                             | Tool authors, IDE plugin developers     | The engine behind every binding — string-in, diagnostics-out. Embed it in your own editor integration, custom check runner, or service. |
 
 ### How it's organized
 
-qlint is a monorepo with one dependency-free engine (`@qlint/core`) and a set of thin
+qlinter is a monorepo with one dependency-free engine (`@qlinter/core`) and a set of thin
 bindings around it. The core owns the tokenizer, the complete ruleset, and the
 formatting logic; it has no I/O and no platform assumptions, so it runs equally well in
 Node, the browser, or a Web Worker. Every binding — CLI, Chrome extension, VS Code
@@ -68,7 +68,7 @@ For the full list of built-in rules and their options, see
 
 ## Privacy
 
-qlint collects nothing, transmits nothing, and contacts no server — in any of its flavors. The engine
+qlinter collects nothing, transmits nothing, and contacts no server — in any of its flavors. The engine
 performs no I/O by design, and no binding contains a single network call, so scripts are analysed
 where you write them and never leave your machine.
 

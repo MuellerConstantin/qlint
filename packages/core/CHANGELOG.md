@@ -47,8 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   severity from the user config (if set) or from `rule.defaultSeverity`. Host
   integrations can read this field to surface the recommended severity next to
   per-rule controls.
-- Inline disable directives (`// qlint-disable`, `// qlint-disable-next-line`,
-  `// qlint-disable-line`) for opting individual lines or blocks out of
+- Inline disable directives (`// qlinter-disable`, `// qlinter-disable-next-line`,
+  `// qlinter-disable-line`) for opting individual lines or blocks out of
   linting.
 - Public TypeScript types: `Diagnostic`, `Rule`, `Severity`, `Fix`,
   `LintConfig`, `RulesConfig`, `RuleId`, `PresetName`, `RulesConfigOf`,

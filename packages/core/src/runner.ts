@@ -43,7 +43,7 @@ function parseEntry(entry: RuleConfigEntry<unknown> | undefined): {
  *
  * Only rules listed in `config.rules` run — a rule that is absent is not checked.
  * Each rule id is resolved against the built-in rule registry, and an unknown id
- * throws. Inline `// qlint-disable` directives are honored, and each finding's
+ * throws. Inline `// qlinter-disable` directives are honored, and each finding's
  * severity comes from its config entry (or the rule's `defaultSeverity`).
  *
  * @param source - The Qlik load script to lint.
@@ -54,7 +54,7 @@ function parseEntry(entry: RuleConfigEntry<unknown> | undefined): {
  *
  * @example
  * ```ts
- * import { lint, recommended } from '@qlint/core';
+ * import { lint, recommended } from '@qlinter/core';
  *
  * const diagnostics = lint(source, recommended);
  *
@@ -202,7 +202,7 @@ export function runFormatLoop(source: string, run: (src: string) => Diagnostic[]
  *
  * @example
  * ```ts
- * import { format, recommended } from '@qlint/core';
+ * import { format, recommended } from '@qlinter/core';
  *
  * const { output, fixed, diagnostics } = format(source, recommended);
  * ```

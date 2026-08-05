@@ -1,28 +1,28 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { validateConfig, type LintConfig } from '@qlint/core';
+import { validateConfig, type LintConfig } from '@qlinter/core';
 
 /** Conventional config filename, matching the CLI's `--config` convention. */
-export const CONFIG_FILENAME = 'qlint.json';
+export const CONFIG_FILENAME = 'qlinter.json';
 
 /** Where a resolved config came from, surfaced in the status bar. */
-export type ConfigSource = 'qlint.json' | 'settings';
+export type ConfigSource = 'qlinter.json' | 'settings';
 
 export interface ResolvedConfig {
   readonly config: LintConfig;
   readonly source: ConfigSource;
-  /** Absolute path of the `qlint.json` used, only when `source` is `qlint.json`. */
+  /** Absolute path of the `qlinter.json` used, only when `source` is `qlinter.json`. */
   readonly path?: string;
 }
 
-/** Raw `qlint.*` setting values, as read from VS Code's configuration. */
+/** Raw `qlinter.*` setting values, as read from VS Code's configuration. */
 export interface SettingsInput {
   readonly presets: unknown;
   readonly rules: unknown;
 }
 
 /**
- * Reads, parses, and validates a `qlint.json`. Mirrors the CLI's loader so both
+ * Reads, parses, and validates a `qlinter.json`. Mirrors the CLI's loader so both
  * bindings report identical errors. Kept as a separate copy rather than shared:
  * it is a trivial three-liner, and Core stays I/O-free by design, so there is no
  * natural home to extract it to yet (Rule of Three).
@@ -54,7 +54,7 @@ export function loadConfigFile(path: string): LintConfig {
  * Builds a {@link LintConfig} from VS Code setting values. Empty values
  * (`presets: []`, `rules: {}`) collapse to an empty config, which runs no rules.
  *
- * Core still applies nothing implicitly: `qlint.presets` simply *declares*
+ * Core still applies nothing implicitly: `qlinter.presets` simply *declares*
  * `["recommended"]` as its default in the manifest, so the value arriving here
  * is an explicit user-visible setting that the Settings UI shows and that can
  * be set back to `[]`. The extension never writes to the user's settings.
@@ -76,7 +76,7 @@ export function configFromSettings(input: SettingsInput): LintConfig {
 }
 
 /**
- * Resolves the config for a document. A `qlint.json` at the document's workspace
+ * Resolves the config for a document. A `qlinter.json` at the document's workspace
  * folder root wins; otherwise the VS Code settings apply. This is the deliberate
  * split for Qlik scripts, which — unlike ESLint projects — often open as a lone
  * `.qvs` file with no folder: those fall through to settings.
@@ -84,14 +84,14 @@ export function configFromSettings(input: SettingsInput): LintConfig {
  * Precedence is strict, never merged. A folder root of `undefined` (a loose file
  * with no workspace) skips the file lookup entirely.
  *
- * @throws If a present `qlint.json` is invalid, or the settings are invalid.
+ * @throws If a present `qlinter.json` is invalid, or the settings are invalid.
  */
 export function resolveConfig(folderRoot: string | undefined, settings: SettingsInput): ResolvedConfig {
   if (folderRoot !== undefined) {
     const path = join(folderRoot, CONFIG_FILENAME);
 
     if (existsSync(path)) {
-      return { config: loadConfigFile(path), source: 'qlint.json', path };
+      return { config: loadConfigFile(path), source: 'qlinter.json', path };
     }
   }
 

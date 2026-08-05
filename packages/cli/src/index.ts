@@ -3,16 +3,16 @@
 import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { parseArgs } from 'node:util';
-import { lint, format, type Diagnostic, type LintConfig } from '@qlint/core';
+import { lint, format, type Diagnostic, type LintConfig } from '@qlinter/core';
 import { initConfig, loadConfig } from './config.js';
 
-const HELP_TEXT = `qlint – Style-Linter for Qlik Script (QVS) files
+const HELP_TEXT = `qlinter – Style-Linter for Qlik Script (QVS) files
 
-Usage: qlint --config <path> [options] <files|dirs...>
-       qlint init
+Usage: qlinter --config <path> [options] <files|dirs...>
+       qlinter init
 
 Commands:
-  init                      Create a qlint.json (presets: recommended) in the
+  init                      Create a qlinter.json (presets: recommended) in the
                             current directory; fails if one already exists
 
 Options:

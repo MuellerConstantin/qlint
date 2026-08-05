@@ -1,8 +1,8 @@
-import type { LintConfig } from '@qlint/core';
+import type { LintConfig } from '@qlinter/core';
 
 /*
  * The storage primitives, deliberately free of any runtime import from
- * `@qlint/core` — `LintConfig` is a type-only import and is erased at build
+ * `@qlinter/core` — `LintConfig` is a type-only import and is erased at build
  * time. The service worker seeds the default config on startup and needs
  * nothing but these; pulling in `validateConfig` would drag the lexer and the
  * whole rule registry into a bundle that MV3 re-parses on every wake.
@@ -50,7 +50,7 @@ export async function seedDefaultConfig(): Promise<boolean> {
     await saveConfig(DEFAULT_CONFIG);
     return true;
   } catch (err) {
-    console.warn('[qlint:config] failed to seed the default config', err);
+    console.warn('[qlinter:config] failed to seed the default config', err);
     return false;
   }
 }

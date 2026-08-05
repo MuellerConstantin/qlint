@@ -8,7 +8,7 @@ describe('loadConfig', () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'qlint-cli-config-'));
+    dir = mkdtempSync(join(tmpdir(), 'qlinter-cli-config-'));
   });
 
   afterEach(() => {
@@ -22,17 +22,17 @@ describe('loadConfig', () => {
   }
 
   it('reads and parses a valid config file', () => {
-    const path = write('qlint.json', JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }));
+    const path = write('qlinter.json', JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }));
     expect(loadConfig(path)).toEqual({ rules: { 'trailing-whitespace': 'off' } });
   });
 
   it('accepts a config that opts out of every preset and keeps only its rules', () => {
-    const path = write('qlint.json', JSON.stringify({ presets: [], rules: { 'trailing-whitespace': 'off' } }));
+    const path = write('qlinter.json', JSON.stringify({ presets: [], rules: { 'trailing-whitespace': 'off' } }));
     expect(loadConfig(path)).toEqual({ presets: [], rules: { 'trailing-whitespace': 'off' } });
   });
 
   it('throws when the config names an unknown preset', () => {
-    const path = write('qlint.json', JSON.stringify({ presets: 'strict' }));
+    const path = write('qlinter.json', JSON.stringify({ presets: 'strict' }));
     expect(() => loadConfig(path)).toThrow(/unknown preset "strict"/);
   });
 
@@ -41,13 +41,13 @@ describe('loadConfig', () => {
   });
 
   it('throws when the file is not valid JSON', () => {
-    const path = write('qlint.json', '{ rules: ');
+    const path = write('qlinter.json', '{ rules: ');
     expect(() => loadConfig(path)).toThrow(/Invalid JSON/);
   });
 
   it('forwards the file path as the source label in validation errors', () => {
-    const path = write('qlint.json', '[]');
-    expect(() => loadConfig(path)).toThrow(new RegExp(`Config in .*qlint\\.json must be a JSON object`));
+    const path = write('qlinter.json', '[]');
+    expect(() => loadConfig(path)).toThrow(new RegExp(`Config in .*qlinter\\.json must be a JSON object`));
   });
 });
 
@@ -55,17 +55,17 @@ describe('initConfig', () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'qlint-cli-init-'));
+    dir = mkdtempSync(join(tmpdir(), 'qlinter-cli-init-'));
   });
 
   afterEach(() => {
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it('writes a qlint.json naming the recommended preset', () => {
+  it('writes a qlinter.json naming the recommended preset', () => {
     const path = initConfig(dir);
 
-    expect(path).toBe(join(dir, 'qlint.json'));
+    expect(path).toBe(join(dir, 'qlinter.json'));
     expect(JSON.parse(readFileSync(path, 'utf8'))).toEqual({ presets: 'recommended', rules: {} });
   });
 
@@ -76,7 +76,7 @@ describe('initConfig', () => {
   });
 
   it('refuses to overwrite an existing config file', () => {
-    writeFileSync(join(dir, 'qlint.json'), '{ "rules": {} }', 'utf8');
+    writeFileSync(join(dir, 'qlinter.json'), '{ "rules": {} }', 'utf8');
 
     expect(() => initConfig(dir)).toThrow(/already exists/);
   });

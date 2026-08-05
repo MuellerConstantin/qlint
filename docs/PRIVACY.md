@@ -1,21 +1,21 @@
 # Privacy Policy
 
-This policy covers every part of qlint — the Chrome extension, the VS Code extension, the CLI, and the
+This policy covers every part of qlinter — the Chrome extension, the VS Code extension, the CLI, and the
 engine they all share — and applies from 2026-08-02.
 
 ## Summary
 
-qlint collects nothing, transmits nothing, and contacts no server. Every part of it — parsing, linting,
+qlinter collects nothing, transmits nothing, and contacts no server. Every part of it — parsing, linting,
 formatting — runs locally on your machine. There is no backend, no telemetry, no analytics, no crash
 reporting, no advertising, and no remotely hosted code. Your Qlik scripts never leave the browser tab or
 the editor they are written in.
 
-This is a structural property, not a promise: the engine (`@qlint/core`) performs no I/O at all, and none
+This is a structural property, not a promise: the engine (`@qlinter/core`) performs no I/O at all, and none
 of the bindings contain a single network call. The full source is public.
 
 ## What each part does with your data
 
-### Chrome extension (`@qlint/chrome-ext`)
+### Chrome extension (`@qlinter/chrome-ext`)
 
 The extension lives entirely inside the tab you enabled it for: it reads the script out of the editor on
 that page, lints it in place, and keeps your rule choices in Chrome's own settings storage.
@@ -36,7 +36,7 @@ that page, lints it in place, and keeps your rule choices in Chrome's own settin
   in `chrome.storage.sync`. It contains no script content and no personal data.
 - Because this uses `chrome.storage.sync`, Chrome replicates that configuration across your signed-in
   Chrome profiles via **Google's sync infrastructure**, if you have Chrome Sync enabled. That transfer is
-  performed by Chrome, not by qlint, and is governed by Google's privacy policy. Rule names and severities
+  performed by Chrome, not by qlinter, and is governed by Google's privacy policy. Rule names and severities
   are the only thing that travels; your scripts are never written to storage.
 
 **Transmits**
@@ -47,11 +47,11 @@ that page, lints it in place, and keeps your rule choices in Chrome's own settin
 
 - No host permissions are granted at install time. The extension declares `<all_urls>` as an _optional_
   host permission and holds access to nothing until you explicitly grant a single origin via the "Enable
-  qlint for this page" button in the popup. Revoking that access in Chrome's extension settings
+  qlinter for this page" button in the popup. Revoking that access in Chrome's extension settings
   unregisters the content scripts immediately. See
   [the permission rationale](../packages/chrome-ext/docs/permissions.md) for the per-permission detail.
 
-### VS Code extension (`qlint-vscode-ext`)
+### VS Code extension (`qlinter-vscode-ext`)
 
 The extension runs inside the editor host and touches only what it needs to lint the file in front of you:
 the open document and the configuration that applies to it.
@@ -60,8 +60,8 @@ the open document and the configuration that applies to it.
 
 - The **content of open Qlik script documents**, from VS Code's in-memory document model, to produce
   diagnostics and formatting edits.
-- A **`qlint.json`** at the workspace folder root, if present, and otherwise your `qlint.presets` and
-  `qlint.rules` settings.
+- A **`qlinter.json`** at the workspace folder root, if present, and otherwise your `qlinter.presets` and
+  `qlinter.rules` settings.
 
 **Stores**
 
@@ -73,7 +73,7 @@ the open document and the configuration that applies to it.
 - Nothing. The extension makes no network requests and emits no telemetry — including none of VS Code's own
   telemetry APIs.
 
-### CLI (`@qlint/cli`) and engine (`@qlint/core`)
+### CLI (`@qlinter/cli`) and engine (`@qlinter/core`)
 
 The CLI reads the files you point it at and the config file you name, writes formatted output back when
 asked, and reports results on stdout/stderr. The engine performs no I/O whatsoever — it takes a string and
@@ -81,17 +81,17 @@ a config and returns diagnostics or formatted text. Neither makes network reques
 
 ## Third parties
 
-There are none. qlint has no service providers, no processors, and no integrations. Nothing is sold,
+There are none. qlinter has no service providers, no processors, and no integrations. Nothing is sold,
 shared, or disclosed, because nothing is collected.
 
-The only outbound requests connected to qlint are ones **you** initiate: rule identifiers shown in the
+The only outbound requests connected to qlinter are ones **you** initiate: rule identifiers shown in the
 Chrome extension's options page and hover tooltips link to the rule reference on GitHub. Following such a
 link is an ordinary page load, and GitHub will see it under GitHub's own privacy statement. Nothing about
 your script or configuration is attached to that link beyond the rule id in the URL fragment.
 
 ## Permissions and data-use commitments (Chrome Web Store)
 
-- qlint's **single purpose** is linting and formatting Qlik load scripts.
+- qlinter's **single purpose** is linting and formatting Qlik load scripts.
 - It does **not** collect or transmit user data of any category.
 - It does **not** sell or transfer user data to third parties.
 - It does **not** use or transfer data for purposes unrelated to its single purpose.
@@ -106,7 +106,7 @@ only data that exists is local:
 
 - **Chrome:** remove your stored configuration with the "Reset" button on the options page, or by
   uninstalling the extension. Revoke site access at any time under `chrome://extensions`.
-- **VS Code:** delete your `qlint.json` or clear the `qlint.*` settings; uninstalling leaves nothing
+- **VS Code:** delete your `qlinter.json` or clear the `qlinter.*` settings; uninstalling leaves nothing
   behind.
 
 ## Changes to this policy
@@ -118,5 +118,5 @@ history of this file.
 ## Contact
 
 Questions, or something in this document that does not match what the code does?
-Open an issue at <https://github.com/MuellerConstantin/qlint/issues> or write to
+Open an issue at <https://github.com/MuellerConstantin/qlinter/issues> or write to
 <info@mueller-constantin.de>.

@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { builtinFunctionCase, builtinKeywordCase } from '../src/rules/index.js';
 import { formatRule, lintRule, lintRules } from './support.js';
 
-describe('qlint-disable-next-line', () => {
+describe('qlinter-disable-next-line', () => {
   it('without rule ids suppresses every diagnostic on the next line', () => {
-    const source = ['// qlint-disable-next-line', 'load now() as ts;'].join('\n');
+    const source = ['// qlinter-disable-next-line', 'load now() as ts;'].join('\n');
 
     const diagnostics = lintRules(source, [builtinFunctionCase, builtinKeywordCase]);
 
@@ -12,7 +12,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('with a rule id suppresses only that rule on the next line', () => {
-    const source = ['// qlint-disable-next-line builtin-function-case', 'load now() as ts;'].join('\n');
+    const source = ['// qlinter-disable-next-line builtin-function-case', 'load now() as ts;'].join('\n');
 
     const diagnostics = lintRules(source, [builtinFunctionCase, builtinKeywordCase]);
 
@@ -21,7 +21,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('accepts multiple comma-separated rule ids', () => {
-    const source = ['// qlint-disable-next-line builtin-function-case, builtin-keyword-case', 'load now() as ts;'].join(
+    const source = ['// qlinter-disable-next-line builtin-function-case, builtin-keyword-case', 'load now() as ts;'].join(
       '\n',
     );
 
@@ -31,7 +31,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('does not suppress diagnostics on the same line as the directive', () => {
-    const source = ['load now() as ts; // qlint-disable-next-line'].join('\n');
+    const source = ['load now() as ts; // qlinter-disable-next-line'].join('\n');
 
     const diagnostics = lintRule(source, builtinFunctionCase);
 
@@ -39,7 +39,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('does not suppress diagnostics two lines after the directive', () => {
-    const source = ['// qlint-disable-next-line', '', 'load now() as ts;'].join('\n');
+    const source = ['// qlinter-disable-next-line', '', 'load now() as ts;'].join('\n');
 
     const diagnostics = lintRule(source, builtinFunctionCase);
 
@@ -48,7 +48,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('does not require the directive to start at column 1', () => {
-    const source = ['    // qlint-disable-next-line', '    load now() as ts;'].join('\n');
+    const source = ['    // qlinter-disable-next-line', '    load now() as ts;'].join('\n');
 
     const diagnostics = lintRule(source, builtinFunctionCase);
 
@@ -56,7 +56,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('ignores unknown rule ids without affecting others', () => {
-    const source = ['// qlint-disable-next-line not-a-real-rule', 'load now() as ts;'].join('\n');
+    const source = ['// qlinter-disable-next-line not-a-real-rule', 'load now() as ts;'].join('\n');
 
     const diagnostics = lintRule(source, builtinFunctionCase);
 
@@ -64,7 +64,7 @@ describe('qlint-disable-next-line', () => {
   });
 
   it('skips the autofix when the diagnostic is suppressed', () => {
-    const source = ['// qlint-disable-next-line', 'load now() as ts;'].join('\n');
+    const source = ['// qlinter-disable-next-line', 'load now() as ts;'].join('\n');
 
     const result = formatRule(source, builtinFunctionCase);
 

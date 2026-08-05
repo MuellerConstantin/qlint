@@ -1,6 +1,6 @@
 {
   "extName": {
-    "message": "qlint",
+    "message": "qlinter",
     "description": "Extension name shown in Chrome's extension list and toolbar."
   },
   "extDescription": {
@@ -8,7 +8,7 @@
     "description": "Extension description shown in Chrome's extension list."
   },
   "actionTitle": {
-    "message": "qlint",
+    "message": "qlinter",
     "description": "Tooltip shown when hovering the toolbar icon."
   },
   "statusLoading": {
@@ -17,7 +17,7 @@
   },
   "statusActive": {
     "message": "Status: Aktiv",
-    "description": "Status label shown when qlint is active on the current page."
+    "description": "Status label shown when qlinter is active on the current page."
   },
   "statusNeedsPermission": {
     "message": "Status: Seite nicht freigegeben",
@@ -32,7 +32,7 @@
     "description": "Status label shown when an error occurred during loading the extension."
   },
   "grantButton": {
-    "message": "qlint für diese Seite aktivieren",
+    "message": "qlinter für diese Seite aktivieren",
     "description": "Button that triggers a permission request for the current origin."
   },
   "fixAllButton": {
@@ -44,11 +44,11 @@
     "description": "Accessible label and tooltip for the gear icon button that opens the options page."
   },
   "optionsTitle": {
-    "message": "qlint – Einstellungen",
+    "message": "qlinter – Einstellungen",
     "description": "Heading of the options page."
   },
   "optionsSubtitle": {
-    "message": "Konfiguriere, wie qlint Qlik-Skripte in diesem Browser lintet und formatiert.",
+    "message": "Konfiguriere, wie qlinter Qlik-Skripte in diesem Browser lintet und formatiert.",
     "description": "Subtitle below the options page heading."
   },
   "optionsPresetsLabel": {

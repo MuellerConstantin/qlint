@@ -2,7 +2,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { presetNames } from '@qlint/core';
+import { presetNames } from '@qlinter/core';
 import { configFromSettings, loadConfigFile, resolveConfig } from '../src/config.js';
 import manifest from '../package.json' with { type: 'json' };
 
@@ -10,7 +10,7 @@ describe('loadConfigFile', () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'qlint-vscode-config-'));
+    dir = mkdtempSync(join(tmpdir(), 'qlinter-vscode-config-'));
   });
 
   afterEach(() => {
@@ -24,12 +24,12 @@ describe('loadConfigFile', () => {
   }
 
   it('reads and parses a valid config file', () => {
-    const path = write('qlint.json', JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }));
+    const path = write('qlinter.json', JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }));
     expect(loadConfigFile(path)).toEqual({ rules: { 'trailing-whitespace': 'off' } });
   });
 
   it('throws when the config names an unknown preset', () => {
-    const path = write('qlint.json', JSON.stringify({ presets: 'strict' }));
+    const path = write('qlinter.json', JSON.stringify({ presets: 'strict' }));
     expect(() => loadConfigFile(path)).toThrow(/unknown preset "strict"/);
   });
 
@@ -38,7 +38,7 @@ describe('loadConfigFile', () => {
   });
 
   it('throws when the file is not valid JSON', () => {
-    const path = write('qlint.json', '{ rules: ');
+    const path = write('qlinter.json', '{ rules: ');
     expect(() => loadConfigFile(path)).toThrow(/Invalid JSON/);
   });
 });
@@ -72,17 +72,17 @@ describe('manifest defaults', () => {
   const properties = manifest.contributes.configuration.properties;
 
   it('declares the recommended preset as the default', () => {
-    expect(properties['qlint.presets'].default).toEqual(['recommended']);
+    expect(properties['qlinter.presets'].default).toEqual(['recommended']);
   });
 
   it('offers every default it declares as a selectable preset', () => {
-    expect(properties['qlint.presets'].items.enum).toEqual(expect.arrayContaining(presetNames));
+    expect(properties['qlinter.presets'].items.enum).toEqual(expect.arrayContaining(presetNames));
   });
 
   it('declares a default that resolves to an explicit, valid config', () => {
     const config = configFromSettings({
-      presets: properties['qlint.presets'].default,
-      rules: properties['qlint.rules'].default,
+      presets: properties['qlinter.presets'].default,
+      rules: properties['qlinter.rules'].default,
     });
 
     expect(config).toEqual({ presets: ['recommended'] });
@@ -93,7 +93,7 @@ describe('resolveConfig', () => {
   let dir: string;
 
   beforeEach(() => {
-    dir = mkdtempSync(join(tmpdir(), 'qlint-vscode-resolve-'));
+    dir = mkdtempSync(join(tmpdir(), 'qlinter-vscode-resolve-'));
   });
 
   afterEach(() => {
@@ -102,17 +102,17 @@ describe('resolveConfig', () => {
 
   const settings = { presets: ['recommended'], rules: {} };
 
-  it('prefers a qlint.json at the folder root over settings', () => {
-    writeFileSync(join(dir, 'qlint.json'), JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }), 'utf8');
+  it('prefers a qlinter.json at the folder root over settings', () => {
+    writeFileSync(join(dir, 'qlinter.json'), JSON.stringify({ rules: { 'trailing-whitespace': 'off' } }), 'utf8');
 
     expect(resolveConfig(dir, settings)).toEqual({
       config: { rules: { 'trailing-whitespace': 'off' } },
-      source: 'qlint.json',
-      path: join(dir, 'qlint.json'),
+      source: 'qlinter.json',
+      path: join(dir, 'qlinter.json'),
     });
   });
 
-  it('falls back to settings when the folder has no qlint.json', () => {
+  it('falls back to settings when the folder has no qlinter.json', () => {
     expect(resolveConfig(dir, settings)).toEqual({
       config: { presets: ['recommended'] },
       source: 'settings',

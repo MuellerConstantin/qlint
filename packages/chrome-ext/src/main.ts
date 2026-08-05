@@ -1,9 +1,9 @@
 import { debounce } from './util/debounce';
 import { getEditor } from './util/editor';
-import { format, lint } from '@qlint/core';
+import { format, lint } from '@qlinter/core';
 import { createHighlighter, injectStyles } from './util/highlight';
 import type { BridgeMessage, DiagnosticCounts, DiagnosticsBridgeMessage, GetConfigBridgeMessage } from './types.js';
-import type { Diagnostic, LintConfig } from '@qlint/core';
+import type { Diagnostic, LintConfig } from '@qlinter/core';
 import type { Editor } from 'codemirror';
 
 const MOUNT_TIMEOUT_MS = 10_000;
@@ -39,14 +39,14 @@ function fixAll(editor: Editor): void {
 
     const lastLine = editor.lastLine();
     const end = { line: lastLine, ch: (editor.getLine(lastLine) ?? '').length };
-    editor.replaceRange(output, { line: 0, ch: 0 }, end, '+qlint-fix-all');
+    editor.replaceRange(output, { line: 0, ch: 0 }, end, '+qlinter-fix-all');
   } catch (error) {
-    console.warn('[qlint:main] fix-all failed', error);
+    console.warn('[qlinter:main] fix-all failed', error);
   }
 }
 
 function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
-  console.log('[qlint:main] CodeMirror ready');
+  console.log('[qlinter:main] CodeMirror ready');
 
   editorRef = editor;
   injectStyles();
@@ -59,8 +59,8 @@ function onEditorReady(editor: ReturnType<typeof getEditor> & object): void {
     const fixable = diagnostics.reduce((count, diagnostic) => (diagnostic.fix ? count + 1 : count), 0);
 
     const message: DiagnosticsBridgeMessage = {
-      source: 'qlint-main',
-      type: 'qlint:diagnostics',
+      source: 'qlinter-main',
+      type: 'qlinter:diagnostics',
       counts: countBySeverity(diagnostics),
       fixable,
     };
@@ -80,22 +80,22 @@ window.addEventListener('message', (event: MessageEvent) => {
 
   const data = event.data as BridgeMessage | undefined;
 
-  if (data?.source !== 'qlint-content') {
+  if (data?.source !== 'qlinter-content') {
     return;
   }
 
-  if (data.type === 'qlint:config') {
+  if (data.type === 'qlinter:config') {
     currentConfig = data.config;
     triggerLint?.();
     return;
   }
 
-  if (data.type === 'qlint:fix-all' && editorRef) {
+  if (data.type === 'qlinter:fix-all' && editorRef) {
     fixAll(editorRef);
   }
 });
 
-const getConfigRequest: GetConfigBridgeMessage = { source: 'qlint-main', type: 'qlint:get-config' };
+const getConfigRequest: GetConfigBridgeMessage = { source: 'qlinter-main', type: 'qlinter:get-config' };
 window.postMessage(getConfigRequest, window.location.origin);
 
 function waitForEditor(): void {
@@ -119,7 +119,7 @@ function waitForEditor(): void {
 
     if (performance.now() - start > MOUNT_TIMEOUT_MS) {
       observer.disconnect();
-      console.warn('[qlint:main] CodeMirror mount watch timed out at', location.href);
+      console.warn('[qlinter:main] CodeMirror mount watch timed out at', location.href);
     }
   });
 

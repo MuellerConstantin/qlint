@@ -1,9 +1,9 @@
 <p align="center">
   <img width="200" alt="Logo" src="./docs/images/logo.svg">
-  <h1 align="center">@qlint/core</h1>
+  <h1 align="center">@qlinter/core</h1>
 </p>
 <p align="center">
-  The engine behind qlint — parses Qlik load scripts, applies an opinionated ruleset, and emits both lint diagnostics and formatted output.
+  The engine behind qlinter — parses Qlik load scripts, applies an opinionated ruleset, and emits both lint diagnostics and formatted output.
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" />
@@ -26,7 +26,7 @@
 
 ## Introduction
 
-Core is the single source of truth for all qlint bindings (CLI, Chrome extension, future
+Core is the single source of truth for all qlinter bindings (CLI, Chrome extension, future
 IDE integrations). It bundles the tokenizer, the complete ruleset, and the formatting
 logic into one platform-agnostic module — no I/O, no filesystem access, no DOM, no
 platform assumptions. Everything operates on strings: you hand it script source, it
@@ -53,7 +53,7 @@ formatting decision to Core.
 - **Custom rule sets** — every rule is exported individually; assemble your own array of
   rules instead of the `recommended` preset when you need a tighter or looser scope.
 - **Inline disable directives** — suppress findings for the next line via
-  `// qlint-disable-next-line` (all rules) or `// qlint-disable-next-line rule-a, rule-b`
+  `// qlinter-disable-next-line` (all rules) or `// qlinter-disable-next-line rule-a, rule-b`
   (specific rules).
 - **Strict TypeScript types** — `Diagnostic`, `Fix`, `Rule`, `LintConfig`, and friends are
   exported, so bindings get full IntelliSense and config typos surface at compile time.
@@ -65,7 +65,7 @@ formatting decision to Core.
 ### Installation
 
 ```bash
-npm install @qlint/core
+npm install @qlinter/core
 ```
 
 ### Linting
@@ -73,7 +73,7 @@ npm install @qlint/core
 `lint(source, config)` returns an array of diagnostics, sorted by position:
 
 ```ts
-import { lint, recommended } from '@qlint/core';
+import { lint, recommended } from '@qlinter/core';
 
 const source = `Sales:
 LOAD * FROM [lib://data/sales.qvd];`;
@@ -97,7 +97,7 @@ available autofix, re-linting, and repeating until no further fixes are produced
 safety cap of 10 passes is hit):
 
 ```ts
-import { format, recommended } from '@qlint/core';
+import { format, recommended } from '@qlinter/core';
 
 const { output, diagnostics, fixed } = format(source, recommended);
 
@@ -118,7 +118,7 @@ under `rules` — a severity string or a `[severity, options]` tuple — overrid
 them per rule:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 const diagnostics = lint(source, {
   presets: 'recommended',
@@ -143,7 +143,7 @@ entirely) and name only those rules; per-rule options go inline in the
 `[severity, options]` tuple:
 
 ```ts
-import { lint } from '@qlint/core';
+import { lint } from '@qlinter/core';
 
 const diagnostics = lint(source, {
   presets: [],
@@ -163,10 +163,10 @@ building a configuration UI.
 Suppress findings on the next line with an inline comment:
 
 ```qvs
-// qlint-disable-next-line
+// qlinter-disable-next-line
 Set vBad   =   1;
 
-// qlint-disable-next-line variable-case, trailing-whitespace
+// qlinter-disable-next-line variable-case, trailing-whitespace
 Set my_var = 2;
 ```
 

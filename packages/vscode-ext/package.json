@@ -1,19 +1,19 @@
 {
-  "name": "qlint-vscode-ext",
-  "displayName": "qlint",
+  "name": "qlinter-vscode-ext",
+  "displayName": "qlinter",
   "version": "0.1.0",
-  "description": "VS Code extension that lints and formats Qlik load scripts, powered by @qlint/core.",
+  "description": "VS Code extension that lints and formats Qlik load scripts, powered by @qlinter/core.",
   "license": "MIT",
   "private": true,
   "publisher": "MuellerConstantin",
-  "homepage": "https://github.com/MuellerConstantin/qlint",
+  "homepage": "https://github.com/MuellerConstantin/qlinter",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MuellerConstantin/qlint.git",
+    "url": "git+https://github.com/MuellerConstantin/qlinter.git",
     "directory": "packages/vscode-ext"
   },
   "bugs": {
-    "url": "https://github.com/MuellerConstantin/qlint/issues"
+    "url": "https://github.com/MuellerConstantin/qlinter/issues"
   },
   "engines": {
     "vscode": "^1.90.0"
@@ -29,7 +29,7 @@
     "load script",
     "formatter"
   ],
-  "icon": "images/qlint-128.png",
+  "icon": "images/qlinter-128.png",
   "galleryBanner": {
     "color": "#1a1a1a",
     "theme": "dark"
@@ -58,14 +58,14 @@
     ],
     "commands": [
       {
-        "command": "qlint.showConfig",
-        "title": "qlint: Show active configuration"
+        "command": "qlinter.showConfig",
+        "title": "qlinter: Show active configuration"
       }
     ],
     "configuration": {
-      "title": "qlint",
+      "title": "qlinter",
       "properties": {
-        "qlint.presets": {
+        "qlinter.presets": {
           "type": "array",
           "items": {
             "type": "string",
@@ -77,12 +77,12 @@
           "default": [
             "recommended"
           ],
-          "markdownDescription": "Preset(s) to use as a base when no `qlint.json` is found in the workspace. Defaults to `recommended`; set it to an empty array to run no rules at all. A workspace `qlint.json` always takes precedence over this setting."
+          "markdownDescription": "Preset(s) to use as a base when no `qlinter.json` is found in the workspace. Defaults to `recommended`; set it to an empty array to run no rules at all. A workspace `qlinter.json` always takes precedence over this setting."
         },
-        "qlint.rules": {
+        "qlinter.rules": {
           "type": "object",
           "default": {},
-          "markdownDescription": "Per-rule overrides (a severity string, or a `[severity, options]` pair) used when no `qlint.json` is found in the workspace. See the [rule reference](https://github.com/MuellerConstantin/qlint/blob/main/packages/core/docs/rules.md). A workspace `qlint.json` always takes precedence over this setting."
+          "markdownDescription": "Per-rule overrides (a severity string, or a `[severity, options]` pair) used when no `qlinter.json` is found in the workspace. See the [rule reference](https://github.com/MuellerConstantin/qlinter/blob/main/packages/core/docs/rules.md). A workspace `qlinter.json` always takes precedence over this setting."
         }
       }
     }
@@ -95,7 +95,7 @@
     "package": "npm run build && node -e \"require('node:fs').copyFileSync('../../LICENSE.md', 'LICENSE.md')\" && vsce package --no-dependencies"
   },
   "dependencies": {
-    "@qlint/core": "^0.1.0"
+    "@qlinter/core": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
