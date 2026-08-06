@@ -21,9 +21,10 @@ describe('qlinter-disable-next-line', () => {
   });
 
   it('accepts multiple comma-separated rule ids', () => {
-    const source = ['// qlinter-disable-next-line builtin-function-case, builtin-keyword-case', 'load now() as ts;'].join(
-      '\n',
-    );
+    const source = [
+      '// qlinter-disable-next-line builtin-function-case, builtin-keyword-case',
+      'load now() as ts;',
+    ].join('\n');
 
     const diagnostics = lintRules(source, [builtinFunctionCase, builtinKeywordCase]);
 
