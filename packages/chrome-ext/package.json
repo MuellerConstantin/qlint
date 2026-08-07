@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@qlinter/core": "0.1.0-alpha.1",
+    "@qlinter/core": "file:../core",
     "@tsdown/css": "^0.22.3",
     "@types/codemirror": "^5.60.17",
     "chrome-types": "^0.1.0",

@@ -100,11 +100,17 @@ The following sub-modules/projects exists:
 - **The bindings carry Core as a `devDependency`, not a `dependency`.** All three bundle it
   via `deps.alwaysBundle` in their tsdown config, so none needs it installed at runtime.
   Listing it under `dependencies` would make npm and `vsce` ship a second, redundant copy.
-- **The version range on `@qlinter/core` decides where npm resolves it from.** Satisfied by
-  the workspace version → symlink to `packages/core`; not satisfied → download the
-  published release. This is deliberate, and it is the mechanism that lets a binding track
-  Core during development yet stay pinned once Core moves on.
-- **While Core sits on a prerelease, the bindings pin the exact version.** SemVer makes no
-  compatibility promise between prereleases, so `^0.1.0-alpha.1` would silently accept a
-  breaking `alpha.2`. Widen to a caret (`^0.1.0`) once Core reaches a stable release, where
-  the range means what it says.
+- **The bindings point at the workspace unconditionally**, via `file:../core` — npm's
+  equivalent of the `workspace:*` protocol. A semver range here would be fiction: Core is
+  bundled, never resolved by a consumer, so the only question the entry answers is which
+  sibling source to build against. The answer is always "the one in this commit".
+- **Version numbers drift freely.** Linking couples content, not versions: a binding can
+  ship a UI fix as `0.2.1` while Core sits at `0.1.0-alpha.1`. What the release tag pins is
+  the commit, and with it the exact Core source that went into the bundle.
+- **A Core change reaches users only once every binding is released again.** Publishing
+  Core alone changes nothing for them, because all three bake it in. This is the
+  coordination cost of bundling and it exists under any versioning scheme.
+- **`main` must stay releasable.** Every binding builds against whatever Core is in the
+  commit, so a half-finished Core refactor on `main` is a half-finished Core in every
+  release cut from it. CI guards this by building and testing all four packages together;
+  for a hotfix while `main` is in flux, branch from the last release tag.
