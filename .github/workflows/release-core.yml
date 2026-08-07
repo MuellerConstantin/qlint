@@ -107,17 +107,16 @@ jobs:
       - name: Test
         run: npm test -w @qlinter/core
 
-      # No --provenance here: there is no upload to attach an attestation to.
       - name: Publish to npm (dry run)
         if: github.event_name == 'workflow_dispatch'
         run: npm publish -w @qlinter/core --dry-run --tag ${{ steps.meta.outputs.dist_tag }}
 
+      # Authenticated by the trusted publisher configured on npmjs.com: the OIDC token
+      # from `id-token: write` replaces NODE_AUTH_TOKEN, and npm attaches the provenance
+      # attestation on its own — passing --provenance is neither needed nor correct here.
       - name: Publish to npm
         if: github.event_name == 'push'
-        run: npm publish -w @qlinter/core --provenance --tag ${{ steps.meta.outputs.dist_tag }}
-        env:
-          # Drop once the package has a trusted publisher configured on npmjs.com.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish -w @qlinter/core --tag ${{ steps.meta.outputs.dist_tag }}
 
       - name: Create GitHub release
         if: github.event_name == 'push'
