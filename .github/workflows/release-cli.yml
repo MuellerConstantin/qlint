@@ -1,0 +1,137 @@
+name: Release CLI
+
+# Two modes, one code path: a tag push publishes for real, a manual dispatch
+# rehearses the identical steps with nothing leaving the runner. Any step with an
+# external side effect MUST therefore carry an `if: github.event_name == 'push'`.
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch'
+      && format('Rehearsal (dry run) — {0}', github.ref_name)
+      || format('Release — {0}', github.ref_name) }}
+
+on:
+  push:
+    tags: ['cli-v*.*.*']
+  # Rehearsal against any branch: everything runs, but the publish is a dry run
+  # and no release is created. Version comes from package.json, since there is no tag.
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the GitHub release
+      id-token: write # npm provenance attestation
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+
+      # Cheapest possible failure: a mismatched tag should never cost a full test run.
+      - name: Resolve release metadata
+        id: meta
+        run: |
+          VERSION="$(node -p "require('./packages/cli/package.json').version")"
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            TAG_VERSION="${GITHUB_REF_NAME#cli-v}"
+            if [ "$TAG_VERSION" != "$VERSION" ]; then
+              echo "::error::Tag version ($TAG_VERSION) does not match packages/cli/package.json ($VERSION)"
+              exit 1
+            fi
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          case "$VERSION" in
+            *-*) echo "dist_tag=next" >> "$GITHUB_OUTPUT"; echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "dist_tag=latest" >> "$GITHUB_OUTPUT"; echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Write run summary
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          DIST_TAG: ${{ steps.meta.outputs.dist_tag }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            MODE='Release — publishes to npm and creates a GitHub release'
+          else
+            MODE='Rehearsal — dry run, nothing is published'
+          fi
+          {
+            echo "## @qlinter/cli $VERSION"
+            echo ""
+            echo "- **Mode:** $MODE"
+            echo "- **npm dist-tag:** \`$DIST_TAG\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Extract changelog section
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          PRERELEASE: ${{ steps.meta.outputs.prerelease }}
+        run: |
+          # A prerelease ships whatever is currently unreleased; the final tag then
+          # freezes that same content under its own version heading.
+          if [ "$PRERELEASE" = "true" ]; then
+            SECTION="Unreleased"
+          else
+            SECTION="$VERSION"
+          fi
+          awk -v head="## [$SECTION]" '
+            index($0, head) == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' packages/cli/CHANGELOG.md | sed -e '/./,$!d' > "$RUNNER_TEMP/release-notes.md"
+          if [ ! -s "$RUNNER_TEMP/release-notes.md" ]; then
+            echo "::error::packages/cli/CHANGELOG.md has no '## [$SECTION]' section"
+            exit 1
+          fi
+
+      - run: npm ci
+
+      # Re-validated here on purpose: a tag can point at any commit, not just one CI has seen.
+      - name: Check formatting
+        run: npm run prettier
+      - name: Lint
+        run: npm run lint
+
+      # Core must be built first. Without its dist/, tsdown cannot resolve @qlinter/core
+      # and silently falls back to treating it as external — the build still exits 0, but
+      # the published bundle would import a package consumers never get installed.
+      - name: Build core
+        run: npm run build:core
+      - name: Build
+        run: npm run build:cli
+      - name: Type check
+        run: npm run typecheck -w @qlinter/cli
+      - name: Test
+        run: npm test -w @qlinter/cli
+
+      - name: Publish to npm (dry run)
+        if: github.event_name == 'workflow_dispatch'
+        run: npm publish -w @qlinter/cli --dry-run --tag ${{ steps.meta.outputs.dist_tag }}
+
+      # A trusted publisher can only be configured on a package that already exists on
+      # npm, so this first release authenticates with a token and asks for provenance
+      # explicitly. Once @qlinter/cli has a trusted publisher, drop both the env block
+      # and the --provenance flag: OIDC replaces the token and npm attests on its own,
+      # exactly as release-core.yml already does.
+      - name: Publish to npm
+        if: github.event_name == 'push'
+        run: npm publish -w @qlinter/cli --provenance --tag ${{ steps.meta.outputs.dist_tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@v2
+        with:
+          name: '@qlinter/cli v${{ steps.meta.outputs.version }}'
+          prerelease: ${{ steps.meta.outputs.prerelease }}
+          body_path: ${{ runner.temp }}/release-notes.md
