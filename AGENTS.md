@@ -77,3 +77,34 @@ The following sub-modules/projects exists:
 - **Explicit over Implicit**: Prefer explicit parameters and return types over hidden assumptions or side effects.
 - **No Comment Spam**: Document _why_, not _what_. Docstrings on public APIs are welcome; `// increment counter` before `counter += 1` is not.
 - **Explicit Blocks over Inline Statements**: Always use braces and a separate body line for control structures – `if (cond) {\n  doThing();\n}` instead of `if (cond) doThing();`. Explicit blocks prevent dangling-statement bugs, keep diffs clean when adding lines, and make control flow unambiguous.
+
+## Versioning and Releases
+
+- **Every package versions independently.** There is no lockstep bump. Tags therefore
+  carry a package prefix (`core-v0.2.0`, `cli-v0.3.1`); a bare `vX.Y.Z` is ambiguous once
+  more than one package is published from this repo.
+- **On `0.x`, breaking changes bump the minor**, features and fixes bump the patch. SemVer
+  permits breaking changes anywhere in `0.y.z`, but npm resolves `^0.1.0` to
+  `>=0.1.0 <0.2.0` — so the minor is the boundary consumers actually rely on.
+- **Pushing a tag is the release.** The workflow verifies that the tag matches the
+  package's `package.json` version, extracts the matching `CHANGELOG.md` section as the
+  release body, and aborts if that section is missing. Prereleases read `[Unreleased]`
+  instead and publish to the `next` dist-tag; npm rejects a prerelease published without
+  an explicit `--tag`.
+- **A manual `workflow_dispatch` is a rehearsal**, never a release: the same steps run,
+  but the publish is a dry run and no GitHub release is created. Any step with an external
+  side effect must therefore be guarded by `if: github.event_name == 'push'`.
+
+## Dependency Wiring
+
+- **The bindings carry Core as a `devDependency`, not a `dependency`.** All three bundle it
+  via `deps.alwaysBundle` in their tsdown config, so none needs it installed at runtime.
+  Listing it under `dependencies` would make npm and `vsce` ship a second, redundant copy.
+- **The version range on `@qlinter/core` decides where npm resolves it from.** Satisfied by
+  the workspace version → symlink to `packages/core`; not satisfied → download the
+  published release. This is deliberate, and it is the mechanism that lets a binding track
+  Core during development yet stay pinned once Core moves on.
+- **While Core sits on a prerelease, the bindings pin the exact version.** SemVer makes no
+  compatibility promise between prereleases, so `^0.1.0-alpha.1` would silently accept a
+  breaking `alpha.2`. Widen to a caret (`^0.1.0`) once Core reaches a stable release, where
+  the range means what it says.
