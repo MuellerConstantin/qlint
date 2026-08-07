@@ -117,16 +117,12 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: npm publish -w @qlinter/cli --dry-run --tag ${{ steps.meta.outputs.dist_tag }}
 
-      # A trusted publisher can only be configured on a package that already exists on
-      # npm, so this first release authenticates with a token and asks for provenance
-      # explicitly. Once @qlinter/cli has a trusted publisher, drop both the env block
-      # and the --provenance flag: OIDC replaces the token and npm attests on its own,
-      # exactly as release-core.yml already does.
+      # Authenticated by the trusted publisher configured on npmjs.com: the OIDC token
+      # from `id-token: write` replaces NODE_AUTH_TOKEN, and npm attaches the provenance
+      # attestation on its own — passing --provenance is neither needed nor correct here.
       - name: Publish to npm
         if: github.event_name == 'push'
-        run: npm publish -w @qlinter/cli --provenance --tag ${{ steps.meta.outputs.dist_tag }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish -w @qlinter/cli --tag ${{ steps.meta.outputs.dist_tag }}
 
       - name: Create GitHub release
         if: github.event_name == 'push'
