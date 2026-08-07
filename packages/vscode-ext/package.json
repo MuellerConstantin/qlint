@@ -94,10 +94,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "package": "npm run build && node -e \"require('node:fs').copyFileSync('../../LICENSE.md', 'LICENSE.md')\" && vsce package --no-dependencies"
   },
-  "dependencies": {
-    "@qlinter/core": "^0.1.0"
-  },
   "devDependencies": {
+    "@qlinter/core": "0.1.0-alpha.1",
     "@types/node": "^25.9.1",
     "@types/vscode": "^1.90.0",
     "@vscode/vsce": "^3.2.0",

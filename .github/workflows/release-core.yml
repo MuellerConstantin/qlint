@@ -74,14 +74,22 @@ jobs:
       - name: Extract changelog section
         env:
           VERSION: ${{ steps.meta.outputs.version }}
+          PRERELEASE: ${{ steps.meta.outputs.prerelease }}
         run: |
-          awk -v head="## [$VERSION]" '
+          # A prerelease ships whatever is currently unreleased; the final tag then
+          # freezes that same content under its own version heading.
+          if [ "$PRERELEASE" = "true" ]; then
+            SECTION="Unreleased"
+          else
+            SECTION="$VERSION"
+          fi
+          awk -v head="## [$SECTION]" '
             index($0, head) == 1 { found = 1; next }
             found && /^## / { exit }
             found { print }
           ' packages/core/CHANGELOG.md | sed -e '/./,$!d' > "$RUNNER_TEMP/release-notes.md"
           if [ ! -s "$RUNNER_TEMP/release-notes.md" ]; then
-            echo "::error::packages/core/CHANGELOG.md has no '## [$VERSION]' section"
+            echo "::error::packages/core/CHANGELOG.md has no '## [$SECTION]' section"
             exit 1
           fi
 

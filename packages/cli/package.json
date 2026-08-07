@@ -36,7 +36,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@qlinter/core": "^0.1.0",
+    "@qlinter/core": "0.1.0-alpha.1",
     "tsdown": "*",
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",
