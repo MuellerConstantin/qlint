@@ -18,14 +18,12 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {
-    "codemirror": "^5.65.18"
-  },
   "devDependencies": {
     "@qlinter/core": "0.1.0-alpha.1",
     "@tsdown/css": "^0.22.3",
     "@types/codemirror": "^5.60.17",
     "chrome-types": "^0.1.0",
+    "codemirror": "^5.65.18",
     "happy-dom": "^20.11.1",
     "tsdown": "*",
     "typescript": "^5.6.0",
